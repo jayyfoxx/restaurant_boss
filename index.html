@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<title>Restaurant Boss</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Restaurant Boss">
+<meta name="theme-color" content="#0B0B0D">
+
+<style>
+  :root{
+    --canvas:#0A0A0C; --card:#FFFFFF; --ink:#17171A; --ink-soft:#5B6270; --line:#DCDED6;
+    --red:#B3261E; --red-soft:#F4E1DF; --green:#1E5F4A; --green-soft:#DCEAE4;
+    --silver:#C7C9CC; --yellow:#FFE600;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;}
+  body{
+    background:linear-gradient(180deg,#050506 0%,#0A0A0C 40%,#0E0E10 100%) fixed;
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding-bottom:80px;
+  }
+  h1,h2,h3{margin:0; text-transform:uppercase; letter-spacing:.03em; font-weight:800;}
+  button{font-family:inherit; cursor:pointer;}
+  .wrap{max-width:720px; margin:0 auto; padding:0 14px;}
+
+  /* header */
+  header{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(135deg,#0B0B0D,#17171A 55%,#0B0B0D);
+    color:#fff; padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+    border-bottom:1px solid rgba(199,201,204,.2);
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .brand{font-size:18px; font-weight:900; letter-spacing:.1em; text-transform:uppercase;}
+  .brand span{background:var(--yellow); color:#111; padding:0 7px; margin-left:4px;}
+  .hdr-btn{background:transparent; border:1px solid rgba(255,255,255,.35); color:#fff; font-size:12px; font-weight:700; padding:7px 12px; border-radius:16px;}
+
+  /* storefront */
+  .photo-box{
+    position:relative; margin:14px 0 0; border-radius:14px; overflow:hidden;
+    background:#1b1b1f; border:2px dashed rgba(255,255,255,.35);
+    aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .photo-box.has{border:2px solid var(--yellow);}
+  .photo-box img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none;}
+  .photo-box.has img{display:block;}
+  .photo-prompt{color:#fff; text-align:center; padding:20px;}
+  .photo-box.has .photo-prompt{display:none;}
+  .photo-prompt .plus{font-size:54px; line-height:1; color:var(--yellow); font-weight:300;}
+  .photo-prompt .t{font-size:20px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; margin-top:6px;}
+  .photo-prompt .s{font-size:13px; opacity:.7; margin-top:4px;}
+  .photo-change{
+    position:absolute; right:10px; bottom:10px; display:none;
+    background:rgba(0,0,0,.7); color:#fff; border:1px solid rgba(255,255,255,.5);
+    font-size:12px; font-weight:700; padding:7px 12px; border-radius:16px;
+  }
+  .photo-box.has .photo-change{display:block;}
+  .name-input{
+    width:100%; margin-top:12px; background:transparent; border:none; border-bottom:3px solid var(--yellow);
+    color:#fff; font-size:34px; font-weight:900; text-transform:uppercase; letter-spacing:.03em;
+    text-align:center; padding:8px 4px; border-radius:0; -webkit-appearance:none;
+  }
+  .name-input::placeholder{color:rgba(255,255,255,.35);}
+  .name-input:focus{outline:none;}
+
+  /* grade stamp */
+  .stamp{
+    margin:16px 0 4px; background:linear-gradient(135deg,#17171A,#0B0B0D); border:1px solid rgba(199,201,204,.25);
+    border-radius:14px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; color:#fff;
+  }
+  .stamp .lbl{font-size:12px; letter-spacing:.12em; text-transform:uppercase; opacity:.7;}
+  .stamp .sub{font-size:14px; margin-top:4px; opacity:.9;}
+  .stamp .g{font-size:60px; line-height:1; font-weight:900; font-family:"SF Mono",Menlo,monospace; color:var(--yellow);}
+
+  /* cards */
+  .card{background:var(--card); border-radius:14px; padding:16px; margin-top:14px;}
+  .card h2{font-size:15px; margin-bottom:4px;}
+  .card .hint{font-size:13px; color:var(--ink-soft); margin:0 0 12px; line-height:1.4;}
+  .step{display:inline-block; background:#111; color:var(--yellow); font-weight:900; font-size:12px; padding:2px 8px; border-radius:10px; margin-right:6px; letter-spacing:.05em;}
+  .ok-tag{float:right; font-size:12px; font-weight:800; color:var(--green); text-transform:uppercase;}
+  .need-tag{float:right; font-size:12px; font-weight:800; color:var(--red); text-transform:uppercase;}
+
+  .big-btn{
+    width:100%; background:#111; color:var(--yellow); border:none; border-radius:12px;
+    font-size:20px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; padding:18px;
+  }
+  .big-btn:disabled{background:#c9cbcf; color:#888; cursor:not-allowed;}
+  .ghost-btn{background:transparent; border:1px solid var(--line); color:var(--ink); font-size:13px; font-weight:700; padding:9px 14px; border-radius:10px;}
+  .ghost-btn.danger{color:var(--red); border-color:var(--red);}
+  .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .row > *{flex:1; min-width:120px;}
+
+  .count-line{font-size:15px; margin:10px 0 0;}
+  .count-line b{font-size:26px;}
+
+  /* scale / yes-no */
+  .scale{display:grid; grid-template-columns:repeat(5,1fr); gap:8px;}
+  .scale button{
+    background:#fff; border:2px solid var(--line); border-radius:10px; font-size:22px; font-weight:800; padding:14px 0; color:var(--ink);
+  }
+  .scale button.sel{background:#111; border-color:#111; color:var(--yellow);}
+  .yn{display:flex; gap:10px;}
+  .yn button{flex:1; border:2px solid var(--line); background:#fff; border-radius:12px; font-size:22px; font-weight:900; padding:16px 0; color:var(--ink);}
+  .yn button.yes.sel{background:var(--green); border-color:var(--green); color:#fff;}
+  .yn button.no.sel{background:var(--red); border-color:var(--red); color:#fff;}
+
+  .health-row{display:flex; align-items:center; gap:12px;}
+  .health-row input{
+    width:130px; font-size:40px; font-weight:900; text-align:center; border:2px solid var(--line); border-radius:12px; padding:8px; font-family:inherit;
+    -webkit-appearance:none;
+  }
+  .health-row .out{font-size:15px; color:var(--ink-soft);}
+  .health-row .out b{font-size:34px; color:var(--ink);}
+
+  .missing{background:#FFF8CC; border-radius:10px; padding:10px 12px; font-size:14px; margin-bottom:12px; line-height:1.5;}
+  .missing b{display:block; margin-bottom:2px;}
+
+  /* kiosk overlay */
+  #kiosk{position:fixed; inset:0; z-index:100; background:linear-gradient(180deg,#050506,#0E0E10); overflow-y:auto; display:none; padding-bottom:40px;}
+  #kiosk.open{display:block;}
+  .k-top{display:flex; align-items:center; gap:14px; padding:calc(14px + env(safe-area-inset-top)) 18px 10px; color:#fff; max-width:760px; margin:0 auto;}
+  .k-top img{width:84px; height:84px; object-fit:cover; border-radius:12px; border:2px solid var(--yellow); display:none;}
+  .k-top img.show{display:block;}
+  .k-top .nm{font-size:26px; font-weight:900; text-transform:uppercase; line-height:1.1;}
+  .k-top .cn{font-size:13px; opacity:.7; letter-spacing:.1em; text-transform:uppercase; margin-top:4px;}
+  .k-body{max-width:760px; margin:0 auto; padding:0 14px;}
+  .k-q{background:#fff; border-radius:14px; padding:16px; margin-top:12px;}
+  .k-q .qt{font-size:20px; font-weight:800; line-height:1.3; margin-bottom:12px;}
+  .k-q .qt .n{display:inline-block; background:#111; color:var(--yellow); border-radius:50%; width:30px; height:30px; text-align:center; line-height:30px; font-size:15px; margin-right:8px;}
+  .scale-lbl{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); margin-top:6px;}
+  .k-exit{display:block; margin:26px auto 0; background:transparent; border:1px solid rgba(255,255,255,.3); color:rgba(255,255,255,.65); font-size:13px; padding:10px 18px; border-radius:20px; position:relative; overflow:hidden; user-select:none; -webkit-user-select:none;}
+  .k-exit .bar{position:absolute; left:0; top:0; bottom:0; width:0; background:rgba(255,230,0,.35);}
+  .k-exit span{position:relative;}
+  .thanks{position:fixed; inset:0; z-index:200; background:var(--yellow); color:#111; display:none; align-items:center; justify-content:center; text-align:center; padding:20px;}
+  .thanks.show{display:flex;}
+  .thanks .t1{font-size:56px; font-weight:900; text-transform:uppercase; line-height:1;}
+  .thanks .t2{font-size:20px; margin-top:12px; font-weight:700;}
+
+  /* reveal */
+  #reveal{position:fixed; inset:0; z-index:150; background:linear-gradient(180deg,#050506,#0E0E10); overflow-y:auto; display:none; padding-bottom:50px;}
+  #reveal.open{display:block;}
+  .r-wrap{max-width:720px; margin:0 auto; padding:calc(14px + env(safe-area-inset-top)) 14px 0;}
+  .r-hero{text-align:center; color:#fff; padding:10px 0 4px;}
+  .r-hero img{width:100%; max-height:260px; object-fit:cover; border-radius:14px; border:2px solid var(--yellow); display:none; margin-bottom:12px;}
+  .r-hero img.show{display:block;}
+  .r-hero .nm{font-size:32px; font-weight:900; text-transform:uppercase; line-height:1.1;}
+  .r-grade{font-size:150px; line-height:1; font-weight:900; font-family:"SF Mono",Menlo,monospace; color:var(--yellow); margin:6px 0 0;}
+  .r-grade.pop{animation:pop .7s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes pop{0%{transform:scale(.2); opacity:0;}100%{transform:scale(1); opacity:1;}}
+  .r-score{color:#fff; font-size:22px; font-weight:700; margin-bottom:10px;}
+  .tap-reveal{display:block; width:100%; margin:20px 0; background:var(--yellow); color:#111; border:none; border-radius:14px; font-size:28px; font-weight:900; text-transform:uppercase; padding:26px; letter-spacing:.05em;}
+  .brk{background:#fff; border-radius:14px; padding:14px 16px; margin-top:12px;}
+  .brk h3{font-size:14px; display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .brk h3 .big{font-size:26px; font-family:"SF Mono",Menlo,monospace;}
+  .brk table{width:100%; border-collapse:collapse; margin-top:8px; font-size:14px;}
+  .brk td{padding:5px 0; border-top:1px solid var(--line);}
+  .brk td:last-child{text-align:right; font-weight:700; font-family:"SF Mono",Menlo,monospace;}
+  .formula{background:#111; color:#fff; border-radius:14px; padding:14px 16px; margin-top:12px; font-size:14px; line-height:1.6;}
+  .formula b{color:var(--yellow);}
+
+  /* history */
+  .hist-item{display:flex; align-items:center; gap:12px; padding:10px 0; border-top:1px solid var(--line);}
+  .hist-item img{width:54px; height:54px; border-radius:8px; object-fit:cover; background:#ddd;}
+  .hist-item .hn{flex:1; font-weight:800; text-transform:uppercase; font-size:14px;}
+  .hist-item .hn small{display:block; font-weight:500; color:var(--ink-soft); text-transform:none;}
+  .hist-item .hg{font-size:30px; font-weight:900; font-family:"SF Mono",Menlo,monospace;}
+
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:12px 18px; border-radius:20px; font-size:14px; z-index:300; opacity:0; transition:opacity .25s; pointer-events:none;}
+  .toast.show{opacity:1;}
+  input[type=file]{display:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Restaurant<span>Boss</span></div>
+  <button class="hdr-btn" id="newShowBtn">New Show</button>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. storefront photo + name -->
+  <div class="photo-box" id="photoBox">
+    <img id="photoImg" alt="Storefront">
+    <div class="photo-prompt">
+      <div class="plus">+</div>
+      <div class="t">Add Storefront Photo</div>
+      <div class="s">Take a picture or pick one from your photos</div>
+    </div>
+    <button class="photo-change" id="photoChange" type="button">Change Photo</button>
+  </div>
+  <input type="file" id="photoInput" accept="image/*">
+  <input class="name-input" id="nameInput" type="text" placeholder="Restaurant Name" autocomplete="off" autocapitalize="words" maxlength="40">
+
+  <!-- grade stamp -->
+  <div class="stamp">
+    <div>
+      <div class="lbl">Final Grade</div>
+      <div class="sub" id="stampSub">Not revealed yet</div>
+    </div>
+    <div class="g" id="stampGrade">?</div>
+  </div>
+
+  <!-- 2. customers -->
+  <div class="card">
+    <span id="custTag" class="need-tag">Needs surveys</span>
+    <h2><span class="step">1</span>Customer Surveys</h2>
+    <p class="hint">Hand the tablet to each customer. After they submit, the next customer can start. Tap "All Customers Done" when the rush is over.</p>
+    <div class="count-line"><b id="custCount">0</b> surveys collected</div>
+    <div class="row">
+      <button class="big-btn" id="openKiosk" style="flex:2;">Start Customer Survey</button>
+    </div>
+    <div class="row">
+      <button class="ghost-btn" id="undoSurvey">Undo Last Survey</button>
+      <button class="ghost-btn" id="doneBtn">All Customers Done</button>
+    </div>
+    <div id="lockedNote" style="display:none; margin-top:10px; font-size:13px; color:var(--green); font-weight:700;">Surveys are closed. <a href="#" id="reopen" style="color:var(--ink);">Reopen surveys</a></div>
+  </div>
+
+  <!-- 3. judges -->
+  <div class="card">
+    <span id="judgeTag" class="need-tag">Needs 3 judges</span>
+    <h2><span class="step">2</span>Judges</h2>
+    <p class="hint">Rate this restaurant overall, 1 to 10. Each judge counts on their own.</p>
+    <div id="judges"></div>
+  </div>
+
+  <!-- 4. health -->
+  <div class="card">
+    <span id="healthTag" class="need-tag">Needs score</span>
+    <h2><span class="step">3</span>Health Grade</h2>
+    <p class="hint">Your score out of 100 from what you found while they were open. 90+ A, 80s B, 70s C, 60s D, below 60 F.</p>
+    <div class="health-row">
+      <input id="healthInput" type="number" inputmode="decimal" min="0" max="100" step="0.5" placeholder="--">
+      <div class="out">/ 100<br><b id="healthLetter">--</b></div>
+    </div>
+  </div>
+
+  <!-- 5. reveal -->
+  <div class="card">
+    <h2><span class="step">4</span>Reveal Grade</h2>
+    <div id="missing" class="missing" style="display:none;"></div>
+    <button class="big-btn" id="revealBtn" disabled>Reveal Grade</button>
+  </div>
+
+  <!-- past shows -->
+  <div class="card" id="histCard" style="display:none;">
+    <h2>Past Shows</h2>
+    <div id="histList"></div>
+  </div>
+</div>
+
+<!-- customer kiosk -->
+<div id="kiosk">
+  <div class="k-top">
+    <img id="kImg" alt="">
+    <div>
+      <div class="nm" id="kName">Restaurant</div>
+      <div class="cn" id="kCust">Customer 1</div>
+    </div>
+  </div>
+  <div class="k-body">
+    <div class="k-q"><div class="qt"><span class="n">1</span>Was the wait time in line to reach the counter reasonable for your liking?</div>
+      <div class="yn" data-q="q1"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="k-q"><div class="qt"><span class="n">2</span>Did you receive good customer service while ordering your food?</div>
+      <div class="yn" data-q="q2"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="k-q"><div class="qt"><span class="n">3</span>Did you receive your food in a timely manner, considering how busy it was?</div>
+      <div class="yn" data-q="q3"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="k-q"><div class="qt"><span class="n">4</span>Rate the restaurant food from 1 to 10.</div>
+      <div class="scale" data-q="q4" id="foodScale"></div>
+      <div class="scale-lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
+    <div class="k-q"><div class="qt"><span class="n">5</span>Would you return to this restaurant?</div>
+      <div class="yn" data-q="q5"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <button class="big-btn" id="submitSurvey" style="margin-top:16px;" disabled>Submit</button>
+    <button class="k-exit" id="kExit" type="button"><div class="bar" id="kBar"></div><span>Host: hold to exit</span></button>
+  </div>
+</div>
+
+<div class="thanks" id="thanks"><div><div class="t1">Thank You!</div><div class="t2">Please pass the tablet to the next customer.</div></div></div>
+
+<!-- reveal screen -->
+<div id="reveal">
+  <div class="r-wrap">
+    <div class="r-hero">
+      <img id="rImg" alt="">
+      <div class="nm" id="rName"></div>
+      <div id="rGradeArea">
+        <button class="tap-reveal" id="tapReveal">Tap to Reveal Grade</button>
+      </div>
+      <div id="rFinal" style="display:none;">
+        <div class="r-grade" id="rGrade">?</div>
+        <div class="r-score" id="rScore"></div>
+      </div>
+    </div>
+    <div id="rBreak" style="display:none;"></div>
+    <div class="row" style="margin-top:16px;">
+      <button class="ghost-btn" id="copyBtn" style="background:#fff;">Copy Results</button>
+      <button class="ghost-btn" id="rClose" style="background:#fff;">Back to Scoring</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- config ---------- */
+// Five equal parts of the final grade: customers, judge 1, judge 2, judge 3, health.
+const WEIGHTS = { customers: 1, judge1: 1, judge2: 1, judge3: 1, health: 1 };
+const STATE_KEY = "restaurantBossState_v1";
+const HIST_KEY  = "restaurantBossHistory_v1";
+
+/* ---------- state ---------- */
+let state = freshState();
+function freshState(){
+  return { name:"", surveys:[], locked:false, judges:[null,null,null], health:"", revealed:false, hasPhoto:false };
+}
+let draft = {};          // survey in progress
+let photoURL = null;     // current storefront photo (data URL)
+
+function $(id){ return document.getElementById(id); }
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2200); }
+
+/* ---------- save / load ---------- */
+function save(){
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e){}
+}
+function load(){
+  try {
+    const raw = localStorage.getItem(STATE_KEY);
+    if(raw){ state = Object.assign(freshState(), JSON.parse(raw)); }
+  } catch(e){}
+}
+function loadHist(){ try { return JSON.parse(localStorage.getItem(HIST_KEY)||"[]"); } catch(e){ return []; } }
+function saveHist(h){ try { localStorage.setItem(HIST_KEY, JSON.stringify(h)); } catch(e){ toast("Storage is full, could not save to Past Shows"); } }
+
+/* photo lives in IndexedDB (too big for localStorage) */
+function idb(){
+  return new Promise((res,rej)=>{
+    const r = indexedDB.open("restaurantBoss",1);
+    r.onupgradeneeded = ()=> r.result.createObjectStore("kv");
+    r.onsuccess = ()=> res(r.result);
+    r.onerror = ()=> rej(r.error);
+  });
+}
+async function idbSet(key,val){ try{ const db=await idb(); return new Promise(r=>{ const tx=db.transaction("kv","readwrite"); val===null?tx.objectStore("kv").delete(key):tx.objectStore("kv").put(val,key); tx.oncomplete=()=>r(true); tx.onerror=()=>r(false); }); }catch(e){ return false; } }
+async function idbGet(key){ try{ const db=await idb(); return new Promise(r=>{ const q=db.transaction("kv").objectStore("kv").get(key); q.onsuccess=()=>r(q.result||null); q.onerror=()=>r(null); }); }catch(e){ return null; } }
+
+/* shrink big phone photos so they save fast and fit in storage */
+function resizeImage(file, max, quality){
+  return new Promise((res,rej)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      const s = Math.min(1, max/Math.max(img.width,img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url);
+      res(c.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); rej(); };
+    img.src = url;
+  });
+}
+function thumbOf(dataURL){
+  return new Promise(res=>{
+    if(!dataURL) return res("");
+    const img = new Image();
+    img.onload = ()=>{
+      const s = 120/Math.max(img.width,img.height);
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      res(c.toDataURL("image/jpeg",.6));
+    };
+    img.onerror = ()=>res("");
+    img.src = dataURL;
+  });
+}
+
+/* ---------- scoring ---------- */
+function letter(p){
+  if(p===null || isNaN(p)) return "?";
+  p = Math.round(p*10)/10;
+  return p>=90?"A": p>=80?"B": p>=70?"C": p>=60?"D":"F";
+}
+function pct(n){ return (Math.round(n*10)/10).toFixed(1).replace(/\.0$/,""); }
+
+function customerBreakdown(){
+  const s = state.surveys, n = s.length;
+  if(!n) return null;
+  const yes = k => s.reduce((a,x)=>a+x[k],0)/n*100;
+  const rows = [
+    { label:"Wait time was reasonable", val:yes("q1"), txt:pct(yes("q1"))+"% yes" },
+    { label:"Good customer service",    val:yes("q2"), txt:pct(yes("q2"))+"% yes" },
+    { label:"Food on time for how busy", val:yes("q3"), txt:pct(yes("q3"))+"% yes" },
+    { label:"Food rating (avg of 1-10)", val:s.reduce((a,x)=>a+x.q4,0)/n*10, txt:(Math.round(s.reduce((a,x)=>a+x.q4,0)/n*10)/10)+" / 10" },
+    { label:"Would return",             val:yes("q5"), txt:pct(yes("q5"))+"% yes" }
+  ];
+  const score = rows.reduce((a,r)=>a+r.val,0)/rows.length;
+  return { n, rows, score };
+}
+
+function missingList(){
+  const m = [];
+  if(!state.name.trim()) m.push("Restaurant name");
+  if(!state.surveys.length) m.push("At least 1 customer survey");
+  if(!state.locked && state.surveys.length) m.push('Tap "All Customers Done"');
+  state.judges.forEach((j,i)=>{ if(j===null) m.push("Judge "+(i+1)+" score"); });
+  const h = parseFloat(state.health);
+  if(isNaN(h) || h<0 || h>100) m.push("Health grade (0 to 100)");
+  return m;
+}
+
+function compute(){
+  const cb = customerBreakdown();
+  const h = parseFloat(state.health);
+  const parts = [
+    { key:"customers", label:"Customers", val: cb?cb.score:null },
+    { key:"judge1", label:"Judge 1", val: state.judges[0]!==null? state.judges[0]*10 : null },
+    { key:"judge2", label:"Judge 2", val: state.judges[1]!==null? state.judges[1]*10 : null },
+    { key:"judge3", label:"Judge 3", val: state.judges[2]!==null? state.judges[2]*10 : null },
+    { key:"health", label:"Health Grade", val: (!isNaN(h)&&h>=0&&h<=100)? h : null }
+  ];
+  let w=0, sum=0, complete=true;
+  parts.forEach(p=>{ if(p.val===null){ complete=false; } else { sum+=p.val*WEIGHTS[p.key]; w+=WEIGHTS[p.key]; } });
+  const final = complete ? Math.round(sum/w*10)/10 : null;
+  return { cb, parts, final, complete };
+}
+
+/* ---------- main render ---------- */
+function render(){
+  if($("nameInput").value!==state.name) $("nameInput").value = state.name;
+  const box = $("photoBox");
+  if(photoURL){ $("photoImg").src = photoURL; box.classList.add("has"); } else { $("photoImg").removeAttribute("src"); box.classList.remove("has"); }
+
+  const c = compute();
+  const n = state.surveys.length;
+  $("custCount").textContent = n;
+
+  // customers tag
+  const ct = $("custTag");
+  if(n && state.locked){ ct.textContent="Done"; ct.className="ok-tag"; }
+  else if(n){ ct.textContent="In progress"; ct.className="need-tag"; }
+  else { ct.textContent="Needs surveys"; ct.className="need-tag"; }
+  $("openKiosk").disabled = state.locked;
+  $("openKiosk").textContent = state.locked ? "Surveys Closed" : (n? "Start Next Customer" : "Start Customer Survey");
+  $("doneBtn").style.display = state.locked ? "none" : "";
+  $("undoSurvey").style.display = state.locked ? "none" : "";
+  $("lockedNote").style.display = state.locked ? "block" : "none";
+  $("doneBtn").disabled = !n;
+
+  // judges
+  const jh = $("judges");
+  if(!jh.dataset.built){
+    let html="";
+    for(let i=0;i<3;i++){
+      html += `<div style="margin-top:${i?16:0}px;"><div style="font-weight:800; margin-bottom:8px;">Judge ${i+1}: Rate this restaurant <span style="color:var(--ink-soft); font-weight:500;">(overall, 1 to 10)</span></div><div class="scale" data-judge="${i}">`;
+      for(let v=1;v<=10;v++) html += `<button data-v="${v}">${v}</button>`;
+      html += `</div></div>`;
+    }
+    jh.innerHTML = html; jh.dataset.built = "1";
+    jh.querySelectorAll(".scale").forEach(sc=>{
+      sc.addEventListener("click",e=>{
+        const b = e.target.closest("button"); if(!b) return;
+        const i = +sc.dataset.judge, v = +b.dataset.v;
+        state.judges[i] = (state.judges[i]===v) ? null : v;   // tap again to clear
+        save(); render();
+      });
+    });
+  }
+  jh.querySelectorAll(".scale").forEach(sc=>{
+    const cur = state.judges[+sc.dataset.judge];
+    sc.querySelectorAll("button").forEach(b=> b.classList.toggle("sel", +b.dataset.v===cur));
+  });
+  const jd = state.judges.filter(j=>j!==null).length;
+  const jt = $("judgeTag");
+  if(jd===3){ jt.textContent="Done"; jt.className="ok-tag"; } else { jt.textContent = jd+" of 3"; jt.className="need-tag"; }
+
+  // health
+  if(document.activeElement !== $("healthInput")) $("healthInput").value = state.health;
+  const h = parseFloat(state.health);
+  const hv = (!isNaN(h)&&h>=0&&h<=100);
+  $("healthLetter").textContent = hv ? letter(h) : "--";
+  const ht = $("healthTag");
+  if(hv){ ht.textContent="Done"; ht.className="ok-tag"; } else { ht.textContent="Needs score"; ht.className="need-tag"; }
+
+  // reveal button + missing list
+  const miss = missingList();
+  const mb = $("missing");
+  if(miss.length){ mb.style.display="block"; mb.innerHTML = "<b>Still needed before the reveal:</b>" + miss.map(x=>"&bull; "+x).join("<br>"); }
+  else mb.style.display="none";
+  $("revealBtn").disabled = miss.length>0;
+
+  // stamp
+  if(state.revealed && c.complete){
+    $("stampGrade").textContent = letter(c.final);
+    $("stampSub").textContent = pct(c.final)+" / 100";
+  } else {
+    $("stampGrade").textContent = "?";
+    $("stampSub").textContent = "Not revealed yet";
+  }
+  renderHist();
+}
+
+/* ---------- storefront photo ---------- */
+$("photoBox").addEventListener("click",e=>{ if(e.target.id==="photoChange" || true) $("photoInput").click(); });
+$("photoInput").addEventListener("change", async e=>{
+  const f = e.target.files[0]; if(!f) return;
+  try{
+    photoURL = await resizeImage(f, 1400, .82);
+    await idbSet("photo", photoURL);
+    state.hasPhoto = true; save(); render();
+    toast("Photo saved");
+  }catch(err){ toast("Could not read that photo"); }
+  e.target.value = "";
+});
+$("nameInput").addEventListener("input",e=>{ state.name = e.target.value; save(); render(); });
+
+/* ---------- health ---------- */
+$("healthInput").addEventListener("input",e=>{ state.health = e.target.value; save(); render(); });
+$("healthInput").addEventListener("blur",()=>render());
+
+/* ---------- kiosk ---------- */
+function buildFoodScale(){
+  const f = $("foodScale"); let h="";
+  for(let v=1;v<=10;v++) h+=`<button data-v="${v}">${v}</button>`;
+  f.innerHTML = h;
+}
+function resetDraft(){
+  draft = {};
+  document.querySelectorAll("#kiosk .sel").forEach(b=>b.classList.remove("sel"));
+  $("submitSurvey").disabled = true;
+  $("kiosk").scrollTop = 0;
+}
+function kioskHeader(){
+  $("kName").textContent = state.name || "Restaurant Boss";
+  $("kCust").textContent = "Customer " + (state.surveys.length+1);
+  const ki=$("kImg"); if(photoURL){ ki.src=photoURL; ki.classList.add("show"); } else ki.classList.remove("show");
+}
+$("openKiosk").addEventListener("click",()=>{
+  if(state.locked) return;
+  resetDraft(); kioskHeader();
+  $("kiosk").classList.add("open");
+  document.body.style.overflow="hidden";
+});
+$("kiosk").addEventListener("click",e=>{
+  const b = e.target.closest("button"); if(!b || !b.dataset.v) return;
+  const grp = b.parentElement, q = grp.dataset.q; if(!q) return;
+  grp.querySelectorAll("button").forEach(x=>x.classList.remove("sel"));
+  b.classList.add("sel");
+  draft[q] = +b.dataset.v;
+  $("submitSurvey").disabled = !["q1","q2","q3","q4","q5"].every(k=>draft[k]!==undefined);
+});
+$("submitSurvey").addEventListener("click",()=>{
+  if(!["q1","q2","q3","q4","q5"].every(k=>draft[k]!==undefined)) return;
+  state.surveys.push({ q1:draft.q1, q2:draft.q2, q3:draft.q3, q4:draft.q4, q5:draft.q5, t:Date.now() });
+  save();
+  const th=$("thanks"); th.classList.add("show");
+  setTimeout(()=>{ th.classList.remove("show"); resetDraft(); kioskHeader(); render(); }, 1600);
+});
+// hold to exit so customers can't wander out to the scores
+(function(){
+  const btn=$("kExit"), bar=$("kBar"); let t=null, start=0, raf=null;
+  function stop(){ clearTimeout(t); cancelAnimationFrame(raf); bar.style.width="0"; }
+  function go(e){
+    e.preventDefault(); start=Date.now();
+    const tick=()=>{ bar.style.width=Math.min(100,(Date.now()-start)/1500*100)+"%"; raf=requestAnimationFrame(tick); };
+    tick();
+    t=setTimeout(()=>{ stop(); $("kiosk").classList.remove("open"); document.body.style.overflow=""; render(); },1500);
+  }
+  btn.addEventListener("touchstart",go,{passive:false}); btn.addEventListener("mousedown",go);
+  ["touchend","touchcancel","mouseup","mouseleave"].forEach(ev=>btn.addEventListener(ev,stop));
+})();
+
+$("undoSurvey").addEventListener("click",()=>{
+  if(!state.surveys.length) return;
+  if(confirm("Remove the last survey submitted?")){ state.surveys.pop(); save(); render(); toast("Last survey removed"); }
+});
+$("doneBtn").addEventListener("click",()=>{
+  if(!state.surveys.length) return;
+  if(confirm("All customers are done? This closes the surveys at "+state.surveys.length+" total.")){ state.locked=true; save(); render(); }
+});
+$("reopen").addEventListener("click",e=>{ e.preventDefault(); state.locked=false; state.revealed=false; save(); render(); });
+
+/* ---------- reveal ---------- */
+function breakdownHTML(c){
+  const L = v => `${pct(v)} (${letter(v)})`;
+  let h = "";
+  const cb = c.cb;
+  h += `<div class="brk"><h3><span>Customers (${cb.n} survey${cb.n===1?"":"s"})</span><span class="big">${pct(cb.score)}</span></h3><table>`;
+  cb.rows.forEach(r=> h += `<tr><td>${r.label}</td><td>${r.txt}</td></tr>`);
+  h += `</table></div>`;
+  [1,2,3].forEach(i=>{
+    const v = state.judges[i-1];
+    h += `<div class="brk"><h3><span>Judge ${i}</span><span class="big">${v*10}</span></h3><table><tr><td>Overall rating</td><td>${v} / 10</td></tr></table></div>`;
+  });
+  const hv = parseFloat(state.health);
+  h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${pct(hv)}</span></h3><table><tr><td>Score out of 100</td><td>${pct(hv)} (${letter(hv)})</td></tr></table></div>`;
+  const total = c.parts.reduce((a,p)=>a+p.val*WEIGHTS[p.key],0);
+  const wsum = c.parts.reduce((a,p)=>a+WEIGHTS[p.key],0);
+  h += `<div class="formula"><b>How the final grade is figured</b><br>${c.parts.map(p=>pct(p.val)).join(" + ")} = ${pct(total)}<br>${pct(total)} &divide; ${wsum} parts = <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">Each of the 5 parts counts the same. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
+  return h;
+}
+function openReveal(){
+  const c = compute(); if(!c.complete) return;
+  $("rName").textContent = state.name;
+  const ri=$("rImg"); if(photoURL){ ri.src=photoURL; ri.classList.add("show"); } else ri.classList.remove("show");
+  $("rBreak").innerHTML = breakdownHTML(c);
+  if(state.revealed){ showFinal(c,false); } else { $("rGradeArea").style.display="block"; $("rFinal").style.display="none"; $("rBreak").style.display="none"; }
+  $("reveal").classList.add("open"); document.body.style.overflow="hidden";
+}
+function showFinal(c, animate){
+  $("rGradeArea").style.display="none";
+  $("rFinal").style.display="block";
+  const g=$("rGrade"); g.textContent = letter(c.final); g.classList.remove("pop"); void g.offsetWidth; if(animate) g.classList.add("pop");
+  $("rScore").textContent = pct(c.final) + " / 100";
+  $("rBreak").style.display="block";
+}
+$("revealBtn").addEventListener("click",openReveal);
+$("tapReveal").addEventListener("click",()=>{
+  const c = compute(); state.revealed = true; save(); showFinal(c,true); render();
+});
+$("rClose").addEventListener("click",()=>{ $("reveal").classList.remove("open"); document.body.style.overflow=""; render(); });
+$("copyBtn").addEventListener("click",()=>{
+  const c = compute(); if(!c.complete) return;
+  const lines = [`RESTAURANT BOSS: ${state.name}`, `FINAL GRADE: ${letter(c.final)} (${pct(c.final)}/100)`, ""];
+  lines.push(`Customers (${c.cb.n} surveys): ${pct(c.cb.score)}`);
+  c.cb.rows.forEach(r=>lines.push(`  - ${r.label}: ${r.txt}`));
+  [1,2,3].forEach(i=>lines.push(`Judge ${i}: ${state.judges[i-1]}/10 (${state.judges[i-1]*10})`));
+  lines.push(`Health grade: ${pct(parseFloat(state.health))}/100 (${letter(parseFloat(state.health))})`);
+  const txt = lines.join("\n");
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast("Results copied")).catch(()=>{ prompt("Copy your results:", txt); });
+});
+
+/* ---------- past shows / new show ---------- */
+function renderHist(){
+  const h = loadHist();
+  $("histCard").style.display = h.length ? "block" : "none";
+  $("histList").innerHTML = h.map((x,i)=>`
+    <div class="hist-item">${x.thumb?`<img src="${x.thumb}" alt="">`:`<img alt="">`}
+      <div class="hn">${esc(x.name||"Untitled")}<small>${new Date(x.date).toLocaleDateString()} &middot; ${x.surveys} surveys &middot; ${x.score===null?"not finished":x.score+" / 100"}</small></div>
+      <div class="hg">${x.grade}</div>
+    </div>`).join("");
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+$("newShowBtn").addEventListener("click", async ()=>{
+  const started = state.name || state.surveys.length || photoURL;
+  if(started){
+    if(!confirm("Start a new show? This saves the current restaurant to Past Shows and clears the scoreboard.")) return;
+    const c = compute();
+    const hist = loadHist();
+    hist.unshift({ name:state.name, date:Date.now(), surveys:state.surveys.length,
+      score: c.complete? c.final : null, grade: c.complete? letter(c.final) : "?", thumb: await thumbOf(photoURL) });
+    saveHist(hist.slice(0,40));
+  }
+  state = freshState(); photoURL = null; await idbSet("photo", null); save(); draft={}; render();
+  window.scrollTo(0,0);
+});
+
+/* ---------- start ---------- */
+(async function init(){
+  load(); buildFoodScale();
+  photoURL = await idbGet("photo");
+  if(!photoURL) state.hasPhoto = false;
+  render();
+  if("serviceWorker" in navigator){ navigator.serviceWorker.register("service-worker.js").catch(()=>{}); }
+})();
+</script>
+</body>
+</html>
