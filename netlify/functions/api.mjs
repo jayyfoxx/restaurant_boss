@@ -58,6 +58,7 @@ export default async (req) => {
   const kMeta = (id) => `${ws}/meta/${id}`;
   const kSurveyPrefix = (id) => `${ws}/survey/${id}/`;
   const kPhoto = (id) => `${ws}/photo/${id}`;
+  const kPhotoSmall = (id) => `${ws}/photosmall/${id}`;   // small copy for customer phones
   const kPointer = `${ws}/pointer`;
 
   const getMeta = (id) => store.get(kMeta(id), { type: "json" });
@@ -120,7 +121,9 @@ export default async (req) => {
     // ---------- phone surveys (customers) ----------
     if (action === "guestInfo") {
       const m = await current();
-      return J({ ok: true, showId: m.id, name: m.fields.name || "", star: m.fields.star || "", closed: !!m.fields.locked });
+      let photo = null;
+      if (m.photoRev) photo = (await store.get(kPhotoSmall(m.id), { type: "text" })) || (await store.get(kPhoto(m.id), { type: "text" }));
+      return J({ ok: true, showId: m.id, name: m.fields.name || "", star: m.fields.star || "", closed: !!m.fields.locked, photo, view: m.fields.view || null });
     }
 
     if (action === "guestSurvey") {
@@ -190,6 +193,9 @@ export default async (req) => {
       const url = String(b.url || "");
       if (!url.startsWith("data:image/") || url.length > 4_500_000) return J({ error: "bad photo" }, 400);
       await store.set(kPhoto(m.id), url);
+      const small = String(b.small || "");
+      if (small.startsWith("data:image/") && small.length < 600_000) await store.set(kPhotoSmall(m.id), small);
+      else await store.delete(kPhotoSmall(m.id));
       m.photoRev = Date.now();
       await setMeta(m);
       return J({ ok: true, photoRev: m.photoRev });
