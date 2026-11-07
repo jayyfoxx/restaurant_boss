@@ -314,8 +314,7 @@
       <button class="ghost-btn" id="phoneSurveyBtn" style="flex:1 1 100%;">Phone Survey Code and QR</button>
     </div>
     <div class="row">
-      <button class="ghost-btn" id="undoSurvey">Undo Last Survey</button>
-      <button class="ghost-btn" id="doneBtn">All Customers Done</button>
+      <button class="ghost-btn" id="doneBtn" style="flex:1 1 100%;">All Customers Done</button>
     </div>
     <div id="lockedNote" style="display:none; margin-top:10px; font-size:13px; color:var(--green); font-weight:700;">Surveys are closed. <a href="#" id="reopen" style="color:var(--ink);">Reopen surveys</a></div>
   </div>
@@ -673,7 +672,6 @@ function render(){
   $("openKiosk").disabled = state.locked;
   $("openKiosk").textContent = state.locked ? "Surveys Closed" : (n? "Start Next Customer" : "Start Customer Survey");
   $("doneBtn").style.display = state.locked ? "none" : "";
-  $("undoSurvey").style.display = state.locked ? "none" : "";
   $("lockedNote").style.display = state.locked ? "block" : "none";
   $("doneBtn").disabled = !n;
 
@@ -920,10 +918,6 @@ $("thanks").addEventListener("click",()=>{ if(thanksReady) $("thanks").classList
   ["touchend","touchcancel","mouseup","mouseleave"].forEach(ev=>btn.addEventListener(ev,stop));
 })();
 
-$("undoSurvey").addEventListener("click",()=>{
-  if(!state.surveys.length) return;
-  if(confirm("Remove the last survey submitted?")){ state.surveys.pop(); save(); render(); toast("Last survey removed"); }
-});
 $("doneBtn").addEventListener("click",()=>{
   if(!state.surveys.length) return;
   if(confirm("All customers are done? This closes the surveys at "+state.surveys.length+" total.")){ state.locked=true; save(); render(); }
