@@ -47,6 +47,7 @@ export default async (req) => {
     if (g.length < 4) return J({ error: "Enter the survey code" }, 400);
     const rec = await store.get(`guest/${g}`, { type: "json" });
     if (!rec) return J({ error: "That survey code was not found" }, 404);
+    if (rec.ended) return J({ ok: true, closed: true, ended: true, name: "", star: "" });   // an old show's code
     ws = rec.ws;
   } else {
     const code = String(b.code || "").trim().toLowerCase();
@@ -95,6 +96,22 @@ export default async (req) => {
     return m;
   }
 
+  // a fresh short code for customers; the old one keeps working only to say "this show has ended"
+  async function makeGuestCode() {
+    const kRec = `${ws}/guest`;
+    const old = await store.get(kRec, { type: "text" });
+    if (old) await store.setJSON(`guest/${old}`, { ws, ended: true });
+    const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    let g = "";
+    for (let tries = 0; tries < 20; tries++) {
+      g = Array.from({ length: 5 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
+      if (!(await store.get(`guest/${g}`, { type: "text" }))) break;
+    }
+    await store.setJSON(`guest/${g}`, { ws });
+    await store.set(kRec, g);
+    return g;
+  }
+
   const view = async (m) => ({
     id: m.id, fields: m.fields, photoRev: m.photoRev, created: m.created, surveys: await listSurveys(m.id),
   });
@@ -124,19 +141,12 @@ export default async (req) => {
 
     // host asks for (or makes) the short survey code that customers use
     if (action === "guestCode" || action === "guestReset") {
-      const kRec = `${ws}/guest`;
-      const old = await store.get(kRec, { type: "text" });
-      if (old && action === "guestCode") return J({ ok: true, gcode: old });
-      if (old) await store.delete(`guest/${old}`);
-      const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-      let g = "";
-      for (let tries = 0; tries < 20; tries++) {
-        g = Array.from({ length: 5 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
-        if (!(await store.get(`guest/${g}`, { type: "text" }))) break;
+      const old = await store.get(`${ws}/guest`, { type: "text" });
+      if (old && action === "guestCode") {
+        const rec = await store.get(`guest/${old}`, { type: "json" });
+        if (rec && !rec.ended) return J({ ok: true, gcode: old });
       }
-      await store.setJSON(`guest/${g}`, { ws });
-      await store.set(kRec, g);
-      return J({ ok: true, gcode: g });
+      return J({ ok: true, gcode: await makeGuestCode() });
     }
 
     if (action === "sync") {
@@ -205,6 +215,7 @@ export default async (req) => {
       const n = newMeta();
       await setMeta(n);
       await store.setJSON(kPointer, { currentId: n.id });
+      if (await store.get(`${ws}/guest`, { type: "text" })) await makeGuestCode();   // every show gets its own QR
       return J({ ok: true, current: await view(n) });
     }
 
