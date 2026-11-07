@@ -1,7 +1,7 @@
 {
   "name": "Restaurant Boss",
   "short_name": "Rest. Boss",
-  "description": "Grade the restaurant: customer surveys, 3 judges, and a health grade.",
+  "description": "Run the rush. Grade the Boss: customer surveys, 3 judges, and a health grade.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
