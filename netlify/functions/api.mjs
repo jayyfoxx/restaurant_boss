@@ -22,7 +22,7 @@ function clean(f, v) {
       return n >= 1 && n <= 10 ? n : null;
     }
     case "view": {
-      const z = Math.min(3, Math.max(1, Number(v?.z) || 1));
+      const z = Math.min(4, Math.max(1, Number(v?.z) || 1));
       const cx = Math.min(1, Math.max(0, Number(v?.cx ?? 0.5)));
       const cy = Math.min(1, Math.max(0, Number(v?.cy ?? 0.5)));
       return { z, cx, cy };
