@@ -224,6 +224,19 @@
   .pl-coach.good{background:#E7F3EC; border-left-color:var(--green);}
   .pl-coach.bad{background:#FBECEA; border-left-color:var(--red);}
   .pl-coach b{font-weight:800;}
+  #home .rules-link{display:inline-block; margin-top:26px; font-size:13px; color:rgba(255,255,255,.55); text-decoration:underline; letter-spacing:.04em;}
+  #rules{position:fixed; inset:0; z-index:150; background:linear-gradient(180deg,#050506,#0E0E10); overflow-y:auto; display:none; padding-bottom:50px;}
+  #rules.open{display:block;}
+  .rules-title{color:#fff; font-size:26px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; margin:10px 4px 4px;}
+  .rules-sub{color:rgba(255,255,255,.6); font-size:14px; margin:0 4px 6px;}
+  .rcard{background:#fff; border-radius:14px; padding:16px; margin-top:12px;}
+  .rcard h3{font-size:15px; margin-bottom:8px; text-transform:uppercase; letter-spacing:.04em;}
+  .rcard p{font-size:14px; line-height:1.5; margin:0 0 8px; color:var(--ink);}
+  .rcard ul{margin:0 0 6px; padding-left:20px; font-size:14px; line-height:1.55;}
+  .rcard table{width:100%; border-collapse:collapse; font-size:14px; margin:4px 0 8px;}
+  .rcard td{padding:7px 0; border-top:1px solid var(--line);}
+  .rcard td:last-child{text-align:right; font-weight:800; font-family:"SF Mono",Menlo,monospace; white-space:nowrap;}
+  .rcard .pos{color:var(--green);} .rcard .neg{color:var(--red);}
   .phone-note{font-size:13px; color:var(--ink-soft); margin-top:6px;}
 
   /* views */
@@ -303,8 +316,7 @@
   <!-- 1. P&L (top) -->
   <div class="card" id="plCard">
     <h2><span class="step">1</span>Restaurant P&amp;L</h2>
-    <p class="hint"><b>Food cost target:</b> Keep your food cost at 35% or under. Spending $7 of food per plate across 20 plates is a $140 food budget, which equals a 35% food cost.<br><br><b>Example:</b> A $20 plate across 20 customers makes $400 in sales. With a $140 food budget, that leaves a $260 profit at a 35% food cost.<br><br><b>Going over $140?</b> You are free to spend more, but raise your plate price to match. A higher price keeps your food cost at 35% or under, protects your profit, and keeps your bonus point. For example, spending $210 means charging at least $30 a plate.</p>
-    <p class="hint"><b>Bonus points available:</b><br>+1 Served all 20 customers in the hour<br>+1 Stayed at 35% food cost or under<br>+1 Stayed at or under the $200 budget</p>
+    <p class="hint"><b>Food cost target:</b> Keep your food cost at 35% or under. Spending $7 of food per plate across 20 plates is a $140 food budget, which equals a 35% food cost.<br><br><b>Example:</b> A $20 plate across 20 customers makes $400 in sales. With a $140 food budget, that leaves a $260 profit at a 35% food cost.<br><br><b>Going over $140?</b> You are free to spend more, but raise your plate price to match. A higher price keeps your food cost at 35% or under and protects your profit and your points. For example, spending $210 means charging at least $30 a plate.</p>
         <div class="pl-grid">
       <label>Total spent ($)<input id="spInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="--"></label>
       <label>Plate price ($)<input id="ppInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 20"></label>
@@ -371,6 +383,7 @@
   <button class="hb primary" id="homeNew">New Show</button>
   <button class="hb second" id="homePast">Previous Shows<small id="pastCount"></small></button>
   <button class="hb second" id="homeSync">Sync Devices<small id="syncSub">Off</small></button>
+  <a href="#" class="rules-link" id="homeRules">Rules &amp; Points</a>
 </div>
 
 <!-- sync modal -->
@@ -447,6 +460,7 @@
       <div id="rFinal" style="display:none;">
         <div class="r-grade" id="rGrade">?</div>
         <div class="r-score" id="rScore"></div>
+        <button class="ghost-btn" id="rBreakBtn" type="button" style="background:#fff; margin-top:16px; padding:12px 20px;">See Points Breakdown</button>
       </div>
     </div>
     <div id="rBreak" style="display:none;"></div>
@@ -459,12 +473,75 @@
   </div>
 </div>
 
+<div id="rules"><div class="r-wrap">
+  <div class="rules-title">Rules &amp; Points</div>
+  <div class="rules-sub">How a Restaurant Boss grade is earned.</div>
+
+  <div class="rcard"><h3>The Challenge</h3>
+    <ul>
+      <li>60 minutes of prep, then a 1-hour rush.</li>
+      <li>Serve 20 customers.</li>
+      <li>Up to 5 staff members.</li>
+      <li>A $140 food budget.</li>
+      <li>Contestants set their own plate price.</li>
+      <li>Customers eat free. Sales are pretend, to show how the restaurant would have done.</li>
+    </ul>
+  </div>
+
+  <div class="rcard"><h3>The Base Score</h3>
+    <p>Four equal parts are averaged: the customer survey score, Judge 1, Judge 2 and Judge 3. These carry all of the weight.</p>
+    <p>The customer survey score is the average of the five survey questions: customer service rating (1 to 10), food on time (yes), plate rating (1 to 10), would pay the plate price (yes) and would return (yes).</p>
+  </div>
+
+  <div class="rcard"><h3>Health Grade Points</h3>
+    <p>The health grade does not count toward the average. It adds or removes points.</p>
+    <table>
+      <tr><td>A (90 and up)</td><td class="pos">+2</td></tr>
+      <tr><td>B (80s)</td><td class="pos">+1</td></tr>
+      <tr><td>C (70s)</td><td>0</td></tr>
+      <tr><td>D (60s)</td><td class="neg">-1</td></tr>
+      <tr><td>F (below 60)</td><td class="neg">-2</td></tr>
+    </table>
+  </div>
+
+  <div class="rcard"><h3>Food Cost Points</h3>
+    <p>Food cost = total spent &divide; (20 plates &times; plate price).</p>
+    <table>
+      <tr><td>35% or under</td><td class="pos">+2</td></tr>
+      <tr><td>Over 35%, under 70%</td><td>0</td></tr>
+      <tr><td>70% or more (double the limit)</td><td class="neg">-2</td></tr>
+    </table>
+    <p><b>Staying at 35%:</b> plate price &times; 7 is the most you can spend. A $20 plate allows $140. Spending more is allowed, but raise your plate price to match.</p>
+  </div>
+
+  <div class="rcard"><h3>Bonus Points</h3>
+    <table>
+      <tr><td>Served all 20 customers in the hour</td><td class="pos">+1</td></tr>
+      <tr><td>Spent $140 or under</td><td class="pos">+1</td></tr>
+    </table>
+  </div>
+
+  <div class="rcard"><h3>The Final Grade</h3>
+    <p>Final score = base score + health points + food cost points + bonus points.</p>
+    <table>
+      <tr><td>A</td><td>90 and up</td></tr>
+      <tr><td>B</td><td>80 to 89.9</td></tr>
+      <tr><td>C</td><td>70 to 79.9</td></tr>
+      <tr><td>D</td><td>60 to 69.9</td></tr>
+      <tr><td>F</td><td>Below 60</td></tr>
+    </table>
+  </div>
+
+  <button class="ghost-btn" id="rulesClose" style="background:#fff; margin-top:16px; width:100%; padding:14px;">Close</button>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 /* ---------- config ---------- */
-// Five equal parts of the final grade: customers, judge 1, judge 2, judge 3, health.
-const WEIGHTS = { customers: 1, judge1: 1, judge2: 1, judge3: 1, health: 1 };
+// Four equal parts make the base score: customers, judge 1, judge 2, judge 3.
+// Health grade, food cost and bonuses then add or subtract points.
+const WEIGHTS = { customers: 1, judge1: 1, judge2: 1, judge3: 1 };
 const STATE_KEY = "restaurantBossState_v1";
 const HIST_KEY  = "restaurantBossHistory_v1";
 
@@ -584,50 +661,47 @@ function customerBreakdown(st){
   return { n, rows, score };
 }
 
-const START_BUDGET = 200, TARGET_CUSTOMERS = 20, MAX_STAFF = 5;
+const START_BUDGET = 140, TARGET_CUSTOMERS = 20, MAX_STAFF = 5, FOOD_LIMIT = 35;
 const money = n => "$" + (Math.round(n*100)/100).toFixed(2);
+const fmtPts = n => n>0 ? "+"+n : (n<0 ? "-"+Math.abs(n) : "0");
 function plRows(st){
   const n = st.surveys.length, sp = parseFloat(st.sp), price = parseFloat(st.pp), staff = parseInt(st.sf);
   const spent = (!isNaN(sp) && sp>=0) ? sp : null;
-  const rows = [["Customers served", n+" of "+TARGET_CUSTOMERS]];
-  let pctVal = null, bBudget = 0, bFood = 0, coach = null;
-  const bServe = n>=TARGET_CUSTOMERS ? 1 : 0;
+  const hasPrice = !isNaN(price) && price>0;
+  const rows = [];
+  let pctVal = null, coach = null;
   if(spent!==null){
     rows.push(["Total spent (receipt)", money(spent)]);
     const diff = START_BUDGET-spent;
-    rows.push([diff>=0 ? "Under the $200 budget by" : "Over the $200 budget by", money(Math.abs(diff)), diff>=0?"good":"bad"]);
-    if(n>0) rows.push(["Food cost per customer", money(spent/n)]);
-    if(n>0 && !isNaN(price) && price>0){
-      const sales = n*price;
-      rows.push(["Sales ("+n+" x "+money(price)+")", money(sales)]);
+    rows.push([diff>=0 ? "Under the $"+START_BUDGET+" budget by" : "Over the $"+START_BUDGET+" budget by", money(Math.abs(diff)), diff>=0?"good":"bad"]);
+    rows.push(["Food cost per plate ("+TARGET_CUSTOMERS+" plates)", money(spent/TARGET_CUSTOMERS)]);
+    if(hasPrice){
+      const sales = TARGET_CUSTOMERS*price;
+      rows.push(["Sales ("+TARGET_CUSTOMERS+" x "+money(price)+")", money(sales)]);
       pctVal = spent/sales*100;
-      rows.push(["Food cost %", pct(pctVal)+"%", pctVal<=35?"good":"bad"]);
+      rows.push(["Food cost %", pct(pctVal)+"%", pctVal<=FOOD_LIMIT?"good":"bad"]);
       const profit = sales-spent;
       rows.push(["Profit after food", (profit<0?"-":"")+money(Math.abs(profit)), profit<0?"bad":"good"]);
-    }
-    if(pctVal!==null){
-      const sales = n*price, maxSpend = sales*0.35, minPrice = spent/(n*0.35);
+      const maxSpend = sales*FOOD_LIMIT/100, minPrice = spent/(TARGET_CUSTOMERS*FOOD_LIMIT/100), plate = Math.round(price*100)/100;
       rows.push(["Most to spend for 35% at this price", money(maxSpend)]);
       rows.push(["Plate price needed at this spend", money(minPrice)]);
-      const plate = Math.round(price*100)/100;
-      if(pctVal<=35){
-        coach = { kind:"good", text:`On target. At a ${money(plate)} plate with ${n} customers, the most to spend was <b>${money(maxSpend)}</b> for a 35% food cost. They spent ${money(spent)}, which is <b>${money(maxSpend-spent)} under</b> the limit.` };
+      if(pctVal<=FOOD_LIMIT){
+        coach = { kind:"good", text:`On target. At a ${money(plate)} plate across ${TARGET_CUSTOMERS} plates, the most to spend was <b>${money(maxSpend)}</b> for a 35% food cost. They spent ${money(spent)}, which is <b>${money(maxSpend-spent)} under</b> the limit.` };
       } else {
-        const over = spent-maxSpend;
-        coach = { kind:"bad", text:`Food cost was <b>${pct(pctVal)}%</b>, above the 35% goal. At a <b>${money(plate)}</b> plate with ${n} customers, they should have spent no more than <b>${money(maxSpend)}</b> on food, which is <b>${money(over)} less</b> than they did. Or, if they kept the ${money(spent)} spend, the plate price needed to be at least <b>${money(minPrice)}</b>.` };
+        coach = { kind:"bad", text:`Food cost was <b>${pct(pctVal)}%</b>, above the 35% goal. At a <b>${money(plate)}</b> plate across ${TARGET_CUSTOMERS} plates, they should have spent no more than <b>${money(maxSpend)}</b> on food, which is <b>${money(spent-maxSpend)} less</b> than they did. Or, if they kept the ${money(spent)} spend, the plate price needed to be at least <b>${money(minPrice)}</b>.${pctVal>=FOOD_LIMIT*2 ? " At 70% or more, 2 points come off the score." : ""}` };
       }
     }
-    bBudget = spent<=START_BUDGET ? 1 : 0;
-    bFood = (pctVal!==null && pctVal<=35) ? 1 : 0;
-    rows.push(["Bonus: on budget ($200 or under)", bBudget?"+1":"0", bBudget?"good":""]);
-    rows.push(["Bonus: food cost 35% or under", pctVal===null?"--":(bFood?"+1":"0"), bFood?"good":""]);
   }
-  rows.push(["Bonus: served all "+TARGET_CUSTOMERS+" in the hour", bServe?"+1":"0", bServe?"good":""]);
   if(staff>=1 && staff<=MAX_STAFF){
     rows.push(["Staff used", staff+" of "+MAX_STAFF]);
     if(n>0) rows.push(["Customers per staff", (Math.round(n/staff*10)/10)+""]);
   }
-  return { rows, coach, spent, pctVal, bBudget, bFood, bServe, bonus:bBudget+bFood+bServe, any: n>0 || spent!==null || (staff>=1 && staff<=MAX_STAFF) };
+  rows.push(["Customers served", n+" of "+TARGET_CUSTOMERS]);
+  // points
+  const foodPts = pctVal===null ? 0 : (pctVal<=FOOD_LIMIT ? 2 : (pctVal>=FOOD_LIMIT*2 ? -2 : 0));
+  const bServe = n>=TARGET_CUSTOMERS ? 1 : 0;
+  const bBudget = (spent!==null && spent<=START_BUDGET) ? 1 : 0;
+  return { rows, coach, spent, pctVal, foodPts, bServe, bBudget, bonus:bServe+bBudget, any: n>0 || spent!==null || (staff>=1 && staff<=MAX_STAFF) };
 }
 
 function missingList(){
@@ -645,19 +719,23 @@ function compute(st){
   st = st || state;
   const cb = customerBreakdown(st);
   const h = parseFloat(st.health);
+  const hok = !isNaN(h) && h>=0 && h<=100;
   const parts = [
     { key:"customers", label:"Customers", val: cb?cb.score:null },
     { key:"judge1", label:"Judge 1", val: st.judges[0]!==null? st.judges[0]*10 : null },
     { key:"judge2", label:"Judge 2", val: st.judges[1]!==null? st.judges[1]*10 : null },
-    { key:"judge3", label:"Judge 3", val: st.judges[2]!==null? st.judges[2]*10 : null },
-    { key:"health", label:"Health Grade", val: (!isNaN(h)&&h>=0&&h<=100)? h : null }
+    { key:"judge3", label:"Judge 3", val: st.judges[2]!==null? st.judges[2]*10 : null }
   ];
-  let w=0, sum=0, complete=true;
+  let w=0, sum=0, complete = hok;
   parts.forEach(p=>{ if(p.val===null){ complete=false; } else { sum+=p.val*WEIGHTS[p.key]; w+=WEIGHTS[p.key]; } });
-  const base = complete ? Math.round(sum/w*10)/10 : null;
-  const pl = plRows(st), bonus = pl.bonus;
-  const final = complete ? Math.round((sum/w + bonus)*10)/10 : null;
-  return { cb, parts, final, base, bonus, pl, complete };
+  const avg = complete ? sum/w : null;
+  const base = complete ? Math.round(avg*10)/10 : null;
+  const hLetter = hok ? letter(h) : null;
+  const healthPts = hok ? ({A:2,B:1,C:0,D:-1,F:-2})[hLetter] : 0;
+  const pl = plRows(st);
+  const adj = healthPts + pl.foodPts + pl.bonus;
+  const final = complete ? Math.round((avg + adj)*10)/10 : null;
+  return { cb, parts, avg, base, hLetter, healthPts, pl, adj, final, complete };
 }
 
 /* ---------- main render ---------- */
@@ -954,16 +1032,11 @@ function breakdownHTML(c, st){
     h += `<div class="brk"><h3><span>Judge ${i}${jn ? ": " + esc(jn) : ""}</span><span class="big">${v===null?"--":v*10}</span></h3><table><tr><td>Overall rating</td><td>${v===null?"Not rated":v+" / 10"}</td></tr></table></div>`;
   });
   const hv = parseFloat(st.health), hok = !isNaN(hv);
-  h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${hok?pct(hv):"--"}</span></h3><table><tr><td>Score out of 100</td><td>${hok?pct(hv)+" ("+letter(hv)+")":"Not entered"}</td></tr></table></div>`;
-  const pl = plRows(st);
-  if(pl.any){
-    h += `<div class="brk"><h3><span>Restaurant P&amp;L <small style="opacity:.6;font-weight:600;">(bonus points)</small></span><span class="big">${pl.pctVal===null?"--":pct(pl.pctVal)+"%"}</span></h3><table>${pl.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table>${pl.coach?`<div class="pl-coach ${pl.coach.kind}">${pl.coach.text}</div>`:""}</div>`;
-  }
+  h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${hok?letter(hv):"--"}</span></h3><table><tr><td>Score out of 100</td><td>${hok?pct(hv):"Not entered"}</td></tr><tr><td>Points</td><td>${hok?fmtPts(c.healthPts):"--"}</td></tr></table></div>`;
+  const pl = c.pl;
+  h += `<div class="brk"><h3><span>Restaurant P&amp;L</span><span class="big">${pl.pctVal===null?"--":pct(pl.pctVal)+"%"}</span></h3><table>${pl.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}<tr><td>Food cost points</td><td>${pl.pctVal===null?"--":fmtPts(pl.foodPts)}</td></tr><tr><td>Bonus: served all ${TARGET_CUSTOMERS} in the hour</td><td>${fmtPts(pl.bServe)}</td></tr><tr><td>Bonus: spent $${START_BUDGET} or under</td><td>${pl.spent===null?"--":fmtPts(pl.bBudget)}</td></tr></table>${pl.coach?`<div class="pl-coach ${pl.coach.kind}">${pl.coach.text}</div>`:""}</div>`;
   if(c.complete){
-    const total = c.parts.reduce((a,p)=>a+p.val*WEIGHTS[p.key],0);
-    const wsum = c.parts.reduce((a,p)=>a+WEIGHTS[p.key],0);
-    const bn = c.bonus ? `<br>${pct(c.base)} + ${c.bonus} bonus point${c.bonus===1?"":"s"} (${[c.pl.bBudget?"on budget":"",c.pl.bFood?"food cost 35% or under":"",c.pl.bServe?"served all 20":""].filter(Boolean).join(" + ")}) = <b>${pct(c.final)}</b>` : "";
-    h += `<div class="formula"><b>How the final grade is figured</b><br>${c.parts.map(p=>pct(p.val)).join(" + ")} = ${pct(total)}<br>${pct(total)} &divide; ${wsum} parts = ${c.bonus?pct(c.base):"<b>"+pct(c.final)+"</b>"}${bn}<br>Final <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">Each of the 5 parts counts the same, then bonus points are added. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
+    h += `<div class="formula"><b>How the final grade is figured</b><br>Base score: (${c.parts.map(p=>pct(p.val)).join(" + ")}) &divide; ${c.parts.length} = ${pct(c.base)}<br>Health grade (${c.hLetter}): ${fmtPts(c.healthPts)}<br>Food cost (${pl.pctVal===null?"not entered":pct(pl.pctVal)+"%"}): ${fmtPts(pl.foodPts)}<br>Served all ${TARGET_CUSTOMERS}: ${fmtPts(pl.bServe)}<br>Spent $${START_BUDGET} or under: ${fmtPts(pl.bBudget)}<br>${pct(c.base)} ${c.adj<0?"-":"+"} ${Math.abs(c.adj)} = <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">The customer survey score and the three judges make the base score and count the same. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
   } else {
     h += `<div class="formula">This show was not finished, so it never got a final grade.</div>`;
   }
@@ -982,6 +1055,7 @@ function openReveal(ctx){
   $("rDelete").style.display = ctx.live ? "none" : "";
   $("rResume").style.display = (ctx.live || !ctx.id) ? "none" : "";
   if(!ctx.live || st.revealed){ showFinal(c,false); } else { $("rGradeArea").style.display="block"; $("rFinal").style.display="none"; $("rBreak").style.display="none"; }
+  $("rBreakBtn").textContent = "See Points Breakdown";
   $("reveal").classList.add("open"); document.body.style.overflow="hidden";
   $("reveal").scrollTop = 0;
   placePhoto($("rFrame"), $("rImg"), ctx.url, st.view, "reveal");
@@ -991,8 +1065,9 @@ function showFinal(c, animate){
   $("rFinal").style.display="block";
   const g=$("rGrade"); g.textContent = c.complete ? letter(c.final) : "?"; g.classList.remove("pop"); void g.offsetWidth; if(animate) g.classList.add("pop");
   $("rScore").textContent = c.complete ? pct(c.final) + " / 100" : "Not finished";
-  $("rBreak").style.display="block";
+  $("rBreak").style.display="none"; $("rBreakBtn").textContent = "See Points Breakdown";
 }
+$("rBreakBtn").addEventListener("click",()=>{ const b=$("rBreak"), open = b.style.display==="block"; b.style.display = open ? "none" : "block"; $("rBreakBtn").textContent = open ? "See Points Breakdown" : "Hide Points Breakdown"; if(!open) b.scrollIntoView({behavior:"smooth",block:"start"}); });
 $("revealBtn").addEventListener("click",()=>openReveal());
 $("stampGrade").addEventListener("click",()=>{ if(compute().complete) openReveal(); else toast("Finish the surveys, judges and health grade first"); });
 $("tapReveal").addEventListener("click",()=>{
@@ -1005,12 +1080,19 @@ $("copyBtn").addEventListener("click",()=>{
   lines.push(`Customers (${c.cb.n} surveys): ${pct(c.cb.score)}`);
   c.cb.rows.forEach(r=>lines.push(`  - ${r.label}: ${r.txt}`));
   [1,2,3].forEach(i=>lines.push(`Judge ${i}${(st.jnames&&st.jnames[i-1])?" ("+st.jnames[i-1].trim()+")":""}: ${st.judges[i-1]}/10 (${st.judges[i-1]*10})`));
-  lines.push(`Health grade: ${pct(parseFloat(st.health))}/100 (${letter(parseFloat(st.health))})`);
-  const pl = plRows(st);
-  if(pl.any){ lines.push("", "RESTAURANT P&L (bonus points: +"+c.bonus+")"); pl.rows.forEach(r=>lines.push(`  - ${r[0]}: ${r[1]}`)); if(pl.coach) lines.push("  > "+pl.coach.text.replace(/<[^>]+>/g,"")); }
+  lines.push(`Health grade: ${pct(parseFloat(st.health))}/100 (${c.hLetter}) ${fmtPts(c.healthPts)} pts`);
+  const pl = c.pl;
+  lines.push("", "RESTAURANT P&L"); pl.rows.forEach(r=>lines.push(`  - ${r[0]}: ${r[1]}`));
+  lines.push(`  - Food cost points: ${pl.pctVal===null?"--":fmtPts(pl.foodPts)}`, `  - Bonus, served all ${TARGET_CUSTOMERS} in the hour: ${fmtPts(pl.bServe)}`, `  - Bonus, spent $${START_BUDGET} or under: ${pl.spent===null?"--":fmtPts(pl.bBudget)}`);
+  if(pl.coach) lines.push("  > "+pl.coach.text.replace(/<[^>]+>/g,""));
+  lines.push("", `Base score ${pct(c.base)} ${c.adj<0?"-":"+"} ${Math.abs(c.adj)} points = ${pct(c.final)}`);
   const txt = lines.join("\n");
   (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast("Results copied")).catch(()=>{ prompt("Copy your results:", txt); });
 });
+
+/* ---------- rules & points ---------- */
+$("homeRules").addEventListener("click",e=>{ e.preventDefault(); $("rules").classList.add("open"); $("rules").scrollTop=0; document.body.style.overflow="hidden"; });
+$("rulesClose").addEventListener("click",()=>{ $("rules").classList.remove("open"); document.body.style.overflow=""; });
 
 /* ---------- screens: home, scoring, previous shows ---------- */
 function setView(v){
