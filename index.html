@@ -303,7 +303,7 @@
   <!-- 1. P&L (top) -->
   <div class="card" id="plCard">
     <h2><span class="step">1</span>Restaurant P&amp;L</h2>
-    <p class="hint"><b>Food cost target:</b> Spending $7 of food per plate across 20 plates is a $140 food budget, which equals a 35% food cost. Spending more is allowed, but going over $140 puts the food cost bonus point at risk.</p>
+    <p class="hint"><b>Food cost target:</b> Keep your food cost at 35% or under. Spending $7 of food per plate across 20 plates is a $140 food budget, which equals a 35% food cost.<br><br><b>Example:</b> A $20 plate across 20 customers makes $400 in sales. With a $140 food budget, that leaves a $260 profit at a 35% food cost.<br><br><b>Going over $140?</b> You are free to spend more, but raise your plate price to match. A higher price keeps your food cost at 35% or under, protects your profit, and keeps your bonus point. For example, spending $210 means charging at least $30 a plate.</p>
     <p class="hint"><b>Bonus points available:</b><br>+1 Served all 20 customers in the hour<br>+1 Stayed at 35% food cost or under<br>+1 Stayed at or under the $200 budget</p>
         <div class="pl-grid">
       <label>Total spent ($)<input id="spInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="--"></label>
@@ -319,7 +319,7 @@
   <div class="card">
     <span id="custTag" class="need-tag">Needs surveys</span>
     <h2><span class="step">2</span>Customer Surveys</h2>
-    <p class="hint">Hand the tablet to each customer. After they submit, the next customer can start. Tap "All Customers Done" when the rush is over.</p>
+    <p class="hint">Share the QR code with the customers or hand the tablet to each customer.</p>
     <div class="count-line"><b id="custCount">0</b> surveys collected</div>
     <div class="phone-note" id="phoneNote" style="display:none;"></div>
     <div class="row">
@@ -721,7 +721,7 @@ function render(){
   if(document.activeElement !== $("ppInput")) $("ppInput").value = state.pp;
   $("sfRow").querySelectorAll("button").forEach(b=>b.classList.toggle("sel", b.dataset.sf===String(state.sf)));
   const plr = plRows(state);
-  $("plTable").innerHTML = plr.rows.map(r=>`<tr><td>${r[0]}</td><td class="${r[2]||""}">${r[1]}</td></tr>`).join("");
+  $("plTable").innerHTML = plr.rows.filter(r=>!r[0].startsWith("Bonus: served all")).map(r=>`<tr><td>${r[0]}</td><td class="${r[2]||""}">${r[1]}</td></tr>`).join("");
   const pc = $("plCoach"); pc.style.display = plr.coach ? "block" : "none"; pc.className = "pl-coach " + (plr.coach ? plr.coach.kind : ""); pc.innerHTML = plr.coach ? plr.coach.text : "";
 
   // health
