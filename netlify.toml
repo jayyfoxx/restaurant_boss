@@ -1,0 +1,16 @@
+[build]
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+
+# Short link for customers: yoursite.netlify.app/s  or  yoursite.netlify.app/s/ABCDE
+[[redirects]]
+  from = "/s"
+  to = "/survey.html"
+  status = 200
+
+[[redirects]]
+  from = "/s/*"
+  to = "/survey.html"
+  status = 200

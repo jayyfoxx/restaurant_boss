@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Restaurant Survey</title>
+<meta name="theme-color" content="#0B0B0D">
+<meta name="robots" content="noindex">
+<style>
+  :root{ --ink:#17171A; --ink-soft:#5B6270; --line:#DCDED6; --green:#1E5F4A; --red:#B3261E; --yellow:#FFE600; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;}
+  body{background:linear-gradient(180deg,#050506,#0E0E10) fixed; min-height:100vh; color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; padding-bottom:50px;}
+  .wrap{max-width:560px; margin:0 auto; padding:0 14px;}
+  .top{color:#fff; padding:calc(18px + env(safe-area-inset-top)) 4px 8px;}
+  .brand{font-size:13px; letter-spacing:.14em; text-transform:uppercase; opacity:.65; font-weight:800;}
+  .nm{font-size:28px; font-weight:900; text-transform:uppercase; line-height:1.1; margin-top:6px; word-wrap:break-word;}
+  .star{color:var(--yellow); font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-top:4px;}
+  .q{background:#fff; border-radius:14px; padding:16px; margin-top:12px;}
+  .qt{font-size:19px; font-weight:800; line-height:1.3; margin-bottom:12px;}
+  .qt .n{display:inline-block; background:#111; color:var(--yellow); border-radius:50%; width:30px; height:30px; text-align:center; line-height:30px; font-size:15px; margin-right:8px;}
+  .yn{display:flex; gap:10px;}
+  .yn button{flex:1; border:2px solid var(--line); background:#fff; border-radius:12px; font-size:22px; font-weight:900; padding:16px 0; color:var(--ink); font-family:inherit;}
+  .yn button.yes.sel{background:var(--green); border-color:var(--green); color:#fff;}
+  .yn button.no.sel{background:var(--red); border-color:var(--red); color:#fff;}
+  .scale{display:grid; grid-template-columns:repeat(5,1fr); gap:8px;}
+  .scale button{background:#fff; border:2px solid var(--line); border-radius:10px; font-size:22px; font-weight:800; padding:14px 0; color:var(--ink); font-family:inherit;}
+  .scale button.sel{background:#111; border-color:#111; color:var(--yellow);}
+  .lbl{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); margin-top:6px;}
+  .big{width:100%; background:#111; color:var(--yellow); border:none; border-radius:12px; font-size:20px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; padding:18px; margin-top:16px; font-family:inherit;}
+  .big:disabled{background:#c9cbcf; color:#888;}
+  .msg{background:var(--yellow); color:#111; border-radius:16px; padding:34px 20px; text-align:center; margin-top:30px;}
+  .msg .t1{font-size:42px; font-weight:900; text-transform:uppercase; line-height:1;}
+  .msg .t2{font-size:18px; font-weight:700; margin-top:12px; line-height:1.35;}
+  .card{background:#fff; border-radius:14px; padding:18px; margin-top:20px; text-align:center;}
+  .card p{margin:0 0 12px; font-size:15px; color:var(--ink-soft); line-height:1.4;}
+  .card input{width:100%; font-size:34px; font-weight:900; text-align:center; letter-spacing:.2em; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:"SF Mono",Menlo,monospace; text-transform:uppercase;}
+  .err{color:var(--red); font-weight:700; font-size:14px; margin-top:10px;}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">Restaurant Boss</div>
+    <div class="nm" id="nm">Customer Survey</div>
+    <div class="star" id="star"></div>
+  </div>
+
+  <!-- enter the code -->
+  <div class="card" id="codeCard" hidden>
+    <p>Enter the survey code you were given.</p>
+    <input id="codeIn" type="text" maxlength="8" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="-----">
+    <button class="big" id="codeGo">Start</button>
+    <div class="err" id="codeErr"></div>
+  </div>
+
+  <!-- messages -->
+  <div class="msg" id="msg" hidden><div class="t1" id="t1"></div><div class="t2" id="t2"></div></div>
+
+  <!-- survey -->
+  <div id="form" hidden>
+    <div class="q"><div class="qt"><span class="n">1</span>Was the wait time in line to reach the counter reasonable for your liking?</div>
+      <div class="yn" data-q="q1"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="q"><div class="qt"><span class="n">2</span>Did you receive good customer service while ordering your food?</div>
+      <div class="yn" data-q="q2"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="q"><div class="qt"><span class="n">3</span>Did you receive your food in a timely manner, considering how busy it was?</div>
+      <div class="yn" data-q="q3"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="q"><div class="qt"><span class="n">4</span>Rate the restaurant food from 1 to 10.</div>
+      <div class="scale" data-q="q4" id="scale"></div>
+      <div class="lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
+    <div class="q"><div class="qt"><span class="n">5</span>Would you return to this restaurant?</div>
+      <div class="yn" data-q="q5"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <button class="big" id="submit" disabled>Submit</button>
+    <div class="err" id="subErr"></div>
+  </div>
+</div>
+
+<script>
+const API = "/.netlify/functions/api";
+const $ = id => document.getElementById(id);
+let gcode = "", info = null, draft = {};
+
+function token(){
+  try{
+    let t = localStorage.getItem("rbGuestToken");
+    if(!t){ t = (Math.random().toString(36)+Math.random().toString(36)+Math.random().toString(36)).replace(/[^a-z0-9]/g,"").slice(0,24); localStorage.setItem("rbGuestToken", t); }
+    return t;
+  }catch(e){ return (Math.random().toString(36)+"000000000000").replace(/[^a-z0-9]/g,"").slice(0,16); }
+}
+function doneKey(){ return "rbGuestDone_" + (info ? info.showId : ""); }
+function wasDone(){ try{ return !!localStorage.getItem(doneKey()); }catch(e){ return false; } }
+function markDone(){ try{ localStorage.setItem(doneKey(),"1"); }catch(e){} }
+
+async function api(action, payload){
+  const res = await fetch(API, { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(Object.assign({action, gcode}, payload||{})) });
+  const j = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(j.error || "Something went wrong");
+  return j;
+}
+function show(which, t1, t2){
+  $("codeCard").hidden = which!=="code"; $("form").hidden = which!=="form"; $("msg").hidden = which!=="msg";
+  if(which==="msg"){ $("t1").textContent = t1; $("t2").textContent = t2||""; }
+}
+function codeFromUrl(){
+  const m = location.pathname.match(/\/s\/([A-Za-z0-9]+)/);
+  if(m) return m[1];
+  return new URLSearchParams(location.search).get("c") || "";
+}
+async function load(){
+  try{
+    info = await api("guestInfo");
+    $("nm").textContent = info.name || "Customer Survey";
+    $("star").textContent = info.star ? "★ " + info.star : "";
+    if(info.closed) return show("msg","Surveys Closed","Thank you for stopping by. This restaurant is no longer taking surveys.");
+    if(wasDone()) return show("msg","Already Done","You already filled out the survey. Thank you!");
+    show("form");
+  }catch(e){
+    show("code"); $("codeErr").textContent = e.message;
+  }
+}
+$("scale").innerHTML = Array.from({length:10},(_,i)=>`<button data-v="${i+1}">${i+1}</button>`).join("");
+$("form").addEventListener("click",e=>{
+  const b = e.target.closest("button"); if(!b || !b.dataset.v) return;
+  const g = b.parentElement, q = g.dataset.q; if(!q) return;
+  g.querySelectorAll("button").forEach(x=>x.classList.remove("sel")); b.classList.add("sel");
+  draft[q] = +b.dataset.v;
+  $("submit").disabled = !["q1","q2","q3","q4","q5"].every(k=>draft[k]!==undefined);
+});
+$("submit").addEventListener("click", async ()=>{
+  $("submit").disabled = true; $("subErr").textContent = "";
+  try{
+    const r = await api("guestSurvey", { token:token(), survey:{ q1:draft.q1, q2:draft.q2, q3:draft.q3, q4:draft.q4, q5:draft.q5 } });
+    if(r.closed) return show("msg","Surveys Closed","Thank you for stopping by. This restaurant is no longer taking surveys.");
+    markDone();
+    if(r.already) return show("msg","Already Done","You already filled out the survey. Thank you!");
+    show("msg","Thank You!","Your answers were counted.");
+  }catch(e){
+    $("subErr").textContent = (e.message || "Could not send") + ". Please try again.";
+    $("submit").disabled = false;
+  }
+});
+$("codeGo").addEventListener("click",()=>{
+  gcode = $("codeIn").value.trim().toUpperCase();
+  $("codeErr").textContent = "";
+  load();
+});
+$("codeIn").addEventListener("keydown",e=>{ if(e.key==="Enter") $("codeGo").click(); });
+
+gcode = codeFromUrl().toUpperCase();
+if(gcode) load(); else show("code");
+</script>
+</body>
+</html>
