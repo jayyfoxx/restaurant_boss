@@ -491,6 +491,20 @@ function resizeImage(file, max, quality){
     img.src = url;
   });
 }
+// a small copy of the photo for customers' phones (keeps their data use tiny)
+function smallOf(dataURL){
+  return new Promise(res=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const s = Math.min(1, 700/Math.max(img.width,img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      res(c.toDataURL("image/jpeg",.7));
+    };
+    img.onerror = ()=>res("");
+    img.src = dataURL;
+  });
+}
 function thumbOf(dataURL){
   return new Promise(res=>{
     if(!dataURL) return res("");
@@ -1038,7 +1052,7 @@ async function flush(){
   }
   // photo
   if(sync.photoDirty && photoURL){
-    const r = await api("photo", { showId:sync.showId, url:photoURL });
+    const r = await api("photo", { showId:sync.showId, url:photoURL, small: await smallOf(photoURL) });
     if(r.stale){ adoptRemoteShow(r.current); return; }
     sync.photoRev = r.photoRev; sync.photoDirty = false; saveSync();
   }
