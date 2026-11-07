@@ -210,6 +210,16 @@
   .glink{font-size:13px; text-align:center; color:var(--ink-soft); word-break:break-all; margin-bottom:12px;}
   .jname{width:100%; font-size:18px; font-weight:800; text-transform:uppercase; border:2px solid var(--line); border-radius:10px; padding:10px 12px; margin:2px 0 8px; font-family:inherit; -webkit-appearance:none;}
   .jlabel{font-size:12px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft);}
+  .pl-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .pl-grid label{font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); display:block;}
+  .pl-grid input{width:100%; font-size:22px; font-weight:800; border:2px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:4px; font-family:inherit; -webkit-appearance:none;}
+  .sfrow{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:6px 0 4px;}
+  .sfrow button{background:#fff; border:2px solid var(--line); border-radius:10px; font-size:20px; font-weight:800; padding:12px 0; color:var(--ink); font-family:inherit;}
+  .sfrow button.sel{background:#111; border-color:#111; color:var(--yellow);}
+  .pl-table{width:100%; border-collapse:collapse; margin-top:12px; font-size:15px;}
+  .pl-table td{padding:7px 0; border-top:1px solid var(--line);}
+  .pl-table td:last-child{text-align:right; font-weight:800;}
+  .pl-table .good{color:var(--green);} .pl-table .bad{color:var(--red);}
   .phone-note{font-size:13px; color:var(--ink-soft); margin-top:6px;}
 
   /* views */
@@ -332,6 +342,19 @@
     <button class="big-btn" id="revealBtn" disabled>Reveal Grade</button>
   </div>
 
+  <!-- 6. P&L -->
+  <div class="card" id="plCard">
+    <h2><span class="step">5</span>Restaurant P&amp;L</h2>
+    <p class="hint">Each contestant gets a $200 food budget and up to 5 staff for the 30-customer, 1-hour stress test. Enter the total from their final receipt (spent the whole $200? enter 200). Going over budget is allowed. Two bonus points are available: +1 for staying at $200 or under, +1 for a food cost of 35% or under. The host sets the plate price.</p>
+    <div class="pl-grid">
+      <label>Total spent ($)<input id="spInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="--"></label>
+      <label>Plate price ($)<input id="ppInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="12"></label>
+    </div>
+    <div style="margin-top:12px; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);">Staff used (max 5)</div>
+    <div class="sfrow" id="sfRow"><button data-sf="1">1</button><button data-sf="2">2</button><button data-sf="3">3</button><button data-sf="4">4</button><button data-sf="5">5</button></div>
+    <table class="pl-table" id="plTable"></table>
+  </div>
+
 </div>
 
 <!-- home screen -->
@@ -441,7 +464,7 @@ const HIST_KEY  = "restaurantBossHistory_v1";
 /* ---------- state ---------- */
 let state = freshState();
 function freshState(){
-  return { name:"", star:"", surveys:[], locked:false, judges:[null,null,null], jnames:["","",""], health:"", revealed:false, hasPhoto:false, view:{z:1,cx:.5,cy:.5} };
+  return { name:"", star:"", surveys:[], locked:false, judges:[null,null,null], jnames:["","",""], health:"", sp:"", sf:"", pp:"12", revealed:false, hasPhoto:false, view:{z:1,cx:.5,cy:.5} };
 }
 let draft = {};          // survey in progress
 let photoURL = null;     // current storefront photo (data URL)
@@ -547,6 +570,38 @@ function customerBreakdown(st){
   return { n, rows, score };
 }
 
+const START_BUDGET = 200, TARGET_CUSTOMERS = 30, MAX_STAFF = 5;
+const money = n => "$" + (Math.round(n*100)/100).toFixed(2);
+function plRows(st){
+  const n = st.surveys.length, sp = parseFloat(st.sp), price = parseFloat(st.pp), staff = parseInt(st.sf);
+  const spent = (!isNaN(sp) && sp>=0) ? sp : null;
+  const rows = [["Customers served", n+" of "+TARGET_CUSTOMERS]];
+  let pctVal = null, bBudget = 0, bFood = 0;
+  if(spent!==null){
+    rows.push(["Total spent (receipt)", money(spent)]);
+    const diff = START_BUDGET-spent;
+    rows.push([diff>=0 ? "Under the $200 budget by" : "Over the $200 budget by", money(Math.abs(diff)), diff>=0?"good":"bad"]);
+    if(n>0) rows.push(["Food cost per customer", money(spent/n)]);
+    if(n>0 && !isNaN(price) && price>0){
+      const sales = n*price;
+      rows.push(["Sales ("+n+" x "+money(price)+")", money(sales)]);
+      pctVal = spent/sales*100;
+      rows.push(["Food cost %", pct(pctVal)+"%", pctVal<=35?"good":"bad"]);
+      const profit = sales-spent;
+      rows.push(["Profit after food", (profit<0?"-":"")+money(Math.abs(profit)), profit<0?"bad":"good"]);
+    }
+    bBudget = spent<=START_BUDGET ? 1 : 0;
+    bFood = (pctVal!==null && pctVal<=35) ? 1 : 0;
+    rows.push(["Bonus: on budget ($200 or under)", bBudget?"+1":"0", bBudget?"good":""]);
+    rows.push(["Bonus: food cost 35% or under", pctVal===null?"--":(bFood?"+1":"0"), bFood?"good":""]);
+  }
+  if(staff>=1 && staff<=MAX_STAFF){
+    rows.push(["Staff used", staff+" of "+MAX_STAFF]);
+    if(n>0) rows.push(["Customers per staff", (Math.round(n/staff*10)/10)+""]);
+  }
+  return { rows, spent, pctVal, bBudget, bFood, bonus:bBudget+bFood, any: spent!==null || (staff>=1 && staff<=MAX_STAFF) };
+}
+
 function missingList(){
   const m = [];
   if(!state.name.trim()) m.push("Restaurant name");
@@ -571,8 +626,10 @@ function compute(st){
   ];
   let w=0, sum=0, complete=true;
   parts.forEach(p=>{ if(p.val===null){ complete=false; } else { sum+=p.val*WEIGHTS[p.key]; w+=WEIGHTS[p.key]; } });
-  const final = complete ? Math.round(sum/w*10)/10 : null;
-  return { cb, parts, final, complete };
+  const base = complete ? Math.round(sum/w*10)/10 : null;
+  const pl = plRows(st), bonus = pl.bonus;
+  const final = complete ? Math.round((sum/w + bonus)*10)/10 : null;
+  return { cb, parts, final, base, bonus, pl, complete };
 }
 
 /* ---------- main render ---------- */
@@ -631,6 +688,12 @@ function render(){
   const jd = state.judges.filter(j=>j!==null).length;
   const jt = $("judgeTag");
   if(jd===3){ jt.textContent="Done"; jt.className="ok-tag"; } else { jt.textContent = jd+" of 3"; jt.className="need-tag"; }
+
+  // P&L
+  if(document.activeElement !== $("spInput")) $("spInput").value = state.sp;
+  if(document.activeElement !== $("ppInput")) $("ppInput").value = state.pp;
+  $("sfRow").querySelectorAll("button").forEach(b=>b.classList.toggle("sel", b.dataset.sf===String(state.sf)));
+  $("plTable").innerHTML = plRows(state).rows.map(r=>`<tr><td>${r[0]}</td><td class="${r[2]||""}">${r[1]}</td></tr>`).join("");
 
   // health
   if(document.activeElement !== $("healthInput")) $("healthInput").value = state.health;
@@ -769,6 +832,11 @@ $("starInput").addEventListener("input",e=>{ state.star = e.target.value; save()
 /* ---------- health ---------- */
 $("healthInput").addEventListener("input",e=>{ state.health = e.target.value; save(); render(); });
 $("healthInput").addEventListener("blur",()=>render());
+$("spInput").addEventListener("input",e=>{ state.sp = e.target.value; save(); render(); });
+$("spInput").addEventListener("blur",()=>render());
+$("ppInput").addEventListener("input",e=>{ state.pp = e.target.value; save(); render(); });
+$("ppInput").addEventListener("blur",()=>render());
+$("sfRow").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; state.sf = (String(state.sf)===b.dataset.sf) ? "" : b.dataset.sf; save(); render(); });
 
 /* ---------- kiosk ---------- */
 function buildFoodScale(){
@@ -859,10 +927,15 @@ function breakdownHTML(c, st){
   });
   const hv = parseFloat(st.health), hok = !isNaN(hv);
   h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${hok?pct(hv):"--"}</span></h3><table><tr><td>Score out of 100</td><td>${hok?pct(hv)+" ("+letter(hv)+")":"Not entered"}</td></tr></table></div>`;
+  const pl = plRows(st);
+  if(pl.any){
+    h += `<div class="brk"><h3><span>Restaurant P&amp;L <small style="opacity:.6;font-weight:600;">(bonus points)</small></span><span class="big">${pl.pctVal===null?"--":pct(pl.pctVal)+"%"}</span></h3><table>${pl.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table></div>`;
+  }
   if(c.complete){
     const total = c.parts.reduce((a,p)=>a+p.val*WEIGHTS[p.key],0);
     const wsum = c.parts.reduce((a,p)=>a+WEIGHTS[p.key],0);
-    h += `<div class="formula"><b>How the final grade is figured</b><br>${c.parts.map(p=>pct(p.val)).join(" + ")} = ${pct(total)}<br>${pct(total)} &divide; ${wsum} parts = <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">Each of the 5 parts counts the same. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
+    const bn = c.bonus ? `<br>${pct(c.base)} + ${c.bonus} bonus point${c.bonus===1?"":"s"} (${[c.pl.bBudget?"on budget":"",c.pl.bFood?"food cost 35% or under":""].filter(Boolean).join(" + ")}) = <b>${pct(c.final)}</b>` : "";
+    h += `<div class="formula"><b>How the final grade is figured</b><br>${c.parts.map(p=>pct(p.val)).join(" + ")} = ${pct(total)}<br>${pct(total)} &divide; ${wsum} parts = ${c.bonus?pct(c.base):"<b>"+pct(c.final)+"</b>"}${bn}<br>Final <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">Each of the 5 parts counts the same, then bonus points are added. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
   } else {
     h += `<div class="formula">This show was not finished, so it never got a final grade.</div>`;
   }
@@ -904,6 +977,8 @@ $("copyBtn").addEventListener("click",()=>{
   c.cb.rows.forEach(r=>lines.push(`  - ${r.label}: ${r.txt}`));
   [1,2,3].forEach(i=>lines.push(`Judge ${i}${(st.jnames&&st.jnames[i-1])?" ("+st.jnames[i-1].trim()+")":""}: ${st.judges[i-1]}/10 (${st.judges[i-1]*10})`));
   lines.push(`Health grade: ${pct(parseFloat(st.health))}/100 (${letter(parseFloat(st.health))})`);
+  const pl = plRows(st);
+  if(pl.any){ lines.push("", "RESTAURANT P&L (bonus points: +"+c.bonus+")"); pl.rows.forEach(r=>lines.push(`  - ${r[0]}: ${r[1]}`)); }
   const txt = lines.join("\n");
   (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast("Results copied")).catch(()=>{ prompt("Copy your results:", txt); });
 });
@@ -1010,7 +1085,7 @@ $("homeNew").addEventListener("click", async ()=>{
 /* ---------- sync across devices ---------- */
 const API = "/.netlify/functions/api";
 const SYNC_KEY = "restaurantBossSync_v1";
-const FIELD_LIST = ["name","star","locked","revealed","health","j1","j2","j3","jn1","jn2","jn3","view"];
+const FIELD_LIST = ["name","star","locked","revealed","health","j1","j2","j3","jn1","jn2","jn3","sp","sf","pp","view"];
 let sync = { code:null, showId:null, snap:{}, snapIds:[], photoRev:0, photoDirty:false };
 try { const r = localStorage.getItem(SYNC_KEY); if(r) sync = Object.assign(sync, JSON.parse(r)); } catch(e){}
 function saveSync(){ try{ localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); }catch(e){} }
@@ -1028,13 +1103,13 @@ const DEFAULT_VIEW = {z:1,cx:.5,cy:.5};
 function localFields(st){
   return { name:st.name, star:st.star, locked:!!st.locked, revealed:!!st.revealed, health:String(st.health ?? ""),
            j1:st.judges[0], j2:st.judges[1], j3:st.judges[2],
-           jn1:(st.jnames||[])[0]||"", jn2:(st.jnames||[])[1]||"", jn3:(st.jnames||[])[2]||"", view:st.view || DEFAULT_VIEW };
+           jn1:(st.jnames||[])[0]||"", jn2:(st.jnames||[])[1]||"", jn3:(st.jnames||[])[2]||"", sp:String(st.sp ?? ""), sf:String(st.sf ?? ""), pp:String(st.pp ?? ""), view:st.view || DEFAULT_VIEW };
 }
 function remoteDefaults(f){
   f = f || {};
   return { name:f.name ?? "", star:f.star ?? "", locked:!!f.locked, revealed:!!f.revealed, health:f.health ?? "",
            j1:f.j1 ?? null, j2:f.j2 ?? null, j3:f.j3 ?? null,
-           jn1:f.jn1 ?? "", jn2:f.jn2 ?? "", jn3:f.jn3 ?? "", view:f.view || DEFAULT_VIEW };
+           jn1:f.jn1 ?? "", jn2:f.jn2 ?? "", jn3:f.jn3 ?? "", sp:f.sp ?? "", sf:f.sf ?? "", pp:f.pp ?? "12", view:f.view || DEFAULT_VIEW };
 }
 function setField(st,k,v){
   if(k==="j1") st.judges[0]=v; else if(k==="j2") st.judges[1]=v; else if(k==="j3") st.judges[2]=v;
