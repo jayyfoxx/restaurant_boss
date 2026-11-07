@@ -228,6 +228,35 @@ export default async (req) => {
       return J({ ok: true, current: await view(n) });
     }
 
+    // bring an old show back as the current one (the show being worked on is saved to the list first)
+    if (action === "resumeShow") {
+      const id = String(b.id || "");
+      const t = await getMeta(id);
+      if (!t || !t.archived) return J({ error: "not found" }, 404);
+      const m = await current();
+      if (m.id !== id) {
+        if (await isEmpty(m)) {
+          await store.delete(kMeta(m.id));
+        } else {
+          m.archived = true;
+          m.archivedAt = Date.now();
+          m.summary = b.summary && typeof b.summary === "object" ? {
+            grade: String(b.summary.grade || "?").slice(0, 2),
+            score: b.summary.score === null ? null : Number(b.summary.score),
+            surveys: Number(b.summary.surveys) || 0,
+            thumb: String(b.summary.thumb || "").slice(0, 30000),
+          } : null;
+          await setMeta(m);
+        }
+      }
+      t.archived = false;
+      delete t.archivedAt;
+      t.summary = null;
+      await setMeta(t);
+      await store.setJSON(kPointer, { currentId: t.id });
+      return J({ ok: true, current: await view(t) });
+    }
+
     if (action === "shows") {
       const { blobs } = await store.list({ prefix: `${ws}/meta/` });
       const metas = (await Promise.all(blobs.map((x) => store.get(x.key, { type: "json" })))).filter((m) => m && m.archived);
