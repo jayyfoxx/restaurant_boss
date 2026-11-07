@@ -356,7 +356,7 @@
 <!-- phone survey code -->
 <div class="modal" id="phoneModal"><div class="mbox" style="text-align:center;">
   <h3>Phone Surveys</h3>
-  <p id="phoneMsg">Customers scan this or type the code. Each phone gets one survey, and it counts with the tablet surveys.</p>
+  <p id="phoneMsg">This code is just for this show. Print it for tonight. Each phone gets one survey, and it counts with the tablet surveys.</p>
   <div id="phoneBody">
     <div class="qr-wrap"><canvas id="qrCanvas" width="300" height="300"></canvas></div>
     <div class="gcode" id="gcodeText">-----</div>
@@ -2397,7 +2397,7 @@ async function openPhoneModal(){
     return;
   }
   $("phoneBody").style.display = "";
-  $("phoneMsg").textContent = "Customers scan this or type the code. Each phone gets one survey, and it counts with the tablet surveys.";
+  $("phoneMsg").textContent = "This code is just for this show. Print it for tonight. Each phone gets one survey, and it counts with the tablet surveys.";
   $("gcodeText").textContent = "-----";
   try{ const r = await api("guestCode"); showGcode(r.gcode); }
   catch(e){ $("phoneMsg").textContent = "Could not get the code. Check your connection."; }

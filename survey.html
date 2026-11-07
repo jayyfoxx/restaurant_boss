@@ -113,6 +113,7 @@ async function load(){
     info = await api("guestInfo");
     $("nm").textContent = info.name || "Customer Survey";
     $("star").textContent = info.star ? "★ " + info.star : "";
+    if(info.ended) return show("msg","Show Ended","This survey code was for an earlier show. Thank you!");
     if(info.closed) return show("msg","Surveys Closed","Thank you for stopping by. This restaurant is no longer taking surveys.");
     if(wasDone()) return show("msg","Already Done","You already filled out the survey. Thank you!");
     show("form");
