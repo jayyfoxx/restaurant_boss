@@ -303,7 +303,8 @@
   <!-- 1. P&L (top) -->
   <div class="card" id="plCard">
     <h2><span class="step">1</span>Restaurant P&amp;L</h2>
-    <p class="hint"><b>Staying at 35% food cost:</b> You have to serve 20 plates at $7 per plate, which gives the contestant a budget of $140, which = a 35% food cost.<br>Example for a $20 plate. Plate price &times; 7 = the most you can spend.</p>
+    <p class="hint"><b>Food cost target:</b> Spending $7 of food per plate across 20 plates is a $140 food budget, which equals a 35% food cost. Spending more is allowed, but going over $140 puts the food cost bonus point at risk.</p>
+    <p class="hint"><b>Bonus points available:</b><br>+1 Served all 20 customers in the hour<br>+1 Stayed at 35% food cost or under<br>+1 Stayed at or under the $200 budget</p>
         <div class="pl-grid">
       <label>Total spent ($)<input id="spInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="--"></label>
       <label>Plate price ($)<input id="ppInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 20"></label>
@@ -453,6 +454,7 @@
       <button class="ghost-btn" id="copyBtn" style="background:#fff;">Copy Results</button>
       <button class="ghost-btn" id="rClose" style="background:#fff;">Back to Scoring</button>
     </div>
+    <div class="row"><button class="ghost-btn" id="rResume" style="background:#111; color:var(--yellow); border-color:#111; display:none;">Continue This Show</button></div>
     <div class="row"><button class="ghost-btn danger" id="rDelete" style="background:#fff; display:none;">Delete This Show</button></div>
   </div>
 </div>
@@ -978,6 +980,7 @@ function openReveal(ctx){
   $("rBreak").innerHTML = breakdownHTML(c, st);
   $("rClose").textContent = ctx.live ? "Back to Scoring" : "Back";
   $("rDelete").style.display = ctx.live ? "none" : "";
+  $("rResume").style.display = (ctx.live || !ctx.id) ? "none" : "";
   if(!ctx.live || st.revealed){ showFinal(c,false); } else { $("rGradeArea").style.display="block"; $("rFinal").style.display="none"; $("rBreak").style.display="none"; }
   $("reveal").classList.add("open"); document.body.style.overflow="hidden";
   $("reveal").scrollTop = 0;
@@ -1081,6 +1084,30 @@ $("rDelete").addEventListener("click", async ()=>{
   $("reveal").classList.remove("open"); document.body.style.overflow=""; renderPast(); toast("Show deleted");
 });
 
+$("rResume").addEventListener("click", async ()=>{
+  const id = revealCtx.id; if(!id) return;
+  const msg = showStarted() ? "Continue this show? The show you are on now will be saved in Previous Shows." : "Continue this show?";
+  if(!confirm(msg)) return;
+  try{
+    if(revealCtx.remote){
+      await flush();
+      const r = await api("resumeShow", { id, summary: showStarted() ? await summaryOf(state, photoURL) : null });
+      adoptRemoteShow(r.current);
+    } else {
+      const x = loadHist().find(h=>h.id===id);
+      if(!x || !x.data){ toast("Details were not saved for this older show"); return; }
+      const url = await idbGet("photo_"+id);
+      if(showStarted()) await archiveCurrent();
+      saveHist(loadHist().filter(h=>h.id!==id)); await idbSet("photo_"+id, null);
+      state = Object.assign(freshState(), x.data); photoURL = url || null;
+      await idbSet("photo", photoURL); save();
+    }
+  }catch(err){ toast("Could not continue that show. Check your connection and try again."); return; }
+  draft = {};
+  $("reveal").classList.remove("open"); document.body.style.overflow="";
+  setView("app"); toast("Show reopened");
+});
+
 async function archiveCurrent(){
   if(sync.code){
     await flush();                                   // make sure the shared copy is complete first
@@ -1100,7 +1127,7 @@ async function archiveCurrent(){
 }
 $("homeNew").addEventListener("click", async ()=>{
   if(showStarted()){
-    if(!confirm("Start a new show? The current one is saved in Previous Shows.")) return;
+    if(!confirm("Start a new show? The current one is saved in Previous Shows, and you can continue it from there any time.")) return;
     try{ await archiveCurrent(); }catch(e){ toast("Could not save to the shared list. Check your connection and try again."); return; }
   }
   if(!sync.code){ state = freshState(); photoURL = null; await idbSet("photo", null); save(); }
