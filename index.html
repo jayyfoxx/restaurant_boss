@@ -31,8 +31,8 @@
   .wrap{max-width:720px; margin:0 auto; padding:0 14px;}
 
   /* header */
+  .sticky-top{position:sticky; top:0; z-index:20; background:#0A0A0C; box-shadow:0 6px 16px rgba(0,0,0,.6);}
   header{
-    position:sticky; top:0; z-index:20;
     background:linear-gradient(135deg,#0B0B0D,#17171A 55%,#0B0B0D);
     color:#fff; padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
     border-bottom:1px solid rgba(199,201,204,.2);
@@ -40,30 +40,65 @@
   }
   .brand{font-size:18px; font-weight:900; letter-spacing:.1em; text-transform:uppercase;}
   .brand span{background:var(--yellow); color:#111; padding:0 7px; margin-left:4px;}
+  .hstamp{
+    flex:none; width:46px; height:46px; border-radius:50%; border:2.5px solid #fff; background:rgba(255,255,255,.06);
+    color:var(--yellow); font-family:"SF Mono",Menlo,monospace; font-size:25px; font-weight:900; line-height:1;
+    display:flex; align-items:center; justify-content:center; padding:0; transform:rotate(-8deg); transition:transform .25s;
+  }
+  .hstamp.bump{transform:rotate(-8deg) scale(1.15);}
   .hdr-btn{background:transparent; border:1px solid rgba(255,255,255,.35); color:#fff; font-size:12px; font-weight:700; padding:7px 12px; border-radius:16px;}
 
   /* storefront */
+  .lock{padding-bottom:10px;}
   .photo-box{
-    position:relative; margin:14px 0 0; border-radius:14px; overflow:hidden;
+    position:relative; margin:10px 0 0; border-radius:14px; overflow:hidden;
     background:#1b1b1f; border:2px dashed rgba(255,255,255,.35);
-    aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    aspect-ratio:16/10; cursor:pointer; touch-action:pan-y;
   }
-  .photo-box.has{border:2px solid var(--yellow);}
-  .photo-box img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none;}
+  .photo-box.has{border:2px solid var(--yellow); cursor:default;}
+  .photo-box img{position:absolute; left:0; top:0; max-width:none; display:none; user-select:none; -webkit-user-select:none; -webkit-user-drag:none; pointer-events:none;}
   .photo-box.has img{display:block;}
-  .photo-prompt{color:#fff; text-align:center; padding:20px;}
+  .photo-box.adjusting{touch-action:none; cursor:grab; border-color:#fff;}
+  .photo-prompt{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; text-align:center; padding:20px 20px 60px;}
   .photo-box.has .photo-prompt{display:none;}
   .photo-prompt .plus{font-size:54px; line-height:1; color:var(--yellow); font-weight:300;}
   .photo-prompt .t{font-size:20px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; margin-top:6px;}
   .photo-prompt .s{font-size:13px; opacity:.7; margin-top:4px;}
-  .photo-change{
-    position:absolute; right:10px; bottom:10px; display:none;
-    background:rgba(0,0,0,.7); color:#fff; border:1px solid rgba(255,255,255,.5);
-    font-size:12px; font-weight:700; padding:7px 12px; border-radius:16px;
+  .star-bar{
+    position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; gap:8px;
+    padding:26px 10px 10px 12px; background:linear-gradient(0deg,rgba(0,0,0,.85),rgba(0,0,0,0)); pointer-events:none;
   }
-  .photo-box.has .photo-change{display:block;}
+  .photo-box.adjusting .star-bar{display:none;}
+  .star-bar .star-ico{color:var(--yellow); font-size:22px; pointer-events:none;}
+  .star-in{
+    flex:1; min-width:0; pointer-events:auto; background:transparent; border:none; border-bottom:2px solid rgba(255,230,0,.55);
+    color:var(--yellow); font-size:24px; font-weight:900; text-transform:uppercase; letter-spacing:.03em; padding:4px 2px; border-radius:0; -webkit-appearance:none;
+  }
+  .star-in::placeholder{color:rgba(255,230,0,.55); font-size:15px; letter-spacing:.08em;}
+  .star-in:focus{outline:none; border-bottom-color:var(--yellow);}
+  .cam-btns{display:flex; gap:6px; pointer-events:auto;}
+  .cam-btn{
+    width:30px; height:30px; border-radius:8px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.4);
+    padding:0; display:none; align-items:center; justify-content:center; pointer-events:auto;
+  }
+  .cam-btn svg{width:16px; height:16px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .cam-btn.on{border-color:var(--yellow);} .cam-btn.on svg{stroke:var(--yellow);}
+  .photo-box.has .cam-btn{display:flex;}
+  .adjust-bar{display:none; background:#111; border:1px solid rgba(255,255,255,.25); border-radius:12px; padding:10px 12px; margin-top:8px; color:#fff;}
+  .adjust-bar.show{display:block;}
+  .adjust-bar .ah{font-size:13px; opacity:.8; margin-bottom:8px;}
+  .adjust-bar .ar{display:flex; align-items:center; gap:10px;}
+  .adjust-bar input[type=range]{flex:1; accent-color:#FFE600; height:28px;}
+  .adjust-bar button{background:var(--yellow); color:#111; border:none; border-radius:10px; font-weight:900; font-size:14px; padding:9px 16px; text-transform:uppercase;}
+  .adjust-bar button.ghost{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); font-weight:700;}
+  .lbl-small{color:rgba(255,255,255,.55); font-size:11px; letter-spacing:.14em; text-transform:uppercase; text-align:center; margin-top:8px;}
+  .lock.compact .photo-box{aspect-ratio:auto; height:92px;}
+  .lock.compact .lbl-small{display:none;}
+  .lock.compact .name-input{font-size:24px; padding:4px;}
+  .lock.compact .star-in{font-size:18px;}
+  .lock.compact .star-bar{padding-top:14px;}
   .name-input{
-    width:100%; margin-top:12px; background:transparent; border:none; border-bottom:3px solid var(--yellow);
+    width:100%; margin-top:2px; background:transparent; border:none; border-bottom:3px solid var(--yellow);
     color:#fff; font-size:34px; font-weight:900; text-transform:uppercase; letter-spacing:.03em;
     text-align:center; padding:8px 4px; border-radius:0; -webkit-appearance:none;
   }
@@ -126,8 +161,10 @@
   #kiosk{position:fixed; inset:0; z-index:100; background:linear-gradient(180deg,#050506,#0E0E10); overflow-y:auto; display:none; padding-bottom:40px;}
   #kiosk.open{display:block;}
   .k-top{display:flex; align-items:center; gap:14px; padding:calc(14px + env(safe-area-inset-top)) 18px 10px; color:#fff; max-width:760px; margin:0 auto;}
-  .k-top img{width:84px; height:84px; object-fit:cover; border-radius:12px; border:2px solid var(--yellow); display:none;}
-  .k-top img.show{display:block;}
+  .k-frame{position:relative; width:84px; height:84px; flex:none; overflow:hidden; border-radius:12px; border:2px solid var(--yellow); display:none;}
+  .k-frame.show{display:block;}
+  .k-frame img, .r-frame img{position:absolute; left:0; top:0; max-width:none;}
+  .k-star{color:var(--yellow); font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-top:3px;}
   .k-top .nm{font-size:26px; font-weight:900; text-transform:uppercase; line-height:1.1;}
   .k-top .cn{font-size:13px; opacity:.7; letter-spacing:.1em; text-transform:uppercase; margin-top:4px;}
   .k-body{max-width:760px; margin:0 auto; padding:0 14px;}
@@ -148,8 +185,9 @@
   #reveal.open{display:block;}
   .r-wrap{max-width:720px; margin:0 auto; padding:calc(14px + env(safe-area-inset-top)) 14px 0;}
   .r-hero{text-align:center; color:#fff; padding:10px 0 4px;}
-  .r-hero img{width:100%; max-height:260px; object-fit:cover; border-radius:14px; border:2px solid var(--yellow); display:none; margin-bottom:12px;}
-  .r-hero img.show{display:block;}
+  .r-frame{position:relative; width:100%; aspect-ratio:16/10; overflow:hidden; border-radius:14px; border:2px solid var(--yellow); display:none; margin-bottom:12px;}
+  .r-frame.show{display:block;}
+  .r-star{color:var(--yellow); font-size:16px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; margin-top:6px;}
   .r-hero .nm{font-size:32px; font-weight:900; text-transform:uppercase; line-height:1.1;}
   .r-grade{font-size:150px; line-height:1; font-weight:900; font-family:"SF Mono",Menlo,monospace; color:var(--yellow); margin:6px 0 0;}
   .r-grade.pop{animation:pop .7s cubic-bezier(.2,1.6,.4,1);}
@@ -167,7 +205,7 @@
 
   /* history */
   .hist-item{display:flex; align-items:center; gap:12px; padding:10px 0; border-top:1px solid var(--line);}
-  .hist-item img{width:54px; height:54px; border-radius:8px; object-fit:cover; background:#ddd;}
+  .hist-item img{width:80px; height:50px; border-radius:8px; object-fit:cover; background:#ddd;}
   .hist-item .hn{flex:1; font-weight:800; text-transform:uppercase; font-size:14px;}
   .hist-item .hn small{display:block; font-weight:500; color:var(--ink-soft); text-transform:none;}
   .hist-item .hg{font-size:30px; font-weight:900; font-family:"SF Mono",Menlo,monospace;}
@@ -179,34 +217,46 @@
 </head>
 <body>
 
+<div class="sticky-top" id="stickyTop">
 <header>
   <div class="brand">Restaurant<span>Boss</span></div>
+  <button class="hstamp" id="stampGrade" type="button" aria-label="Final grade">?</button>
   <button class="hdr-btn" id="newShowBtn">New Show</button>
 </header>
-
-<div class="wrap">
-
-  <!-- 1. storefront photo + name -->
+<div class="wrap lock" id="lock">
+  <!-- storefront photo + star name + restaurant name -->
   <div class="photo-box" id="photoBox">
     <img id="photoImg" alt="Storefront">
-    <div class="photo-prompt">
+    <div class="photo-prompt" id="photoPrompt">
       <div class="plus">+</div>
       <div class="t">Add Storefront Photo</div>
       <div class="s">Take a picture or pick one from your photos</div>
     </div>
-    <button class="photo-change" id="photoChange" type="button">Change Photo</button>
+    <div class="star-bar">
+      <span class="star-ico">&#9733;</span>
+      <input class="star-in" id="starInput" type="text" placeholder="Star of the show" autocomplete="off" autocapitalize="words" maxlength="30">
+      <div class="cam-btns">
+        <button class="cam-btn" id="adjustBtn" type="button" aria-label="Move and zoom photo"><svg viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M2 6h14a2 2 0 0 1 2 2v14"/></svg></button>
+        <button class="cam-btn" id="camBtn" type="button" aria-label="Change photo"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 1 2-2h1.5l1-1.5h9l1 1.5H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="adjust-bar" id="adjustBar">
+    <div class="ah">Drag the photo to move it. Pinch or use the slider to zoom.</div>
+    <div class="ar">
+      <input type="range" id="zoomRange" min="1" max="3" step="0.01" value="1">
+      <button class="ghost" id="resetView" type="button">Reset</button>
+      <button id="adjDone" type="button">Done</button>
+    </div>
   </div>
   <input type="file" id="photoInput" accept="image/*">
+  <div class="lbl-small">Restaurant name</div>
   <input class="name-input" id="nameInput" type="text" placeholder="Restaurant Name" autocomplete="off" autocapitalize="words" maxlength="40">
 
-  <!-- grade stamp -->
-  <div class="stamp">
-    <div>
-      <div class="lbl">Final Grade</div>
-      <div class="sub" id="stampSub">Not revealed yet</div>
-    </div>
-    <div class="g" id="stampGrade">?</div>
-  </div>
+</div>
+</div>
+
+<div class="wrap">
 
   <!-- 2. customers -->
   <div class="card">
@@ -260,9 +310,10 @@
 <!-- customer kiosk -->
 <div id="kiosk">
   <div class="k-top">
-    <img id="kImg" alt="">
+    <div class="k-frame" id="kFrame"><img id="kImg" alt=""></div>
     <div>
       <div class="nm" id="kName">Restaurant</div>
+      <div class="k-star" id="kStar"></div>
       <div class="cn" id="kCust">Customer 1</div>
     </div>
   </div>
@@ -289,8 +340,9 @@
 <div id="reveal">
   <div class="r-wrap">
     <div class="r-hero">
-      <img id="rImg" alt="">
+      <div class="r-frame" id="rFrame"><img id="rImg" alt=""></div>
       <div class="nm" id="rName"></div>
+      <div class="r-star" id="rStar"></div>
       <div id="rGradeArea">
         <button class="tap-reveal" id="tapReveal">Tap to Reveal Grade</button>
       </div>
@@ -319,7 +371,7 @@ const HIST_KEY  = "restaurantBossHistory_v1";
 /* ---------- state ---------- */
 let state = freshState();
 function freshState(){
-  return { name:"", surveys:[], locked:false, judges:[null,null,null], health:"", revealed:false, hasPhoto:false };
+  return { name:"", star:"", surveys:[], locked:false, judges:[null,null,null], health:"", revealed:false, hasPhoto:false, view:{z:1,cx:.5,cy:.5} };
 }
 let draft = {};          // survey in progress
 let photoURL = null;     // current storefront photo (data URL)
@@ -374,11 +426,10 @@ function thumbOf(dataURL){
     if(!dataURL) return res("");
     const img = new Image();
     img.onload = ()=>{
-      const s = 120/Math.max(img.width,img.height);
-      const c = document.createElement("canvas");
-      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
-      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
-      res(c.toDataURL("image/jpeg",.6));
+      const fw=160, fh=100, L=layoutFor(img.width,img.height,fw,fh,state.view);
+      const c = document.createElement("canvas"); c.width=fw; c.height=fh;
+      c.getContext("2d").drawImage(img,L.l,L.t,L.w,L.h);
+      res(c.toDataURL("image/jpeg",.65));
     };
     img.onerror = ()=>res("");
     img.src = dataURL;
@@ -438,8 +489,9 @@ function compute(){
 /* ---------- main render ---------- */
 function render(){
   if($("nameInput").value!==state.name) $("nameInput").value = state.name;
+  if($("starInput").value!==state.star) $("starInput").value = state.star;
   const box = $("photoBox");
-  if(photoURL){ $("photoImg").src = photoURL; box.classList.add("has"); } else { $("photoImg").removeAttribute("src"); box.classList.remove("has"); }
+  if(photoURL){ box.classList.add("has"); placeAll(); } else { $("photoImg").removeAttribute("src"); box.classList.remove("has","adjusting"); $("adjustBar").classList.remove("show"); }
 
   const c = compute();
   const n = state.surveys.length;
@@ -500,29 +552,105 @@ function render(){
   $("revealBtn").disabled = miss.length>0;
 
   // stamp
-  if(state.revealed && c.complete){
-    $("stampGrade").textContent = letter(c.final);
-    $("stampSub").textContent = pct(c.final)+" / 100";
-  } else {
-    $("stampGrade").textContent = "?";
-    $("stampSub").textContent = "Not revealed yet";
-  }
+  const sg = $("stampGrade"), shown = (state.revealed && c.complete) ? letter(c.final) : "?";
+  if(sg.textContent !== shown){ sg.textContent = shown; sg.classList.add("bump"); setTimeout(()=>sg.classList.remove("bump"),250); }
   renderHist();
 }
 
 /* ---------- storefront photo ---------- */
-$("photoBox").addEventListener("click",e=>{ if(e.target.id==="photoChange" || true) $("photoInput").click(); });
+// The photo is saved whole. "view" says which part to show: z = zoom (1 = fill the frame),
+// cx/cy = the spot on the photo (0 to 1) that sits in the middle of the frame.
+function layoutFor(iw,ih,fw,fh,v){
+  const cover = Math.max(fw/iw, fh/ih), sc = cover*v.z, w = iw*sc, h = ih*sc;
+  let l = fw/2 - v.cx*w, t = fh/2 - v.cy*h;
+  l = Math.min(0, Math.max(fw-w, l)); t = Math.min(0, Math.max(fh-h, t));
+  return { w, h, l, t };
+}
+function placePhoto(frame, img){
+  if(!photoURL) return;
+  const go = ()=>{
+    const fw = frame.clientWidth, fh = frame.clientHeight; if(!fw||!fh||!img.naturalWidth) return;
+    const L = layoutFor(img.naturalWidth, img.naturalHeight, fw, fh, state.view);
+    img.style.width = L.w+"px"; img.style.height = L.h+"px"; img.style.left = L.l+"px"; img.style.top = L.t+"px";
+  };
+  if(img.src !== photoURL) img.src = photoURL;
+  if(img.complete && img.naturalWidth) go(); else img.onload = go;
+}
+function placeAll(){
+  placePhoto($("photoBox"), $("photoImg"));
+  if($("kiosk").classList.contains("open")) placePhoto($("kFrame"), $("kImg"));
+  if($("reveal").classList.contains("open")) placePhoto($("rFrame"), $("rImg"));
+}
+window.addEventListener("resize", placeAll);
+// When you scroll down, the locked top part shrinks so there is room for everything else.
+(function(){
+  const lock=$("lock"); let ticking=false;
+  function check(){
+    ticking=false;
+    if($("photoBox").classList.contains("adjusting")) return;
+    const y=window.scrollY, c=lock.classList.contains("compact");
+    if(!c && y>140){ lock.classList.add("compact"); placeAll(); }
+    else if(c && y<30){ lock.classList.remove("compact"); placeAll(); }
+  }
+  window.addEventListener("scroll",()=>{ if(!ticking){ ticking=true; requestAnimationFrame(check); } },{passive:true});
+})();
+
+$("photoPrompt").addEventListener("click",()=>$("photoInput").click());
+$("camBtn").addEventListener("click",e=>{ e.stopPropagation(); $("photoInput").click(); });
 $("photoInput").addEventListener("change", async e=>{
   const f = e.target.files[0]; if(!f) return;
   try{
-    photoURL = await resizeImage(f, 1400, .82);
+    photoURL = await resizeImage(f, 1600, .85);
     await idbSet("photo", photoURL);
-    state.hasPhoto = true; save(); render();
-    toast("Photo saved");
+    state.hasPhoto = true; state.view = {z:1,cx:.5,cy:.5}; save(); render();
+    toast("Photo saved. Tap the arrows button to move or zoom it.");
   }catch(err){ toast("Could not read that photo"); }
   e.target.value = "";
 });
 $("nameInput").addEventListener("input",e=>{ state.name = e.target.value; save(); render(); });
+$("starInput").addEventListener("input",e=>{ state.star = e.target.value; save(); });
+
+/* move + zoom the photo */
+(function(){
+  const box=$("photoBox"), img=$("photoImg"), range=$("zoomRange"), bar=$("adjustBar");
+  const pts=new Map(); let lastDist=0;
+  function setAdjust(on){ box.classList.toggle("adjusting",on); bar.classList.toggle("show",on); $("adjustBtn").classList.toggle("on",on); range.value=state.view.z; if(on){ $("lock").classList.remove("compact"); window.scrollTo(0,0);} placeAll(); }
+  $("adjustBtn").addEventListener("click",e=>{ e.stopPropagation(); setAdjust(!box.classList.contains("adjusting")); });
+  $("adjDone").addEventListener("click",()=>{ setAdjust(false); save(); toast("Photo position saved"); });
+  $("resetView").addEventListener("click",()=>{ state.view={z:1,cx:.5,cy:.5}; range.value=1; save(); placeAll(); });
+  range.addEventListener("input",()=>{ state.view.z=+range.value; save(); placeAll(); });
+  function nat(){ return {iw:img.naturalWidth, ih:img.naturalHeight, fw:box.clientWidth, fh:box.clientHeight}; }
+  function pan(dx,dy){
+    const {iw,ih,fw,fh}=nat(); if(!iw) return;
+    const L=layoutFor(iw,ih,fw,fh,state.view);
+    state.view.cx = Math.min(1,Math.max(0, state.view.cx - dx/L.w));
+    state.view.cy = Math.min(1,Math.max(0, state.view.cy - dy/L.h));
+    placeAll();
+  }
+  box.addEventListener("pointerdown",e=>{
+    if(!box.classList.contains("adjusting")) return;
+    if(e.target.closest("input,button")) return;
+    box.setPointerCapture(e.pointerId); pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===2){ const [a,b]=[...pts.values()]; lastDist=Math.hypot(a.x-b.x,a.y-b.y); }
+  });
+  box.addEventListener("pointermove",e=>{
+    if(!pts.has(e.pointerId)) return;
+    const p=pts.get(e.pointerId), dx=e.clientX-p.x, dy=e.clientY-p.y;
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){ pan(dx,dy); }
+    else if(pts.size===2){
+      const [a,b]=[...pts.values()], d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(lastDist){ state.view.z=Math.min(3,Math.max(1,state.view.z*d/lastDist)); range.value=state.view.z; placeAll(); }
+      lastDist=d;
+    }
+  });
+  function up(e){ if(pts.delete(e.pointerId)){ lastDist=0; save(); } }
+  box.addEventListener("pointerup",up); box.addEventListener("pointercancel",up);
+  box.addEventListener("wheel",e=>{
+    if(!box.classList.contains("adjusting")) return; e.preventDefault();
+    state.view.z=Math.min(3,Math.max(1,state.view.z*(e.deltaY<0?1.06:.94))); range.value=state.view.z; save(); placeAll();
+  },{passive:false});
+})();
 
 /* ---------- health ---------- */
 $("healthInput").addEventListener("input",e=>{ state.health = e.target.value; save(); render(); });
@@ -543,13 +671,16 @@ function resetDraft(){
 function kioskHeader(){
   $("kName").textContent = state.name || "Restaurant Boss";
   $("kCust").textContent = "Customer " + (state.surveys.length+1);
-  const ki=$("kImg"); if(photoURL){ ki.src=photoURL; ki.classList.add("show"); } else ki.classList.remove("show");
+  $("kStar").textContent = state.star ? "\u2605 " + state.star : "";
+  $("kFrame").classList.toggle("show", !!photoURL);
+  placePhoto($("kFrame"), $("kImg"));
 }
 $("openKiosk").addEventListener("click",()=>{
   if(state.locked) return;
   resetDraft(); kioskHeader();
   $("kiosk").classList.add("open");
   document.body.style.overflow="hidden";
+  placePhoto($("kFrame"), $("kImg"));
 });
 $("kiosk").addEventListener("click",e=>{
   const b = e.target.closest("button"); if(!b || !b.dataset.v) return;
@@ -612,10 +743,12 @@ function breakdownHTML(c){
 function openReveal(){
   const c = compute(); if(!c.complete) return;
   $("rName").textContent = state.name;
-  const ri=$("rImg"); if(photoURL){ ri.src=photoURL; ri.classList.add("show"); } else ri.classList.remove("show");
+  $("rStar").textContent = state.star ? "\u2605 " + state.star : "";
+  $("rFrame").classList.toggle("show", !!photoURL);
   $("rBreak").innerHTML = breakdownHTML(c);
   if(state.revealed){ showFinal(c,false); } else { $("rGradeArea").style.display="block"; $("rFinal").style.display="none"; $("rBreak").style.display="none"; }
   $("reveal").classList.add("open"); document.body.style.overflow="hidden";
+  placePhoto($("rFrame"), $("rImg"));
 }
 function showFinal(c, animate){
   $("rGradeArea").style.display="none";
@@ -625,13 +758,14 @@ function showFinal(c, animate){
   $("rBreak").style.display="block";
 }
 $("revealBtn").addEventListener("click",openReveal);
+$("stampGrade").addEventListener("click",()=>{ if(compute().complete) openReveal(); else toast("Finish the surveys, judges and health grade first"); });
 $("tapReveal").addEventListener("click",()=>{
   const c = compute(); state.revealed = true; save(); showFinal(c,true); render();
 });
 $("rClose").addEventListener("click",()=>{ $("reveal").classList.remove("open"); document.body.style.overflow=""; render(); });
 $("copyBtn").addEventListener("click",()=>{
   const c = compute(); if(!c.complete) return;
-  const lines = [`RESTAURANT BOSS: ${state.name}`, `FINAL GRADE: ${letter(c.final)} (${pct(c.final)}/100)`, ""];
+  const lines = [`RESTAURANT BOSS: ${state.name}`, state.star ? `Star of the show: ${state.star}` : "", `FINAL GRADE: ${letter(c.final)} (${pct(c.final)}/100)`, ""];
   lines.push(`Customers (${c.cb.n} surveys): ${pct(c.cb.score)}`);
   c.cb.rows.forEach(r=>lines.push(`  - ${r.label}: ${r.txt}`));
   [1,2,3].forEach(i=>lines.push(`Judge ${i}: ${state.judges[i-1]}/10 (${state.judges[i-1]*10})`));
@@ -646,19 +780,19 @@ function renderHist(){
   $("histCard").style.display = h.length ? "block" : "none";
   $("histList").innerHTML = h.map((x,i)=>`
     <div class="hist-item">${x.thumb?`<img src="${x.thumb}" alt="">`:`<img alt="">`}
-      <div class="hn">${esc(x.name||"Untitled")}<small>${new Date(x.date).toLocaleDateString()} &middot; ${x.surveys} surveys &middot; ${x.score===null?"not finished":x.score+" / 100"}</small></div>
+      <div class="hn">${esc(x.name||"Untitled")}<small>${x.star?"&#9733; "+esc(x.star)+"<br>":""}${new Date(x.date).toLocaleDateString()} &middot; ${x.surveys} surveys &middot; ${x.score===null?"not finished":x.score+" / 100"}</small></div>
       <div class="hg">${x.grade}</div>
     </div>`).join("");
 }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 $("newShowBtn").addEventListener("click", async ()=>{
-  const started = state.name || state.surveys.length || photoURL;
+  const started = state.name || state.star || state.surveys.length || photoURL;
   if(started){
     if(!confirm("Start a new show? This saves the current restaurant to Past Shows and clears the scoreboard.")) return;
     const c = compute();
     const hist = loadHist();
-    hist.unshift({ name:state.name, date:Date.now(), surveys:state.surveys.length,
+    hist.unshift({ name:state.name, star:state.star, date:Date.now(), surveys:state.surveys.length,
       score: c.complete? c.final : null, grade: c.complete? letter(c.final) : "?", thumb: await thumbOf(photoURL) });
     saveHist(hist.slice(0,40));
   }
