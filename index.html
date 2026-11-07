@@ -220,6 +220,10 @@
   .pl-table td{padding:7px 0; border-top:1px solid var(--line);}
   .pl-table td:last-child{text-align:right; font-weight:800;}
   .pl-table .good{color:var(--green);} .pl-table .bad{color:var(--red);}
+  .pl-coach{margin-top:12px; border-radius:10px; padding:12px 14px; font-size:15px; line-height:1.45; background:#F3F4EF; border-left:5px solid var(--ink-soft);}
+  .pl-coach.good{background:#E7F3EC; border-left-color:var(--green);}
+  .pl-coach.bad{background:#FBECEA; border-left-color:var(--red);}
+  .pl-coach b{font-weight:800;}
   .phone-note{font-size:13px; color:var(--ink-soft); margin-top:6px;}
 
   /* views */
@@ -335,17 +339,10 @@
     </div>
   </div>
 
-  <!-- 5. reveal -->
-  <div class="card">
-    <h2><span class="step">4</span>Reveal Grade</h2>
-    <div id="missing" class="missing" style="display:none;"></div>
-    <button class="big-btn" id="revealBtn" disabled>Reveal Grade</button>
-  </div>
-
-  <!-- 6. P&L -->
+  <!-- 4. P&L -->
   <div class="card" id="plCard">
-    <h2><span class="step">5</span>Restaurant P&amp;L</h2>
-    <p class="hint">Each contestant gets a $200 food budget and up to 5 staff for the 30-customer, 1-hour stress test. Enter the total from their final receipt (spent the whole $200? enter 200). Going over budget is allowed. Two bonus points are available: +1 for staying at $200 or under, +1 for a food cost of 35% or under. The host sets the plate price.</p>
+    <h2><span class="step">4</span>Restaurant P&amp;L</h2>
+    <p class="hint">Each contestant gets a $200 food budget and up to 5 staff for the 20-customer, 1-hour stress test (after 60 minutes of prep). Enter the total from their final receipt (spent the whole $200? enter 200). Going over budget is allowed. Three bonus points are available: +1 for staying at $200 or under, +1 for a food cost of 35% or under, +1 for serving all 20 customers in the hour. The host sets the plate price.</p>
     <div class="pl-grid">
       <label>Total spent ($)<input id="spInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="--"></label>
       <label>Plate price ($)<input id="ppInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="12"></label>
@@ -353,6 +350,14 @@
     <div style="margin-top:12px; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);">Staff used (max 5)</div>
     <div class="sfrow" id="sfRow"><button data-sf="1">1</button><button data-sf="2">2</button><button data-sf="3">3</button><button data-sf="4">4</button><button data-sf="5">5</button></div>
     <table class="pl-table" id="plTable"></table>
+    <div class="pl-coach" id="plCoach" style="display:none;"></div>
+  </div>
+
+  <!-- 5. reveal (last) -->
+  <div class="card">
+    <h2><span class="step">5</span>Reveal Grade</h2>
+    <div id="missing" class="missing" style="display:none;"></div>
+    <button class="big-btn" id="revealBtn" disabled>Reveal Grade</button>
   </div>
 
 </div>
@@ -570,13 +575,14 @@ function customerBreakdown(st){
   return { n, rows, score };
 }
 
-const START_BUDGET = 200, TARGET_CUSTOMERS = 30, MAX_STAFF = 5;
+const START_BUDGET = 200, TARGET_CUSTOMERS = 20, MAX_STAFF = 5;
 const money = n => "$" + (Math.round(n*100)/100).toFixed(2);
 function plRows(st){
   const n = st.surveys.length, sp = parseFloat(st.sp), price = parseFloat(st.pp), staff = parseInt(st.sf);
   const spent = (!isNaN(sp) && sp>=0) ? sp : null;
   const rows = [["Customers served", n+" of "+TARGET_CUSTOMERS]];
-  let pctVal = null, bBudget = 0, bFood = 0;
+  let pctVal = null, bBudget = 0, bFood = 0, coach = null;
+  const bServe = n>=TARGET_CUSTOMERS ? 1 : 0;
   if(spent!==null){
     rows.push(["Total spent (receipt)", money(spent)]);
     const diff = START_BUDGET-spent;
@@ -590,16 +596,29 @@ function plRows(st){
       const profit = sales-spent;
       rows.push(["Profit after food", (profit<0?"-":"")+money(Math.abs(profit)), profit<0?"bad":"good"]);
     }
+    if(pctVal!==null){
+      const sales = n*price, maxSpend = sales*0.35, minPrice = spent/(n*0.35);
+      rows.push(["Most to spend for 35% at this price", money(maxSpend)]);
+      rows.push(["Plate price needed at this spend", money(minPrice)]);
+      const plate = Math.round(price*100)/100;
+      if(pctVal<=35){
+        coach = { kind:"good", text:`On target. At a ${money(plate)} plate with ${n} customers, the most to spend was <b>${money(maxSpend)}</b> for a 35% food cost. They spent ${money(spent)}, which is <b>${money(maxSpend-spent)} under</b> the limit.` };
+      } else {
+        const over = spent-maxSpend;
+        coach = { kind:"bad", text:`Food cost was <b>${pct(pctVal)}%</b>, above the 35% goal. At a <b>${money(plate)}</b> plate with ${n} customers, they should have spent no more than <b>${money(maxSpend)}</b> on food, which is <b>${money(over)} less</b> than they did. Or, if they kept the ${money(spent)} spend, the plate price needed to be at least <b>${money(minPrice)}</b>.` };
+      }
+    }
     bBudget = spent<=START_BUDGET ? 1 : 0;
     bFood = (pctVal!==null && pctVal<=35) ? 1 : 0;
     rows.push(["Bonus: on budget ($200 or under)", bBudget?"+1":"0", bBudget?"good":""]);
     rows.push(["Bonus: food cost 35% or under", pctVal===null?"--":(bFood?"+1":"0"), bFood?"good":""]);
   }
+  rows.push(["Bonus: served all "+TARGET_CUSTOMERS+" in the hour", bServe?"+1":"0", bServe?"good":""]);
   if(staff>=1 && staff<=MAX_STAFF){
     rows.push(["Staff used", staff+" of "+MAX_STAFF]);
     if(n>0) rows.push(["Customers per staff", (Math.round(n/staff*10)/10)+""]);
   }
-  return { rows, spent, pctVal, bBudget, bFood, bonus:bBudget+bFood, any: spent!==null || (staff>=1 && staff<=MAX_STAFF) };
+  return { rows, coach, spent, pctVal, bBudget, bFood, bServe, bonus:bBudget+bFood+bServe, any: n>0 || spent!==null || (staff>=1 && staff<=MAX_STAFF) };
 }
 
 function missingList(){
@@ -693,7 +712,9 @@ function render(){
   if(document.activeElement !== $("spInput")) $("spInput").value = state.sp;
   if(document.activeElement !== $("ppInput")) $("ppInput").value = state.pp;
   $("sfRow").querySelectorAll("button").forEach(b=>b.classList.toggle("sel", b.dataset.sf===String(state.sf)));
-  $("plTable").innerHTML = plRows(state).rows.map(r=>`<tr><td>${r[0]}</td><td class="${r[2]||""}">${r[1]}</td></tr>`).join("");
+  const plr = plRows(state);
+  $("plTable").innerHTML = plr.rows.map(r=>`<tr><td>${r[0]}</td><td class="${r[2]||""}">${r[1]}</td></tr>`).join("");
+  const pc = $("plCoach"); pc.style.display = plr.coach ? "block" : "none"; pc.className = "pl-coach " + (plr.coach ? plr.coach.kind : ""); pc.innerHTML = plr.coach ? plr.coach.text : "";
 
   // health
   if(document.activeElement !== $("healthInput")) $("healthInput").value = state.health;
@@ -929,12 +950,12 @@ function breakdownHTML(c, st){
   h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${hok?pct(hv):"--"}</span></h3><table><tr><td>Score out of 100</td><td>${hok?pct(hv)+" ("+letter(hv)+")":"Not entered"}</td></tr></table></div>`;
   const pl = plRows(st);
   if(pl.any){
-    h += `<div class="brk"><h3><span>Restaurant P&amp;L <small style="opacity:.6;font-weight:600;">(bonus points)</small></span><span class="big">${pl.pctVal===null?"--":pct(pl.pctVal)+"%"}</span></h3><table>${pl.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table></div>`;
+    h += `<div class="brk"><h3><span>Restaurant P&amp;L <small style="opacity:.6;font-weight:600;">(bonus points)</small></span><span class="big">${pl.pctVal===null?"--":pct(pl.pctVal)+"%"}</span></h3><table>${pl.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table>${pl.coach?`<div class="pl-coach ${pl.coach.kind}">${pl.coach.text}</div>`:""}</div>`;
   }
   if(c.complete){
     const total = c.parts.reduce((a,p)=>a+p.val*WEIGHTS[p.key],0);
     const wsum = c.parts.reduce((a,p)=>a+WEIGHTS[p.key],0);
-    const bn = c.bonus ? `<br>${pct(c.base)} + ${c.bonus} bonus point${c.bonus===1?"":"s"} (${[c.pl.bBudget?"on budget":"",c.pl.bFood?"food cost 35% or under":""].filter(Boolean).join(" + ")}) = <b>${pct(c.final)}</b>` : "";
+    const bn = c.bonus ? `<br>${pct(c.base)} + ${c.bonus} bonus point${c.bonus===1?"":"s"} (${[c.pl.bBudget?"on budget":"",c.pl.bFood?"food cost 35% or under":"",c.pl.bServe?"served all 20":""].filter(Boolean).join(" + ")}) = <b>${pct(c.final)}</b>` : "";
     h += `<div class="formula"><b>How the final grade is figured</b><br>${c.parts.map(p=>pct(p.val)).join(" + ")} = ${pct(total)}<br>${pct(total)} &divide; ${wsum} parts = ${c.bonus?pct(c.base):"<b>"+pct(c.final)+"</b>"}${bn}<br>Final <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">Each of the 5 parts counts the same, then bonus points are added. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
   } else {
     h += `<div class="formula">This show was not finished, so it never got a final grade.</div>`;
@@ -978,7 +999,7 @@ $("copyBtn").addEventListener("click",()=>{
   [1,2,3].forEach(i=>lines.push(`Judge ${i}${(st.jnames&&st.jnames[i-1])?" ("+st.jnames[i-1].trim()+")":""}: ${st.judges[i-1]}/10 (${st.judges[i-1]*10})`));
   lines.push(`Health grade: ${pct(parseFloat(st.health))}/100 (${letter(parseFloat(st.health))})`);
   const pl = plRows(st);
-  if(pl.any){ lines.push("", "RESTAURANT P&L (bonus points: +"+c.bonus+")"); pl.rows.forEach(r=>lines.push(`  - ${r[0]}: ${r[1]}`)); }
+  if(pl.any){ lines.push("", "RESTAURANT P&L (bonus points: +"+c.bonus+")"); pl.rows.forEach(r=>lines.push(`  - ${r[0]}: ${r[1]}`)); if(pl.coach) lines.push("  > "+pl.coach.text.replace(/<[^>]+>/g,"")); }
   const txt = lines.join("\n");
   (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast("Results copied")).catch(()=>{ prompt("Copy your results:", txt); });
 });
