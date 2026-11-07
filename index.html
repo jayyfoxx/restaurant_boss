@@ -289,7 +289,7 @@
     </div>
     <div class="star-bar">
       <span class="star-ico">&#9733;</span>
-      <input class="star-in" id="starInput" type="text" placeholder="Contestant name" autocomplete="off" autocapitalize="words" maxlength="30">
+      <input class="star-in" id="starInput" type="text" placeholder="Contestant name" autocomplete="off" autocapitalize="words" autocorrect="on" spellcheck="true" maxlength="30">
       <div class="cam-btns">
         <button class="cam-btn" id="adjustBtn" type="button" aria-label="Move and zoom photo"><svg viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M2 6h14a2 2 0 0 1 2 2v14"/></svg></button>
         <button class="cam-btn" id="camBtn" type="button" aria-label="Change photo"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 1 2-2h1.5l1-1.5h9l1 1.5H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
@@ -306,7 +306,7 @@
     </div>
   </div>
   <input type="file" id="photoInput" accept="image/*">
-  <input class="name-input" id="nameInput" type="text" placeholder="Restaurant Name" autocomplete="off" autocapitalize="words" maxlength="40">
+  <input class="name-input" id="nameInput" type="text" placeholder="Restaurant Name" autocomplete="off" autocapitalize="words" autocorrect="on" spellcheck="true" maxlength="40">
 
 </div>
 </div>
@@ -886,8 +886,14 @@ $("photoInput").addEventListener("change", async e=>{
   }catch(err){ toast("Could not read that photo"); }
   e.target.value = "";
 });
-$("nameInput").addEventListener("input",e=>{ state.name = e.target.value; save(); render(); fitAll(); });
-$("starInput").addEventListener("input",e=>{ state.star = e.target.value; save(); fitAll(); });
+// Typing only saves. The screen refresh and text resizing wait until typing pauses,
+// so they never interrupt the keyboard's word suggestions.
+let _typeT;
+function afterTyping(){ clearTimeout(_typeT); _typeT = setTimeout(()=>{ render(); fitAll(); }, 700); }
+$("nameInput").addEventListener("input",e=>{ state.name = e.target.value; save(); afterTyping(); });
+$("starInput").addEventListener("input",e=>{ state.star = e.target.value; save(); afterTyping(); });
+$("nameInput").addEventListener("blur",()=>{ clearTimeout(_typeT); render(); fitAll(); });
+$("starInput").addEventListener("blur",()=>{ clearTimeout(_typeT); render(); fitAll(); });
 
 /* move + zoom the photo */
 (function(){
