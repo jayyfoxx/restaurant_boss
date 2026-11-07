@@ -64,15 +64,16 @@
 
   <!-- survey -->
   <div id="form" hidden>
-    <div class="q"><div class="qt"><span class="n">1</span>Was the wait time in line to reach the counter reasonable for your liking?</div>
-      <div class="yn" data-q="q1"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
-    <div class="q"><div class="qt"><span class="n">2</span>Did you receive good customer service while ordering your food?</div>
+    <div class="q"><div class="qt"><span class="n">1</span><span id="svcQ">Rate the customer service, from 1 to 10.</span></div>
+      <div class="scale" data-q="q1" id="svcScale"></div>
+      <div class="lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
+    <div class="q"><div class="qt"><span class="n">2</span>Did you receive your food in a timely manner, considering how busy it was?</div>
       <div class="yn" data-q="q2"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
-    <div class="q"><div class="qt"><span class="n">3</span>Did you receive your food in a timely manner, considering how busy it was?</div>
-      <div class="yn" data-q="q3"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
-    <div class="q"><div class="qt"><span class="n">4</span>Rate the restaurant food from 1 to 10.</div>
+    <div class="q"><div class="qt"><span class="n">3</span>Rate your plate from 1 to 10.</div>
       <div class="scale" data-q="q4" id="scale"></div>
       <div class="lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
+    <div class="q"><div class="qt"><span class="n">4</span><span id="payQ">Would you pay the menu price for the plate you received today?</span></div>
+      <div class="yn" data-q="q3"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
     <div class="q"><div class="qt"><span class="n">5</span>Would you return to this restaurant?</div>
       <div class="yn" data-q="q5"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
     <button class="big" id="submit" disabled>Submit</button>
@@ -135,6 +136,9 @@ async function load(){
     $("nm").textContent = info.name || "Customer Survey";
     $("star").textContent = info.star ? "★ " + info.star : "";
     showPhoto(info.photo, info.view);
+    $("svcQ").textContent = "Rate the customer service" + ((info.name||"").trim() ? " at " + info.name.trim() : "") + ", from 1 to 10.";
+    { const p = parseFloat(info.price), r = (info.name||"").trim();
+      $("payQ").textContent = "Would you pay " + ((!isNaN(p) && p>0) ? "$" + (Number.isInteger(p) ? p : p.toFixed(2)) : "the menu price") + " for the plate you received today" + (r ? " at " + r : "") + "?"; }
     if(info.ended) return show("msg","Show Ended","This survey code was for an earlier show. Thank you!");
     if(info.closed) return show("msg","Surveys Closed","Thank you for stopping by. This restaurant is no longer taking surveys.");
     if(wasDone()) return show("msg","Already Done","You already filled out the survey. Thank you!");
@@ -143,7 +147,7 @@ async function load(){
     show("code"); $("codeErr").textContent = e.message;
   }
 }
-$("scale").innerHTML = Array.from({length:10},(_,i)=>`<button data-v="${i+1}">${i+1}</button>`).join("");
+$("scale").innerHTML = $("svcScale").innerHTML = Array.from({length:10},(_,i)=>`<button data-v="${i+1}">${i+1}</button>`).join("");
 $("form").addEventListener("click",e=>{
   const b = e.target.closest("button"); if(!b || !b.dataset.v) return;
   const g = b.parentElement, q = g.dataset.q; if(!q) return;

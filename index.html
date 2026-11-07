@@ -341,10 +341,10 @@
   <!-- 4. P&L -->
   <div class="card" id="plCard">
     <h2><span class="step">4</span>Restaurant P&amp;L</h2>
-    <p class="hint">Each contestant gets a $200 food budget and up to 5 staff for the 20-customer, 1-hour stress test (after 60 minutes of prep). Enter the total from their final receipt (spent the whole $200? enter 200). Going over budget is allowed. Three bonus points are available: +1 for staying at $200 or under, +1 for a food cost of 35% or under, +1 for serving all 20 customers in the hour. The host sets the plate price.</p>
+    <p class="hint"><b>The contestant sets their own plate price.</b> Enter it before the first customer, because the survey asks customers if they would pay it. Customers eat free, so the sales here are pretend. This shows how the restaurant would have done.<br><br><b>Staying at 35% food cost:</b> spend no more than a third of what you charge.<br>Plate price &times; 20 customers &times; 0.35 = the most you can spend. Example: $20 &times; 20 &times; 0.35 = $140. Quick version: plate price &times; 7.<br><br>Each contestant gets a $200 food budget and up to 5 staff. Enter the total from the final receipt (spent it all? enter 200). Going over budget is allowed. Bonus points: +1 for $200 or under, +1 for 35% food cost or under, +1 for serving all 20 customers in the hour.</p>
     <div class="pl-grid">
       <label>Total spent ($)<input id="spInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="--"></label>
-      <label>Plate price ($)<input id="ppInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="12"></label>
+      <label>Plate price ($)<input id="ppInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 20"></label>
     </div>
     <div style="margin-top:12px; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);">Staff used (max 5)</div>
     <div class="sfrow" id="sfRow"><button data-sf="1">1</button><button data-sf="2">2</button><button data-sf="3">3</button><button data-sf="4">4</button><button data-sf="5">5</button></div>
@@ -414,15 +414,16 @@
     </div>
   </div>
   <div class="k-body">
-    <div class="k-q"><div class="qt"><span class="n">1</span>Was the wait time in line to reach the counter reasonable for your liking?</div>
-      <div class="yn" data-q="q1"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
-    <div class="k-q"><div class="qt"><span class="n">2</span>Did you receive good customer service while ordering your food?</div>
+    <div class="k-q"><div class="qt"><span class="n">1</span><span id="kSvcQ">Rate the customer service, from 1 to 10.</span></div>
+      <div class="scale" data-q="q1" id="svcScale"></div>
+      <div class="scale-lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
+    <div class="k-q"><div class="qt"><span class="n">2</span>Did you receive your food in a timely manner, considering how busy it was?</div>
       <div class="yn" data-q="q2"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
-    <div class="k-q"><div class="qt"><span class="n">3</span>Did you receive your food in a timely manner, considering how busy it was?</div>
-      <div class="yn" data-q="q3"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
-    <div class="k-q"><div class="qt"><span class="n">4</span>Rate the restaurant food from 1 to 10.</div>
+    <div class="k-q"><div class="qt"><span class="n">3</span>Rate your plate from 1 to 10.</div>
       <div class="scale" data-q="q4" id="foodScale"></div>
       <div class="scale-lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
+    <div class="k-q"><div class="qt"><span class="n">4</span><span id="kPayQ">Would you pay the menu price for the plate you received today?</span></div>
+      <div class="yn" data-q="q3"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
     <div class="k-q"><div class="qt"><span class="n">5</span>Would you return to this restaurant?</div>
       <div class="yn" data-q="q5"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
     <button class="big-btn" id="submitSurvey" style="margin-top:16px;" disabled>Submit</button>
@@ -468,7 +469,7 @@ const HIST_KEY  = "restaurantBossHistory_v1";
 /* ---------- state ---------- */
 let state = freshState();
 function freshState(){
-  return { name:"", star:"", surveys:[], locked:false, judges:[null,null,null], jnames:["","",""], health:"", sp:"", sf:"", pp:"12", revealed:false, hasPhoto:false, view:{z:1,cx:.5,cy:.5} };
+  return { name:"", star:"", surveys:[], locked:false, judges:[null,null,null], jnames:["","",""], health:"", sp:"", sf:"", pp:"", revealed:false, hasPhoto:false, view:{z:1,cx:.5,cy:.5} };
 }
 let draft = {};          // survey in progress
 let photoURL = null;     // current storefront photo (data URL)
@@ -558,16 +559,23 @@ function letter(p){
 }
 function pct(n){ return (Math.round(n*10)/10).toFixed(1).replace(/\.0$/,""); }
 
+function priceTxt(v){ const p = parseFloat(v); if(isNaN(p) || p<=0) return ""; return "$" + (Number.isInteger(p) ? p : p.toFixed(2)); }
+function svcQuestion(name){ const r = (name||"").trim(); return "Rate the customer service" + (r ? " at " + r : "") + ", from 1 to 10."; }
+function payQuestion(name, price){
+  const p = priceTxt(price), r = (name||"").trim();
+  return "Would you pay " + (p || "the menu price") + " for the plate you received today" + (r ? " at " + r : "") + "?";
+}
+
 function customerBreakdown(st){
   st = st || state;
   const s = st.surveys, n = s.length;
   if(!n) return null;
   const yes = k => s.reduce((a,x)=>a+x[k],0)/n*100;
   const rows = [
-    { label:"Wait time was reasonable", val:yes("q1"), txt:pct(yes("q1"))+"% yes" },
-    { label:"Good customer service",    val:yes("q2"), txt:pct(yes("q2"))+"% yes" },
-    { label:"Food on time for how busy", val:yes("q3"), txt:pct(yes("q3"))+"% yes" },
-    { label:"Food rating (avg of 1-10)", val:s.reduce((a,x)=>a+x.q4,0)/n*10, txt:(Math.round(s.reduce((a,x)=>a+x.q4,0)/n*10)/10)+" / 10" },
+    { label:"Customer service rating (avg of 1-10)", val:s.reduce((a,x)=>a+x.q1,0)/n*10, txt:(Math.round(s.reduce((a,x)=>a+x.q1,0)/n*10)/10)+" / 10" },
+    { label:"Food on time for how busy", val:yes("q2"), txt:pct(yes("q2"))+"% yes" },
+    { label:"Plate rating (avg of 1-10)", val:s.reduce((a,x)=>a+x.q4,0)/n*10, txt:(Math.round(s.reduce((a,x)=>a+x.q4,0)/n*10)/10)+" / 10" },
+    { label:"Would pay "+(priceTxt(st.pp)||"the menu price")+" for the plate", val:yes("q3"), txt:pct(yes("q3"))+"% yes" },
     { label:"Would return",             val:yes("q5"), txt:pct(yes("q5"))+"% yes" }
   ];
   const score = rows.reduce((a,r)=>a+r.val,0)/rows.length;
@@ -859,9 +867,9 @@ $("sfRow").addEventListener("click",e=>{ const b=e.target.closest("button"); if(
 
 /* ---------- kiosk ---------- */
 function buildFoodScale(){
-  const f = $("foodScale"); let h="";
+  let h="";
   for(let v=1;v<=10;v++) h+=`<button data-v="${v}">${v}</button>`;
-  f.innerHTML = h;
+  $("foodScale").innerHTML = h; $("svcScale").innerHTML = h;
 }
 function resetDraft(){
   draft = {};
@@ -870,6 +878,8 @@ function resetDraft(){
   $("kiosk").scrollTop = 0;
 }
 function kioskHeader(){
+  $("kPayQ").textContent = payQuestion(state.name, state.pp);
+  $("kSvcQ").textContent = svcQuestion(state.name);
   $("kName").textContent = state.name || "Restaurant Boss";
   $("kCust").textContent = "Customer " + (state.surveys.length+1);
   $("kStar").textContent = state.star ? "\u2605 " + state.star : "";
@@ -878,6 +888,7 @@ function kioskHeader(){
 }
 $("openKiosk").addEventListener("click",()=>{
   if(state.locked) return;
+  if(!priceTxt(state.pp)){ toast("Enter the contestant's plate price first (card 4)"); $("plCard").scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(()=>$("ppInput").focus(),400); return; }
   resetDraft(); kioskHeader();
   $("kiosk").classList.add("open");
   document.body.style.overflow="hidden";
@@ -1124,7 +1135,7 @@ function remoteDefaults(f){
   f = f || {};
   return { name:f.name ?? "", star:f.star ?? "", locked:!!f.locked, revealed:!!f.revealed, health:f.health ?? "",
            j1:f.j1 ?? null, j2:f.j2 ?? null, j3:f.j3 ?? null,
-           jn1:f.jn1 ?? "", jn2:f.jn2 ?? "", jn3:f.jn3 ?? "", sp:f.sp ?? "", sf:f.sf ?? "", pp:f.pp ?? "12", view:f.view || DEFAULT_VIEW };
+           jn1:f.jn1 ?? "", jn2:f.jn2 ?? "", jn3:f.jn3 ?? "", sp:f.sp ?? "", sf:f.sf ?? "", pp:f.pp ?? "", view:f.view || DEFAULT_VIEW };
 }
 function setField(st,k,v){
   if(k==="j1") st.judges[0]=v; else if(k==="j2") st.judges[1]=v; else if(k==="j3") st.judges[2]=v;
