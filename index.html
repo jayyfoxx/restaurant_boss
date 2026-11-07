@@ -300,10 +300,24 @@
 
 <div class="wrap" id="appMain">
 
+  <!-- 1. P&L (top) -->
+  <div class="card" id="plCard">
+    <h2><span class="step">1</span>Restaurant P&amp;L</h2>
+    <p class="hint"><b>Staying at 35% food cost:</b> You have to serve 20 plates at $7 per plate, which gives the contestant a budget of $140, which = a 35% food cost.<br>Example for a $20 plate. Plate price &times; 7 = the most you can spend.</p>
+        <div class="pl-grid">
+      <label>Total spent ($)<input id="spInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="--"></label>
+      <label>Plate price ($)<input id="ppInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 20"></label>
+    </div>
+    <div style="margin-top:12px; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);">Staff used (max 5)</div>
+    <div class="sfrow" id="sfRow"><button data-sf="1">1</button><button data-sf="2">2</button><button data-sf="3">3</button><button data-sf="4">4</button><button data-sf="5">5</button></div>
+    <table class="pl-table" id="plTable"></table>
+    <div class="pl-coach" id="plCoach" style="display:none;"></div>
+  </div>
+
   <!-- 2. customers -->
   <div class="card">
     <span id="custTag" class="need-tag">Needs surveys</span>
-    <h2><span class="step">1</span>Customer Surveys</h2>
+    <h2><span class="step">2</span>Customer Surveys</h2>
     <p class="hint">Hand the tablet to each customer. After they submit, the next customer can start. Tap "All Customers Done" when the rush is over.</p>
     <div class="count-line"><b id="custCount">0</b> surveys collected</div>
     <div class="phone-note" id="phoneNote" style="display:none;"></div>
@@ -322,7 +336,7 @@
   <!-- 3. judges -->
   <div class="card">
     <span id="judgeTag" class="need-tag">Needs 3 judges</span>
-    <h2><span class="step">2</span>Judges</h2>
+    <h2><span class="step">3</span>Judges</h2>
     <p class="hint">Rate this restaurant overall, 1 to 10. Each judge counts on their own.</p>
     <div id="judges"></div>
   </div>
@@ -330,26 +344,12 @@
   <!-- 4. health -->
   <div class="card">
     <span id="healthTag" class="need-tag">Needs score</span>
-    <h2><span class="step">3</span>Health Grade</h2>
+    <h2><span class="step">4</span>Health Grade</h2>
     <p class="hint">Your score out of 100 from what you found while they were open. 90+ A, 80s B, 70s C, 60s D, below 60 F.</p>
     <div class="health-row">
       <input id="healthInput" type="number" inputmode="decimal" min="0" max="100" step="0.5" placeholder="--">
       <div class="out">/ 100<br><b id="healthLetter">--</b></div>
     </div>
-  </div>
-
-  <!-- 4. P&L -->
-  <div class="card" id="plCard">
-    <h2><span class="step">4</span>Restaurant P&amp;L</h2>
-    <p class="hint"><b>The contestant sets their own plate price.</b> Enter it before the first customer, because the survey asks customers if they would pay it. Customers eat free, so the sales here are pretend. This shows how the restaurant would have done.<br><br><b>Staying at 35% food cost:</b> spend no more than a third of what you charge.<br>Plate price &times; 20 customers &times; 0.35 = the most you can spend. Example: $20 &times; 20 &times; 0.35 = $140. Quick version: plate price &times; 7.<br><br>Each contestant gets a $200 food budget and up to 5 staff. Enter the total from the final receipt (spent it all? enter 200). Going over budget is allowed. Bonus points: +1 for $200 or under, +1 for 35% food cost or under, +1 for serving all 20 customers in the hour.</p>
-    <div class="pl-grid">
-      <label>Total spent ($)<input id="spInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="--"></label>
-      <label>Plate price ($)<input id="ppInput" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 20"></label>
-    </div>
-    <div style="margin-top:12px; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);">Staff used (max 5)</div>
-    <div class="sfrow" id="sfRow"><button data-sf="1">1</button><button data-sf="2">2</button><button data-sf="3">3</button><button data-sf="4">4</button><button data-sf="5">5</button></div>
-    <table class="pl-table" id="plTable"></table>
-    <div class="pl-coach" id="plCoach" style="display:none;"></div>
   </div>
 
   <!-- 5. reveal (last) -->
