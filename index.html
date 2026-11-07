@@ -46,14 +46,15 @@
     display:flex; align-items:center; justify-content:center; padding:0; transform:rotate(-8deg); transition:transform .25s;
   }
   .hstamp.bump{transform:rotate(-8deg) scale(1.15);}
-  .hdr-btn{background:transparent; border:1px solid rgba(255,255,255,.35); color:#fff; font-size:12px; font-weight:700; padding:7px 12px; border-radius:16px;}
+  .hdr-btn{background:transparent; border:1px solid rgba(255,255,255,.35); color:#fff; font-size:12px; font-weight:700; padding:7px 12px; border-radius:16px; display:inline-flex; align-items:center; gap:6px;}
+  .hdr-btn svg{width:14px; height:14px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
 
   /* storefront */
   .lock{padding-bottom:10px;}
   .photo-box{
     position:relative; margin:10px 0 0; border-radius:14px; overflow:hidden;
     background:#1b1b1f; border:2px dashed rgba(255,255,255,.35);
-    aspect-ratio:16/10; cursor:pointer; touch-action:pan-y;
+    aspect-ratio:2.2/1; max-height:210px; cursor:pointer; touch-action:pan-y;
   }
   .photo-box.has{border:2px solid var(--yellow); cursor:default;}
   .photo-box img{position:absolute; left:0; top:0; max-width:none; display:none; user-select:none; -webkit-user-select:none; -webkit-user-drag:none; pointer-events:none;}
@@ -71,11 +72,11 @@
   .photo-box.adjusting .star-bar{display:none;}
   .star-bar .star-ico{color:var(--yellow); font-size:22px; pointer-events:none;}
   .star-in{
-    flex:1; min-width:0; pointer-events:auto; background:transparent; border:none; border-bottom:2px solid rgba(255,230,0,.55);
+    flex:1; min-width:0; pointer-events:auto; background:transparent; border:none;
     color:var(--yellow); font-size:24px; font-weight:900; text-transform:uppercase; letter-spacing:.03em; padding:4px 2px; border-radius:0; -webkit-appearance:none;
   }
   .star-in::placeholder{color:rgba(255,230,0,.55); font-size:15px; letter-spacing:.08em;}
-  .star-in:focus{outline:none; border-bottom-color:var(--yellow);}
+  .star-in:focus{outline:none;}
   .cam-btns{display:flex; gap:6px; pointer-events:auto;}
   .cam-btn{
     width:30px; height:30px; border-radius:8px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.4);
@@ -91,28 +92,13 @@
   .adjust-bar input[type=range]{flex:1; accent-color:#FFE600; height:28px;}
   .adjust-bar button{background:var(--yellow); color:#111; border:none; border-radius:10px; font-weight:900; font-size:14px; padding:9px 16px; text-transform:uppercase;}
   .adjust-bar button.ghost{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); font-weight:700;}
-  .lbl-small{color:rgba(255,255,255,.55); font-size:11px; letter-spacing:.14em; text-transform:uppercase; text-align:center; margin-top:8px;}
-  .lock.compact .photo-box{aspect-ratio:auto; height:92px;}
-  .lock.compact .lbl-small{display:none;}
-  .lock.compact .name-input{font-size:24px; padding:4px;}
-  .lock.compact .star-in{font-size:18px;}
-  .lock.compact .star-bar{padding-top:14px;}
   .name-input{
-    width:100%; margin-top:2px; background:transparent; border:none; border-bottom:3px solid var(--yellow);
-    color:#fff; font-size:34px; font-weight:900; text-transform:uppercase; letter-spacing:.03em;
-    text-align:center; padding:8px 4px; border-radius:0; -webkit-appearance:none;
+    width:100%; margin-top:4px; background:transparent; border:none; border-bottom:3px solid var(--yellow);
+    color:#fff; font-size:30px; font-weight:900; text-transform:uppercase; letter-spacing:.03em;
+    text-align:center; padding:6px 4px; border-radius:0; -webkit-appearance:none;
   }
   .name-input::placeholder{color:rgba(255,255,255,.35);}
   .name-input:focus{outline:none;}
-
-  /* grade stamp */
-  .stamp{
-    margin:16px 0 4px; background:linear-gradient(135deg,#17171A,#0B0B0D); border:1px solid rgba(199,201,204,.25);
-    border-radius:14px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; color:#fff;
-  }
-  .stamp .lbl{font-size:12px; letter-spacing:.12em; text-transform:uppercase; opacity:.7;}
-  .stamp .sub{font-size:14px; margin-top:4px; opacity:.9;}
-  .stamp .g{font-size:60px; line-height:1; font-weight:900; font-family:"SF Mono",Menlo,monospace; color:var(--yellow);}
 
   /* cards */
   .card{background:var(--card); border-radius:14px; padding:16px; margin-top:14px;}
@@ -175,10 +161,12 @@
   .k-exit{display:block; margin:26px auto 0; background:transparent; border:1px solid rgba(255,255,255,.3); color:rgba(255,255,255,.65); font-size:13px; padding:10px 18px; border-radius:20px; position:relative; overflow:hidden; user-select:none; -webkit-user-select:none;}
   .k-exit .bar{position:absolute; left:0; top:0; bottom:0; width:0; background:rgba(255,230,0,.35);}
   .k-exit span{position:relative;}
-  .thanks{position:fixed; inset:0; z-index:200; background:var(--yellow); color:#111; display:none; align-items:center; justify-content:center; text-align:center; padding:20px;}
+  .thanks{position:fixed; inset:0; z-index:200; background:var(--yellow); color:#111; display:none; align-items:center; justify-content:center; text-align:center; padding:20px; cursor:pointer;}
   .thanks.show{display:flex;}
   .thanks .t1{font-size:56px; font-weight:900; text-transform:uppercase; line-height:1;}
   .thanks .t2{font-size:20px; margin-top:12px; font-weight:700;}
+  .thanks .t3{display:inline-block; margin-top:34px; background:#111; color:var(--yellow); font-size:20px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; padding:16px 26px; border-radius:14px; animation:pulse 1.6s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
 
   /* reveal */
   #reveal{position:fixed; inset:0; z-index:150; background:linear-gradient(180deg,#050506,#0E0E10); overflow-y:auto; display:none; padding-bottom:50px;}
@@ -203,6 +191,25 @@
   .formula{background:#111; color:#fff; border-radius:14px; padding:14px 16px; margin-top:12px; font-size:14px; line-height:1.6;}
   .formula b{color:var(--yellow);}
 
+  /* views */
+  body[data-view="home"] #stickyTop, body[data-view="home"] #appMain, body[data-view="home"] #pastView{display:none;}
+  body[data-view="app"] #home, body[data-view="app"] #pastView{display:none;}
+  body[data-view="past"] #home, body[data-view="past"] #stickyTop, body[data-view="past"] #appMain{display:none;}
+  #home{min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 22px; text-align:center; color:#fff;}
+  #home img{width:120px; height:120px; border-radius:26px; margin-bottom:22px;}
+  #home .h1{font-size:40px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; line-height:1.05;}
+  #home .h1 span{background:var(--yellow); color:#111; padding:0 10px; display:inline-block; margin-top:6px;}
+  #home .tag{opacity:.65; margin:14px 0 34px; font-size:15px;}
+  #home .hb{width:100%; max-width:420px; display:block; margin-top:12px; border-radius:14px; font-size:20px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; padding:20px; border:2px solid var(--yellow);}
+  #home .hb.primary{background:var(--yellow); color:#111;}
+  #home .hb.second{background:transparent; color:var(--yellow);}
+  #home .hb small{display:block; font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:none; margin-top:4px; opacity:.8;}
+  #pastView{padding-bottom:60px;}
+  .pv-head{display:flex; align-items:center; gap:12px; padding:calc(12px + env(safe-area-inset-top)) 16px 12px; color:#fff; background:linear-gradient(135deg,#0B0B0D,#17171A 55%,#0B0B0D); border-bottom:1px solid rgba(199,201,204,.2);}
+  .pv-title{font-size:18px; font-weight:900; text-transform:uppercase; letter-spacing:.08em;}
+  .hist-item{cursor:pointer;}
+  .empty{color:var(--ink-soft); text-align:center; padding:26px 0; font-size:15px;}
+
   /* history */
   .hist-item{display:flex; align-items:center; gap:12px; padding:10px 0; border-top:1px solid var(--line);}
   .hist-item img{width:80px; height:50px; border-radius:8px; object-fit:cover; background:#ddd;}
@@ -221,7 +228,7 @@
 <header>
   <div class="brand">Restaurant<span>Boss</span></div>
   <button class="hstamp" id="stampGrade" type="button" aria-label="Final grade">?</button>
-  <button class="hdr-btn" id="newShowBtn">New Show</button>
+  <button class="hdr-btn" id="homeBtn" type="button"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
 </header>
 <div class="wrap lock" id="lock">
   <!-- storefront photo + star name + restaurant name -->
@@ -250,13 +257,12 @@
     </div>
   </div>
   <input type="file" id="photoInput" accept="image/*">
-  <div class="lbl-small">Restaurant name</div>
   <input class="name-input" id="nameInput" type="text" placeholder="Restaurant Name" autocomplete="off" autocapitalize="words" maxlength="40">
 
 </div>
 </div>
 
-<div class="wrap">
+<div class="wrap" id="appMain">
 
   <!-- 2. customers -->
   <div class="card">
@@ -300,11 +306,22 @@
     <button class="big-btn" id="revealBtn" disabled>Reveal Grade</button>
   </div>
 
-  <!-- past shows -->
-  <div class="card" id="histCard" style="display:none;">
-    <h2>Past Shows</h2>
-    <div id="histList"></div>
-  </div>
+</div>
+
+<!-- home screen -->
+<div id="home">
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAWfmNhQlgAABZ+anVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAFlhqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOmI5MDQxODUxLTJhOGYtNDE0ZC1iNWY1LWVjNTY2YmI1ZmZiNQAAAAOTanVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAAuGp1bWIAAABEanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5pbmdyZWRpZW50LnYzAAAAABhjMnNotpMFSbO82QW2NgFc56PQawAAAGxjYm9yo2lkYzpmb3JtYXRpaW1hZ2UvcG5namluc3RhbmNlSUR4LHhtcDppaWQ6MGU1ZDA1MjgtMWE3NS00Mjc4LTk2MWEtMDUzYzBlM2FkNDZjbHJlbGF0aW9uc2hpcGhwYXJlbnRPZgAAAeJqdW1iAAAAQWp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuYWN0aW9ucy52MgAAAAAYYzJzaLC0+qn6a5fDwDn4S7W0VTsAAAGZY2JvcqJnYWN0aW9uc4KiZmFjdGlvbmtjMnBhLm9wZW5lZGpwYXJhbWV0ZXJzoWtpbmdyZWRpZW50c4GiY3VybHgtc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5pbmdyZWRpZW50LnYzZGhhc2hYIJ1YjpmPgIBMSwkrj+527tqmg+G8wnHoV8HEzYRAYhsEpGZhY3Rpb254HWNvbS5hbnRocm9waWMuY2xhdWRlLnByb3ZpZGVkanBhcmFtZXRlcnOheB9jb20uYW50aHJvcGljLm9yaWdpbi1jb25maWRlbmNlZ3Vua25vd25rZGVzY3JpcHRpb254ZkNsYXVkZSBwcm92aWRlZCB0aGlzIGZpbGUgYXQgdGhlIHJlcXVlc3Qgb2YgYSB1c2VyIGFuZCBtYXkgaGF2ZSBjcmVhdGVkIG9yIG1vZGlmaWVkIHRoZSBmaWxlIGNvbnRlbnRzLm1zb2Z0d2FyZUFnZW50oWRuYW1lZkNsYXVkZXJhbGxBY3Rpb25zSW5jbHVkZWT1AAAAyGp1bWIAAABAanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5oYXNoLmRhdGEAAAAAGGMyc2gbN9Pf17QF+ozNnTczipdGAAAAgGNib3KlY2FsZ2ZzaGEyNTZjcGFkTQAAAAAAAAAAAAAAAABkaGFzaFggJwueGshu7/cxFoiQhc1mLMelq0mM9IkP+XN26Oc2vhZkbmFtZW5qdW1iZiBtYW5pZmVzdGpleGNsdXNpb25zgaJlc3RhcnQYIWZsZW5ndGgZFooAAAI+anVtYgAAACdqdW1kYzJjbAARABCAAACqADibcQNjMnBhLmNsYWltLnYyAAAAAg9jYm9ypWNhbGdmc2hhMjU2aXNpZ25hdHVyZXhNc2VsZiNqdW1iZj0vYzJwYS91cm46YzJwYTpiOTA0MTg1MS0yYThmLTQxNGQtYjVmNS1lYzU2NmJiNWZmYjUvYzJwYS5zaWduYXR1cmVqaW5zdGFuY2VJRHgseG1wOmlpZDpjZWU5MWUwZi0zNmQ1LTQwMTctOTE5Zi1hNzYzNzVmMmUxM2JyY3JlYXRlZF9hc3NlcnRpb25zg6JjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggnViOmY+AgExLCSuP7nbu2qaD4bzCcehXwcTNhEBiGwSiY3VybHgqc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5hY3Rpb25zLnYyZGhhc2hYILjan7gVftAqYeXg8PHjUXuNXIZsTIxA8xkoC03SJKS2omN1cmx4KXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaGFzaC5kYXRhZGhhc2hYICsy4HZ89E4BNK36fBD7im99dK5S5fLVL4RS/03C8quHdGNsYWltX2dlbmVyYXRvcl9pbmZvo2RuYW1lb0FudGhyb3BpYyBGaWxlc2d2ZXJzaW9uZTEuMC4wa3NwZWNWZXJzaW9uZTIuNC4wAAAQOGp1bWIAAAAoanVtZGMyY3MAEQAQgAAAqgA4m3EDYzJwYS5zaWduYXR1cmUAAAAQCGNib3LShFkCEqIBJhghWQIKMIICBjCCAY2gAwIBAgIUQOWgCu7COdC+uIP6BkIFPWdVEwAwCgYIKoZIzj0EAwMwSTEXMBUGA1UEChMOQW50aHJvcGljLCBQQkMxLjAsBgNVBAMTJUFudGhyb3BpYyBDb250ZW50IENyZWRlbnRpYWxzIFJvb3QgQ0EwHhcNMjYwODA3MTg0MzU2WhcNMjgwODA2MTk0MzU2WjBEMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEpMCcGA1UEAxMgQW50aHJvcGljIENsYXVkZSBDb250ZW50IFNpZ25pbmcwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASYegpry1AYBRTVNL1CpTlbROnY3dey+UrsF9C3phYrATN3ZHf93Mo8RQN0KOUuOn19P4oWNFWe5n2/She9N7eTo1gwVjAOBgNVHQ8BAf8EBAMCB4AwFQYDVR0lBA4wDAYKKwYBBAGD6F4CATAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFM5R4gSBTmRbI/jjxM+aPpzB11zCMAoGCCqGSM49BAMDA2cAMGQCMDFzHRSeAXrSy1WOzkbhPZ6Km2wGTmZ/2gK18k8BQGXyqz88Rdrz6CTX9flAnYNVxgIwcF9c3fVhqmJKpi+UhasNUMko69cyX6STPfta3Q8EjyzDjzoyrol46FP6VFHhvUcJoWNwYWRZDZ4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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" alt="Restaurant Boss">
+  <div class="h1">Restaurant<br><span>Boss</span></div>
+  <div class="tag">Grade the restaurant. Run the rush.</div>
+  <button class="hb primary" id="continueBtn" style="display:none;">Continue Show<small id="continueSub"></small></button>
+  <button class="hb primary" id="homeNew">New Show</button>
+  <button class="hb second" id="homePast">Previous Shows<small id="pastCount"></small></button>
+</div>
+
+<!-- previous shows -->
+<div id="pastView">
+  <div class="pv-head"><button class="hdr-btn" id="pvHome" type="button"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button><div class="pv-title">Previous Shows</div></div>
+  <div class="wrap"><div class="card" id="histCard"><div id="histList"></div></div></div>
 </div>
 
 <!-- customer kiosk -->
@@ -334,7 +351,7 @@
   </div>
 </div>
 
-<div class="thanks" id="thanks"><div><div class="t1">Thank You!</div><div class="t2">Please pass the tablet to the next customer.</div></div></div>
+<div class="thanks" id="thanks"><div><div class="t1">Thank You!</div><div class="t2">Please pass the tablet to the next customer.</div><div class="t3">Next customer: tap to begin</div></div></div>
 
 <!-- reveal screen -->
 <div id="reveal">
@@ -356,6 +373,7 @@
       <button class="ghost-btn" id="copyBtn" style="background:#fff;">Copy Results</button>
       <button class="ghost-btn" id="rClose" style="background:#fff;">Back to Scoring</button>
     </div>
+    <div class="row"><button class="ghost-btn danger" id="rDelete" style="background:#fff; display:none;">Delete This Show</button></div>
   </div>
 </div>
 
@@ -444,8 +462,9 @@ function letter(p){
 }
 function pct(n){ return (Math.round(n*10)/10).toFixed(1).replace(/\.0$/,""); }
 
-function customerBreakdown(){
-  const s = state.surveys, n = s.length;
+function customerBreakdown(st){
+  st = st || state;
+  const s = st.surveys, n = s.length;
   if(!n) return null;
   const yes = k => s.reduce((a,x)=>a+x[k],0)/n*100;
   const rows = [
@@ -470,14 +489,15 @@ function missingList(){
   return m;
 }
 
-function compute(){
-  const cb = customerBreakdown();
-  const h = parseFloat(state.health);
+function compute(st){
+  st = st || state;
+  const cb = customerBreakdown(st);
+  const h = parseFloat(st.health);
   const parts = [
     { key:"customers", label:"Customers", val: cb?cb.score:null },
-    { key:"judge1", label:"Judge 1", val: state.judges[0]!==null? state.judges[0]*10 : null },
-    { key:"judge2", label:"Judge 2", val: state.judges[1]!==null? state.judges[1]*10 : null },
-    { key:"judge3", label:"Judge 3", val: state.judges[2]!==null? state.judges[2]*10 : null },
+    { key:"judge1", label:"Judge 1", val: st.judges[0]!==null? st.judges[0]*10 : null },
+    { key:"judge2", label:"Judge 2", val: st.judges[1]!==null? st.judges[1]*10 : null },
+    { key:"judge3", label:"Judge 3", val: st.judges[2]!==null? st.judges[2]*10 : null },
     { key:"health", label:"Health Grade", val: (!isNaN(h)&&h>=0&&h<=100)? h : null }
   ];
   let w=0, sum=0, complete=true;
@@ -554,7 +574,7 @@ function render(){
   // stamp
   const sg = $("stampGrade"), shown = (state.revealed && c.complete) ? letter(c.final) : "?";
   if(sg.textContent !== shown){ sg.textContent = shown; sg.classList.add("bump"); setTimeout(()=>sg.classList.remove("bump"),250); }
-  renderHist();
+  fitAll();
 }
 
 /* ---------- storefront photo ---------- */
@@ -566,35 +586,40 @@ function layoutFor(iw,ih,fw,fh,v){
   l = Math.min(0, Math.max(fw-w, l)); t = Math.min(0, Math.max(fh-h, t));
   return { w, h, l, t };
 }
-function placePhoto(frame, img){
-  if(!photoURL) return;
+function placePhoto(frame, img, url, view){
+  url = url===undefined ? photoURL : url; view = view || state.view;
+  if(!url) return;
   const go = ()=>{
     const fw = frame.clientWidth, fh = frame.clientHeight; if(!fw||!fh||!img.naturalWidth) return;
-    const L = layoutFor(img.naturalWidth, img.naturalHeight, fw, fh, state.view);
+    const L = layoutFor(img.naturalWidth, img.naturalHeight, fw, fh, view);
     img.style.width = L.w+"px"; img.style.height = L.h+"px"; img.style.left = L.l+"px"; img.style.top = L.t+"px";
   };
-  if(img.src !== photoURL) img.src = photoURL;
+  if(img.src !== url) img.src = url;
   if(img.complete && img.naturalWidth) go(); else img.onload = go;
 }
 function placeAll(){
   placePhoto($("photoBox"), $("photoImg"));
   if($("kiosk").classList.contains("open")) placePhoto($("kFrame"), $("kImg"));
-  if($("reveal").classList.contains("open")) placePhoto($("rFrame"), $("rImg"));
+  if($("reveal").classList.contains("open")) placePhoto($("rFrame"), $("rImg"), revealCtx.url, revealCtx.st.view);
 }
-window.addEventListener("resize", placeAll);
-// When you scroll down, the locked top part shrinks so there is room for everything else.
-(function(){
-  const lock=$("lock"); let ticking=false;
-  function check(){
-    ticking=false;
-    if($("photoBox").classList.contains("adjusting")) return;
-    const y=window.scrollY, c=lock.classList.contains("compact");
-    if(!c && y>140){ lock.classList.add("compact"); placeAll(); }
-    else if(c && y<30){ lock.classList.remove("compact"); placeAll(); }
-  }
-  window.addEventListener("scroll",()=>{ if(!ticking){ ticking=true; requestAnimationFrame(check); } },{passive:true});
-})();
+window.addEventListener("resize", ()=>{ placeAll(); fitAll(); });
 
+// Shrinks the letters so a long name always fits on one line.
+function fitText(input,max,min){
+  if(!input || !input.clientWidth) return;
+  const cs=getComputedStyle(input);
+  const avail=input.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 4;
+  if(!input.value){ input.style.fontSize=""; return; }
+  let p=fitText.p;
+  if(!p){ p=fitText.p=document.createElement("span"); document.body.appendChild(p); }
+  p.style.cssText="position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre;text-transform:uppercase;letter-spacing:.03em;";
+  p.style.fontFamily=cs.fontFamily; p.style.fontWeight=cs.fontWeight;
+  p.textContent=input.value;
+  let size=max;
+  for(; size>min; size--){ p.style.fontSize=size+"px"; if(p.offsetWidth<=avail) break; }
+  input.style.fontSize=size+"px";
+}
+function fitAll(){ fitText($("nameInput"),30,12); fitText($("starInput"),24,11); }
 $("photoPrompt").addEventListener("click",()=>$("photoInput").click());
 $("camBtn").addEventListener("click",e=>{ e.stopPropagation(); $("photoInput").click(); });
 $("photoInput").addEventListener("change", async e=>{
@@ -607,14 +632,14 @@ $("photoInput").addEventListener("change", async e=>{
   }catch(err){ toast("Could not read that photo"); }
   e.target.value = "";
 });
-$("nameInput").addEventListener("input",e=>{ state.name = e.target.value; save(); render(); });
-$("starInput").addEventListener("input",e=>{ state.star = e.target.value; save(); });
+$("nameInput").addEventListener("input",e=>{ state.name = e.target.value; save(); render(); fitAll(); });
+$("starInput").addEventListener("input",e=>{ state.star = e.target.value; save(); fitAll(); });
 
 /* move + zoom the photo */
 (function(){
   const box=$("photoBox"), img=$("photoImg"), range=$("zoomRange"), bar=$("adjustBar");
   const pts=new Map(); let lastDist=0;
-  function setAdjust(on){ box.classList.toggle("adjusting",on); bar.classList.toggle("show",on); $("adjustBtn").classList.toggle("on",on); range.value=state.view.z; if(on){ $("lock").classList.remove("compact"); window.scrollTo(0,0);} placeAll(); }
+  function setAdjust(on){ box.classList.toggle("adjusting",on); bar.classList.toggle("show",on); $("adjustBtn").classList.toggle("on",on); range.value=state.view.z; placeAll(); }
   $("adjustBtn").addEventListener("click",e=>{ e.stopPropagation(); setAdjust(!box.classList.contains("adjusting")); });
   $("adjDone").addEventListener("click",()=>{ setAdjust(false); save(); toast("Photo position saved"); });
   $("resetView").addEventListener("click",()=>{ state.view={z:1,cx:.5,cy:.5}; range.value=1; save(); placeAll(); });
@@ -690,13 +715,18 @@ $("kiosk").addEventListener("click",e=>{
   draft[q] = +b.dataset.v;
   $("submitSurvey").disabled = !["q1","q2","q3","q4","q5"].every(k=>draft[k]!==undefined);
 });
+let thanksReady=false;
 $("submitSurvey").addEventListener("click",()=>{
   if(!["q1","q2","q3","q4","q5"].every(k=>draft[k]!==undefined)) return;
   state.surveys.push({ q1:draft.q1, q2:draft.q2, q3:draft.q3, q4:draft.q4, q5:draft.q5, t:Date.now() });
   save();
-  const th=$("thanks"); th.classList.add("show");
-  setTimeout(()=>{ th.classList.remove("show"); resetDraft(); kioskHeader(); render(); }, 1600);
+  // clear the form behind the yellow screen so the next customer starts fresh
+  resetDraft(); kioskHeader(); render();
+  $("thanks").classList.add("show");
+  thanksReady=false; setTimeout(()=>{ thanksReady=true; }, 1200);
 });
+// the yellow screen stays up until the next customer taps it
+$("thanks").addEventListener("click",()=>{ if(thanksReady) $("thanks").classList.remove("show"); });
 // hold to exit so customers can't wander out to the scores
 (function(){
   const btn=$("kExit"), bar=$("kBar"); let t=null, start=0, raf=null;
@@ -721,83 +751,135 @@ $("doneBtn").addEventListener("click",()=>{
 });
 $("reopen").addEventListener("click",e=>{ e.preventDefault(); state.locked=false; state.revealed=false; save(); render(); });
 
-/* ---------- reveal ---------- */
-function breakdownHTML(c){
-  const L = v => `${pct(v)} (${letter(v)})`;
+/* ---------- reveal (also used to look at previous shows) ---------- */
+let revealCtx = { st:null, url:null, live:true };
+function breakdownHTML(c, st){
   let h = "";
   const cb = c.cb;
-  h += `<div class="brk"><h3><span>Customers (${cb.n} survey${cb.n===1?"":"s"})</span><span class="big">${pct(cb.score)}</span></h3><table>`;
-  cb.rows.forEach(r=> h += `<tr><td>${r.label}</td><td>${r.txt}</td></tr>`);
-  h += `</table></div>`;
+  if(cb){
+    h += `<div class="brk"><h3><span>Customers (${cb.n} survey${cb.n===1?"":"s"})</span><span class="big">${pct(cb.score)}</span></h3><table>`;
+    cb.rows.forEach(r=> h += `<tr><td>${r.label}</td><td>${r.txt}</td></tr>`);
+    h += `</table></div>`;
+  } else {
+    h += `<div class="brk"><h3><span>Customers</span><span class="big">--</span></h3><table><tr><td>No surveys collected</td><td>--</td></tr></table></div>`;
+  }
   [1,2,3].forEach(i=>{
-    const v = state.judges[i-1];
-    h += `<div class="brk"><h3><span>Judge ${i}</span><span class="big">${v*10}</span></h3><table><tr><td>Overall rating</td><td>${v} / 10</td></tr></table></div>`;
+    const v = st.judges[i-1];
+    h += `<div class="brk"><h3><span>Judge ${i}</span><span class="big">${v===null?"--":v*10}</span></h3><table><tr><td>Overall rating</td><td>${v===null?"Not rated":v+" / 10"}</td></tr></table></div>`;
   });
-  const hv = parseFloat(state.health);
-  h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${pct(hv)}</span></h3><table><tr><td>Score out of 100</td><td>${pct(hv)} (${letter(hv)})</td></tr></table></div>`;
-  const total = c.parts.reduce((a,p)=>a+p.val*WEIGHTS[p.key],0);
-  const wsum = c.parts.reduce((a,p)=>a+WEIGHTS[p.key],0);
-  h += `<div class="formula"><b>How the final grade is figured</b><br>${c.parts.map(p=>pct(p.val)).join(" + ")} = ${pct(total)}<br>${pct(total)} &divide; ${wsum} parts = <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">Each of the 5 parts counts the same. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
+  const hv = parseFloat(st.health), hok = !isNaN(hv);
+  h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${hok?pct(hv):"--"}</span></h3><table><tr><td>Score out of 100</td><td>${hok?pct(hv)+" ("+letter(hv)+")":"Not entered"}</td></tr></table></div>`;
+  if(c.complete){
+    const total = c.parts.reduce((a,p)=>a+p.val*WEIGHTS[p.key],0);
+    const wsum = c.parts.reduce((a,p)=>a+WEIGHTS[p.key],0);
+    h += `<div class="formula"><b>How the final grade is figured</b><br>${c.parts.map(p=>pct(p.val)).join(" + ")} = ${pct(total)}<br>${pct(total)} &divide; ${wsum} parts = <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">Each of the 5 parts counts the same. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
+  } else {
+    h += `<div class="formula">This show was not finished, so it never got a final grade.</div>`;
+  }
   return h;
 }
-function openReveal(){
-  const c = compute(); if(!c.complete) return;
-  $("rName").textContent = state.name;
-  $("rStar").textContent = state.star ? "\u2605 " + state.star : "";
-  $("rFrame").classList.toggle("show", !!photoURL);
-  $("rBreak").innerHTML = breakdownHTML(c);
-  if(state.revealed){ showFinal(c,false); } else { $("rGradeArea").style.display="block"; $("rFinal").style.display="none"; $("rBreak").style.display="none"; }
+function openReveal(ctx){
+  ctx = ctx || { st:state, url:photoURL, live:true };
+  const st = ctx.st, c = compute(st);
+  if(ctx.live && !c.complete) return;
+  revealCtx = ctx;
+  $("rName").textContent = st.name || "Untitled";
+  $("rStar").textContent = st.star ? "\u2605 " + st.star : "";
+  $("rFrame").classList.toggle("show", !!ctx.url);
+  $("rBreak").innerHTML = breakdownHTML(c, st);
+  $("rClose").textContent = ctx.live ? "Back to Scoring" : "Back";
+  $("rDelete").style.display = ctx.live ? "none" : "";
+  if(!ctx.live || st.revealed){ showFinal(c,false); } else { $("rGradeArea").style.display="block"; $("rFinal").style.display="none"; $("rBreak").style.display="none"; }
   $("reveal").classList.add("open"); document.body.style.overflow="hidden";
-  placePhoto($("rFrame"), $("rImg"));
+  $("reveal").scrollTop = 0;
+  placePhoto($("rFrame"), $("rImg"), ctx.url, st.view);
 }
 function showFinal(c, animate){
   $("rGradeArea").style.display="none";
   $("rFinal").style.display="block";
-  const g=$("rGrade"); g.textContent = letter(c.final); g.classList.remove("pop"); void g.offsetWidth; if(animate) g.classList.add("pop");
-  $("rScore").textContent = pct(c.final) + " / 100";
+  const g=$("rGrade"); g.textContent = c.complete ? letter(c.final) : "?"; g.classList.remove("pop"); void g.offsetWidth; if(animate) g.classList.add("pop");
+  $("rScore").textContent = c.complete ? pct(c.final) + " / 100" : "Not finished";
   $("rBreak").style.display="block";
 }
-$("revealBtn").addEventListener("click",openReveal);
+$("revealBtn").addEventListener("click",()=>openReveal());
 $("stampGrade").addEventListener("click",()=>{ if(compute().complete) openReveal(); else toast("Finish the surveys, judges and health grade first"); });
 $("tapReveal").addEventListener("click",()=>{
   const c = compute(); state.revealed = true; save(); showFinal(c,true); render();
 });
 $("rClose").addEventListener("click",()=>{ $("reveal").classList.remove("open"); document.body.style.overflow=""; render(); });
 $("copyBtn").addEventListener("click",()=>{
-  const c = compute(); if(!c.complete) return;
-  const lines = [`RESTAURANT BOSS: ${state.name}`, state.star ? `Star of the show: ${state.star}` : "", `FINAL GRADE: ${letter(c.final)} (${pct(c.final)}/100)`, ""];
+  const st = revealCtx.st, c = compute(st); if(!c.complete){ toast("This show was not finished"); return; }
+  const lines = [`RESTAURANT BOSS: ${st.name}`, st.star ? `Star of the show: ${st.star}` : "", `FINAL GRADE: ${letter(c.final)} (${pct(c.final)}/100)`, ""];
   lines.push(`Customers (${c.cb.n} surveys): ${pct(c.cb.score)}`);
   c.cb.rows.forEach(r=>lines.push(`  - ${r.label}: ${r.txt}`));
-  [1,2,3].forEach(i=>lines.push(`Judge ${i}: ${state.judges[i-1]}/10 (${state.judges[i-1]*10})`));
-  lines.push(`Health grade: ${pct(parseFloat(state.health))}/100 (${letter(parseFloat(state.health))})`);
+  [1,2,3].forEach(i=>lines.push(`Judge ${i}: ${st.judges[i-1]}/10 (${st.judges[i-1]*10})`));
+  lines.push(`Health grade: ${pct(parseFloat(st.health))}/100 (${letter(parseFloat(st.health))})`);
   const txt = lines.join("\n");
   (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast("Results copied")).catch(()=>{ prompt("Copy your results:", txt); });
 });
 
-/* ---------- past shows / new show ---------- */
-function renderHist(){
+/* ---------- screens: home, scoring, previous shows ---------- */
+function setView(v){
+  document.body.setAttribute("data-view", v);
+  window.scrollTo(0,0);
+  if(v==="app"){ render(); setTimeout(()=>{ placeAll(); fitAll(); },30); }
+  if(v==="home") renderHome();
+  if(v==="past") renderPast();
+}
+function showStarted(){ return !!(state.name || state.star || state.surveys.length || photoURL); }
+function renderHome(){
+  const started = showStarted();
+  $("continueBtn").style.display = started ? "block" : "none";
+  $("continueSub").textContent = started ? (state.name || "Untitled") + " (" + state.surveys.length + " surveys)" : "";
+  const n = loadHist().length;
+  $("pastCount").textContent = n ? n + " saved" : "None yet";
+}
+$("homeBtn").addEventListener("click",()=>setView("home"));
+$("pvHome").addEventListener("click",()=>setView("home"));
+$("continueBtn").addEventListener("click",()=>setView("app"));
+$("homePast").addEventListener("click",()=>setView("past"));
+
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function renderPast(){
   const h = loadHist();
-  $("histCard").style.display = h.length ? "block" : "none";
-  $("histList").innerHTML = h.map((x,i)=>`
-    <div class="hist-item">${x.thumb?`<img src="${x.thumb}" alt="">`:`<img alt="">`}
+  $("histList").innerHTML = h.length ? h.map(x=>`
+    <div class="hist-item" data-id="${x.id||""}" data-i="${h.indexOf(x)}">${x.thumb?`<img src="${x.thumb}" alt="">`:`<img alt="">`}
       <div class="hn">${esc(x.name||"Untitled")}<small>${x.star?"&#9733; "+esc(x.star)+"<br>":""}${new Date(x.date).toLocaleDateString()} &middot; ${x.surveys} surveys &middot; ${x.score===null?"not finished":x.score+" / 100"}</small></div>
       <div class="hg">${x.grade}</div>
-    </div>`).join("");
+    </div>`).join("") : '<div class="empty">No previous shows yet. When you start a new show, the last one is saved here.</div>';
 }
-function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+$("histList").addEventListener("click", async e=>{
+  const it = e.target.closest(".hist-item"); if(!it) return;
+  const h = loadHist(), x = h[+it.dataset.i]; if(!x) return;
+  if(!x.data){ toast("Details were not saved for this older show"); return; }
+  const url = x.id ? await idbGet("photo_"+x.id) : null;
+  openReveal({ st:Object.assign(freshState(), x.data), url, live:false, id:x.id });
+});
+$("rDelete").addEventListener("click", async ()=>{
+  const id = revealCtx.id; if(!id) return;
+  if(!confirm("Delete this show for good?")) return;
+  saveHist(loadHist().filter(x=>x.id!==id)); await idbSet("photo_"+id, null);
+  $("reveal").classList.remove("open"); document.body.style.overflow=""; renderPast(); toast("Show deleted");
+});
 
-$("newShowBtn").addEventListener("click", async ()=>{
-  const started = state.name || state.star || state.surveys.length || photoURL;
-  if(started){
-    if(!confirm("Start a new show? This saves the current restaurant to Past Shows and clears the scoreboard.")) return;
-    const c = compute();
-    const hist = loadHist();
-    hist.unshift({ name:state.name, star:state.star, date:Date.now(), surveys:state.surveys.length,
-      score: c.complete? c.final : null, grade: c.complete? letter(c.final) : "?", thumb: await thumbOf(photoURL) });
-    saveHist(hist.slice(0,40));
+async function archiveCurrent(){
+  const c = compute(), id = "s" + Date.now();
+  const hist = loadHist();
+  hist.unshift({ id, name:state.name, star:state.star, date:Date.now(), surveys:state.surveys.length,
+    score: c.complete? c.final : null, grade: c.complete? letter(c.final) : "?", thumb: await thumbOf(photoURL),
+    data: JSON.parse(JSON.stringify(state)) });
+  if(photoURL) await idbSet("photo_"+id, photoURL);
+  const dropped = hist.slice(40);
+  for(const d of dropped){ if(d.id) await idbSet("photo_"+d.id, null); }
+  saveHist(hist.slice(0,40));
+}
+$("homeNew").addEventListener("click", async ()=>{
+  if(showStarted()){
+    if(!confirm("Start a new show? The current one is saved in Previous Shows.")) return;
+    await archiveCurrent();
   }
-  state = freshState(); photoURL = null; await idbSet("photo", null); save(); draft={}; render();
-  window.scrollTo(0,0);
+  state = freshState(); photoURL = null; await idbSet("photo", null); save(); draft={};
+  setView("app");
 });
 
 /* ---------- start ---------- */
@@ -805,7 +887,7 @@ $("newShowBtn").addEventListener("click", async ()=>{
   load(); buildFoodScale();
   photoURL = await idbGet("photo");
   if(!photoURL) state.hasPhoto = false;
-  render();
+  render(); setView("home");
   if("serviceWorker" in navigator){ navigator.serviceWorker.register("service-worker.js").catch(()=>{}); }
 })();
 </script>
