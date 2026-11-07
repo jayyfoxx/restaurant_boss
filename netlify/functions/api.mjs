@@ -7,14 +7,14 @@ import { createHash } from "node:crypto";
 const J = (o, s = 200) =>
   new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
 
-const FIELDS = ["name", "star", "locked", "revealed", "health", "j1", "j2", "j3", "jn1", "jn2", "jn3", "sp", "sf", "pp", "view"];
+const FIELDS = ["name", "star", "locked", "revealed", "health", "j1", "j2", "j3", "jn1", "jn2", "jn3", "sp", "sf", "pp", "tm", "ts", "view"];
 
 function clean(f, v) {
   switch (f) {
     case "name": return String(v ?? "").slice(0, 60);
     case "star": return String(v ?? "").slice(0, 40);
     case "health": return String(v ?? "").slice(0, 8);
-    case "sp": case "sf": case "pp": return String(v ?? "").slice(0, 8);
+    case "sp": case "sf": case "pp": case "tm": case "ts": return String(v ?? "").slice(0, 8);
     case "jn1": case "jn2": case "jn3": return String(v ?? "").slice(0, 30);
     case "locked":
     case "revealed": return !!v;
