@@ -54,7 +54,7 @@
   .photo-box{
     position:relative; margin:10px 0 0; border-radius:14px; overflow:hidden;
     background:#1b1b1f; border:2px dashed rgba(255,255,255,.35);
-    aspect-ratio:2.2/1; max-height:210px; cursor:pointer; touch-action:pan-y;
+    width:100%; aspect-ratio:16/9; max-height:320px; cursor:pointer; touch-action:pan-y;
   }
   .photo-box.has{border:2px solid var(--yellow); cursor:default;}
   .photo-box img{position:absolute; left:0; top:0; max-width:none; display:none; user-select:none; -webkit-user-select:none; -webkit-user-drag:none; pointer-events:none;}
@@ -173,7 +173,7 @@
   #reveal.open{display:block;}
   .r-wrap{max-width:720px; margin:0 auto; padding:calc(14px + env(safe-area-inset-top)) 14px 0;}
   .r-hero{text-align:center; color:#fff; padding:10px 0 4px;}
-  .r-frame{position:relative; width:100%; aspect-ratio:16/10; overflow:hidden; border-radius:14px; border:2px solid var(--yellow); display:none; margin-bottom:12px;}
+  .r-frame{position:relative; width:100%; aspect-ratio:16/10; background:#1b1b1f; overflow:hidden; border-radius:14px; border:2px solid var(--yellow); display:none; margin-bottom:12px;}
   .r-frame.show{display:block;}
   .r-star{color:var(--yellow); font-size:16px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; margin-top:6px;}
   .r-hero .nm{font-size:32px; font-weight:900; text-transform:uppercase; line-height:1.1;}
@@ -255,12 +255,12 @@
     <img id="photoImg" alt="Storefront">
     <div class="photo-prompt" id="photoPrompt">
       <div class="plus">+</div>
-      <div class="t">Add Storefront Photo</div>
+      <div class="t">Add Photo of Contestant</div>
       <div class="s">Take a picture or pick one from your photos</div>
     </div>
     <div class="star-bar">
       <span class="star-ico">&#9733;</span>
-      <input class="star-in" id="starInput" type="text" placeholder="Star of the show" autocomplete="off" autocapitalize="words" maxlength="30">
+      <input class="star-in" id="starInput" type="text" placeholder="Contestant name" autocomplete="off" autocapitalize="words" maxlength="30">
       <div class="cam-btns">
         <button class="cam-btn" id="adjustBtn" type="button" aria-label="Move and zoom photo"><svg viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M2 6h14a2 2 0 0 1 2 2v14"/></svg></button>
         <button class="cam-btn" id="camBtn" type="button" aria-label="Change photo"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 1 2-2h1.5l1-1.5h9l1 1.5H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
@@ -268,10 +268,11 @@
     </div>
   </div>
   <div class="adjust-bar" id="adjustBar">
-    <div class="ah">Drag the photo to move it. Pinch or use the slider to zoom.</div>
+    <div class="ah">Zoom in with the slider or by pinching, then drag to move. Fit shows the whole picture. Fill covers the frame.</div>
     <div class="ar">
-      <input type="range" id="zoomRange" min="1" max="3" step="0.01" value="1">
-      <button class="ghost" id="resetView" type="button">Reset</button>
+      <input type="range" id="zoomRange" min="1" max="4" step="0.01" value="1">
+      <button class="ghost" id="resetView" type="button">Fit</button>
+      <button class="ghost" id="fillView" type="button">Fill</button>
       <button id="adjDone" type="button">Done</button>
     </div>
   </div>
@@ -510,7 +511,7 @@ function thumbOf(dataURL){
     if(!dataURL) return res("");
     const img = new Image();
     img.onload = ()=>{
-      const fw=160, fh=100, L=layoutFor(img.width,img.height,fw,fh,state.view);
+      const fw=160, fh=100, L=layoutFor(img.width,img.height,fw,fh,state.view,true);
       const c = document.createElement("canvas"); c.width=fw; c.height=fh;
       c.getContext("2d").drawImage(img,L.l,L.t,L.w,L.h);
       res(c.toDataURL("image/jpeg",.65));
@@ -577,7 +578,7 @@ function render(){
   if($("nameInput").value!==state.name) $("nameInput").value = state.name;
   if($("starInput").value!==state.star) $("starInput").value = state.star;
   const box = $("photoBox");
-  if(photoURL){ box.classList.add("has"); placeAll(); } else { $("photoImg").removeAttribute("src"); box.classList.remove("has","adjusting"); $("adjustBar").classList.remove("show"); }
+  if(photoURL){ box.classList.add("has"); placeAll(); } else { $("photoImg").removeAttribute("src"); box.style.aspectRatio=""; box.classList.remove("has","adjusting"); $("adjustBar").classList.remove("show"); }
 
   const c = compute();
   const n = state.surveys.length;
@@ -647,28 +648,35 @@ function render(){
 }
 
 /* ---------- storefront photo ---------- */
-// The photo is saved whole. "view" says which part to show: z = zoom (1 = fill the frame),
-// cx/cy = the spot on the photo (0 to 1) that sits in the middle of the frame.
-function layoutFor(iw,ih,fw,fh,v){
-  const cover = Math.max(fw/iw, fh/ih), sc = cover*v.z, w = iw*sc, h = ih*sc;
-  let l = fw/2 - v.cx*w, t = fh/2 - v.cy*h;
-  l = Math.min(0, Math.max(fw-w, l)); t = Math.min(0, Math.max(fh-h, t));
+// The photo is saved whole. "view" says how to show it: z = zoom (1 = the whole picture fits in the frame, nothing cropped),
+// cx/cy = the spot on the photo (0 to 1) that sits in the middle of the frame once you zoom in.
+// fill = true covers the frame completely (used for small thumbnails).
+function layoutFor(iw,ih,fw,fh,v,fill){
+  const contain = Math.min(fw/iw, fh/ih), cover = Math.max(fw/iw, fh/ih);
+  let sc = contain*v.z; if(fill) sc = Math.max(sc, cover);
+  const w = iw*sc, h = ih*sc;
+  let l = w <= fw ? (fw-w)/2 : Math.min(0, Math.max(fw-w, fw/2 - v.cx*w));
+  let t = h <= fh ? (fh-h)/2 : Math.min(0, Math.max(fh-h, fh/2 - v.cy*h));
   return { w, h, l, t };
 }
-function placePhoto(frame, img, url, view){
+function placePhoto(frame, img, url, view, mode){
   url = url===undefined ? photoURL : url; view = view || state.view;
   if(!url) return;
   const go = ()=>{
+    if(mode==="main"){   // the frame takes the shape of the picture (within sensible limits)
+      const r = Math.min(2.4, Math.max(1.5, img.naturalWidth/img.naturalHeight));
+      frame.style.aspectRatio = String(r);
+    }
     const fw = frame.clientWidth, fh = frame.clientHeight; if(!fw||!fh||!img.naturalWidth) return;
-    const L = layoutFor(img.naturalWidth, img.naturalHeight, fw, fh, view);
+    const L = layoutFor(img.naturalWidth, img.naturalHeight, fw, fh, view, mode==="fill");
     img.style.width = L.w+"px"; img.style.height = L.h+"px"; img.style.left = L.l+"px"; img.style.top = L.t+"px";
   };
   if(img.src !== url) img.src = url;
   if(img.complete && img.naturalWidth) go(); else img.onload = go;
 }
 function placeAll(){
-  placePhoto($("photoBox"), $("photoImg"));
-  if($("kiosk").classList.contains("open")) placePhoto($("kFrame"), $("kImg"));
+  placePhoto($("photoBox"), $("photoImg"), undefined, undefined, "main");
+  if($("kiosk").classList.contains("open")) placePhoto($("kFrame"), $("kImg"), undefined, undefined, "fill");
   if($("reveal").classList.contains("open")) placePhoto($("rFrame"), $("rImg"), revealCtx.url, revealCtx.st.view);
 }
 window.addEventListener("resize", ()=>{ placeAll(); fitAll(); });
@@ -697,7 +705,7 @@ $("photoInput").addEventListener("change", async e=>{
     photoURL = await resizeImage(f, 1600, .85);
     await idbSet("photo", photoURL);
     state.hasPhoto = true; state.view = {z:1,cx:.5,cy:.5}; sync.photoDirty = true; saveSync(); save(); render();
-    toast("Photo saved. Tap the arrows button to move or zoom it.");
+    toast("Photo saved. Tap the crop button to zoom or move it.");
   }catch(err){ toast("Could not read that photo"); }
   e.target.value = "";
 });
@@ -712,13 +720,18 @@ $("starInput").addEventListener("input",e=>{ state.star = e.target.value; save()
   $("adjustBtn").addEventListener("click",e=>{ e.stopPropagation(); setAdjust(!box.classList.contains("adjusting")); });
   $("adjDone").addEventListener("click",()=>{ setAdjust(false); save(); toast("Photo position saved"); });
   $("resetView").addEventListener("click",()=>{ state.view={z:1,cx:.5,cy:.5}; range.value=1; save(); placeAll(); });
+  $("fillView").addEventListener("click",()=>{
+    const {iw,ih,fw,fh}=nat(); if(!iw) return;
+    const z = Math.max(fw/iw,fh/ih)/Math.min(fw/iw,fh/ih);
+    state.view.z = Math.min(4, Math.max(1,z)); range.value = state.view.z; save(); placeAll();
+  });
   range.addEventListener("input",()=>{ state.view.z=+range.value; save(); placeAll(); });
   function nat(){ return {iw:img.naturalWidth, ih:img.naturalHeight, fw:box.clientWidth, fh:box.clientHeight}; }
   function pan(dx,dy){
     const {iw,ih,fw,fh}=nat(); if(!iw) return;
     const L=layoutFor(iw,ih,fw,fh,state.view);
-    state.view.cx = Math.min(1,Math.max(0, state.view.cx - dx/L.w));
-    state.view.cy = Math.min(1,Math.max(0, state.view.cy - dy/L.h));
+    if(L.w > fw+0.5) state.view.cx = Math.min(1,Math.max(0, state.view.cx - dx/L.w));   // only moves if zoomed past the frame
+    if(L.h > fh+0.5) state.view.cy = Math.min(1,Math.max(0, state.view.cy - dy/L.h));
     placeAll();
   }
   box.addEventListener("pointerdown",e=>{
@@ -734,7 +747,7 @@ $("starInput").addEventListener("input",e=>{ state.star = e.target.value; save()
     if(pts.size===1){ pan(dx,dy); }
     else if(pts.size===2){
       const [a,b]=[...pts.values()], d=Math.hypot(a.x-b.x,a.y-b.y);
-      if(lastDist){ state.view.z=Math.min(3,Math.max(1,state.view.z*d/lastDist)); range.value=state.view.z; placeAll(); }
+      if(lastDist){ state.view.z=Math.min(4,Math.max(1,state.view.z*d/lastDist)); range.value=state.view.z; placeAll(); }
       lastDist=d;
     }
   });
@@ -742,7 +755,7 @@ $("starInput").addEventListener("input",e=>{ state.star = e.target.value; save()
   box.addEventListener("pointerup",up); box.addEventListener("pointercancel",up);
   box.addEventListener("wheel",e=>{
     if(!box.classList.contains("adjusting")) return; e.preventDefault();
-    state.view.z=Math.min(3,Math.max(1,state.view.z*(e.deltaY<0?1.06:.94))); range.value=state.view.z; save(); placeAll();
+    state.view.z=Math.min(4,Math.max(1,state.view.z*(e.deltaY<0?1.06:.94))); range.value=state.view.z; save(); placeAll();
   },{passive:false});
 })();
 
@@ -767,14 +780,14 @@ function kioskHeader(){
   $("kCust").textContent = "Customer " + (state.surveys.length+1);
   $("kStar").textContent = state.star ? "\u2605 " + state.star : "";
   $("kFrame").classList.toggle("show", !!photoURL);
-  placePhoto($("kFrame"), $("kImg"));
+  placePhoto($("kFrame"), $("kImg"), undefined, undefined, "fill");
 }
 $("openKiosk").addEventListener("click",()=>{
   if(state.locked) return;
   resetDraft(); kioskHeader();
   $("kiosk").classList.add("open");
   document.body.style.overflow="hidden";
-  placePhoto($("kFrame"), $("kImg"));
+  placePhoto($("kFrame"), $("kImg"), undefined, undefined, "fill");
 });
 $("kiosk").addEventListener("click",e=>{
   const b = e.target.closest("button"); if(!b || !b.dataset.v) return;
@@ -879,7 +892,7 @@ $("tapReveal").addEventListener("click",()=>{
 $("rClose").addEventListener("click",()=>{ $("reveal").classList.remove("open"); document.body.style.overflow=""; render(); });
 $("copyBtn").addEventListener("click",()=>{
   const st = revealCtx.st, c = compute(st); if(!c.complete){ toast("This show was not finished"); return; }
-  const lines = [`RESTAURANT BOSS: ${st.name}`, st.star ? `Star of the show: ${st.star}` : "", `FINAL GRADE: ${letter(c.final)} (${pct(c.final)}/100)`, ""];
+  const lines = [`RESTAURANT BOSS: ${st.name}`, st.star ? `Contestant: ${st.star}` : "", `FINAL GRADE: ${letter(c.final)} (${pct(c.final)}/100)`, ""];
   lines.push(`Customers (${c.cb.n} surveys): ${pct(c.cb.score)}`);
   c.cb.rows.forEach(r=>lines.push(`  - ${r.label}: ${r.txt}`));
   [1,2,3].forEach(i=>lines.push(`Judge ${i}: ${st.judges[i-1]}/10 (${st.judges[i-1]*10})`));

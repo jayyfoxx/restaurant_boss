@@ -16,7 +16,7 @@
   .top{color:#fff; padding:calc(18px + env(safe-area-inset-top)) 4px 8px;}
   .brand{font-size:13px; letter-spacing:.14em; text-transform:uppercase; opacity:.65; font-weight:800;}
   .nm{font-size:28px; font-weight:900; text-transform:uppercase; line-height:1.1; margin-top:6px; word-wrap:break-word;}
-  .pframe{position:relative; margin-top:12px; border-radius:14px; border:2px solid var(--yellow); overflow:hidden; aspect-ratio:2.2/1; max-height:230px; background:#1b1b1f;}
+  .pframe{position:relative; margin-top:12px; border-radius:14px; border:2px solid var(--yellow); overflow:hidden; width:100%; aspect-ratio:16/9; max-height:300px; background:#1b1b1f;}
   .pframe img{position:absolute; left:0; top:0; max-width:none;}
   .star{color:var(--yellow); font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-top:4px;}
   .q{background:#fff; border-radius:14px; padding:16px; margin-top:12px;}
@@ -116,10 +116,13 @@ function showPhoto(url, view){
   if(!url) return;
   const fr = $("pframe"), img = $("pimg"); view = view || {z:1,cx:.5,cy:.5};
   const place = ()=>{
-    const fw = fr.clientWidth, fh = fr.clientHeight; if(!fw||!fh||!img.naturalWidth) return;
-    const iw = img.naturalWidth, ih = img.naturalHeight, cover = Math.max(fw/iw, fh/ih), sc = cover*view.z, w = iw*sc, h = ih*sc;
-    let l = fw/2 - view.cx*w, t = fh/2 - view.cy*h;
-    l = Math.min(0, Math.max(fw-w, l)); t = Math.min(0, Math.max(fh-h, t));
+    if(!img.naturalWidth) return;
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    fr.style.aspectRatio = String(Math.min(2.4, Math.max(1.5, iw/ih)));
+    const fw = fr.clientWidth, fh = fr.clientHeight; if(!fw||!fh) return;
+    const sc = Math.min(fw/iw, fh/ih)*view.z, w = iw*sc, h = ih*sc;
+    const l = w <= fw ? (fw-w)/2 : Math.min(0, Math.max(fw-w, fw/2 - view.cx*w));
+    const t = h <= fh ? (fh-h)/2 : Math.min(0, Math.max(fh-h, fh/2 - view.cy*h));
     img.style.width = w+"px"; img.style.height = h+"px"; img.style.left = l+"px"; img.style.top = t+"px";
   };
   fr.hidden = false; img.onload = place; img.src = url; if(img.complete) place();
