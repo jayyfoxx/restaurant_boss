@@ -71,13 +71,14 @@ export default async (req) => {
   });
 
   // survey keys carry the answers, so one list call returns every survey
-  // key: <id>.<q2><q3><q5>.<q4>.<q1>   (id looks like 1731000000000.ab12; q1 and q4 are 1-10, the rest 0/1)
-  const surveyKey = (id, s) => `${kSurveyPrefix(id)}${s.id}.${s.q2}${s.q3}${s.q5}.${s.q4}.${s.q1}`;
+  // key: <id>.<q2>-<q3>-<q5>.<q4>.<q1>   (id looks like 1731000000000.ab12; every answer is 1-10)
+  const surveyKey = (id, s) => `${kSurveyPrefix(id)}${s.id}.${s.q2}-${s.q3}-${s.q5}.${s.q4}.${s.q1}`;
   const parseSurveyKey = (key) => {
     const rest = key.split("/").pop();
     const p = rest.split(".");              // [t, rand, bits, q4, q1]
-    if (p.length === 5 && p[2].length === 3) return { id: p[0] + "." + p[1], q1: +p[4], q2: +p[2][0], q3: +p[2][1], q5: +p[2][2], q4: +p[3], t: +p[0] };
-    if (p.length === 4 && p[2].length === 4) return { id: p[0] + "." + p[1], q1: +p[2][0] ? 10 : 1, q2: +p[2][1], q3: +p[2][2], q5: +p[2][3], q4: +p[3], t: +p[0] };   // older format
+    if (p.length === 5 && p[2].includes("-")) { const [q2, q3, q5] = p[2].split("-").map(Number); return { id: p[0] + "." + p[1], q1: +p[4], q2, q3, q5, q4: +p[3], t: +p[0] }; }
+    if (p.length === 5 && p[2].length === 3) return { id: p[0] + "." + p[1], q1: +p[4], q2: +p[2][0] ? 10 : 1, q3: +p[2][1] ? 10 : 1, q5: +p[2][2] ? 10 : 1, q4: +p[3], t: +p[0] };   // older yes/no format
+    if (p.length === 4 && p[2].length === 4) return { id: p[0] + "." + p[1], q1: +p[2][0] ? 10 : 1, q2: +p[2][1] ? 10 : 1, q3: +p[2][2] ? 10 : 1, q5: +p[2][3] ? 10 : 1, q4: +p[3], t: +p[0] };   // oldest format
     return null;
   };
   async function listSurveys(id) {
@@ -135,7 +136,7 @@ export default async (req) => {
       const token = String(b.token || "");
       if (!/^[a-z0-9]{12,40}$/.test(token)) return J({ error: "bad request" }, 400);
       const s = b.survey || {};
-      const ok = [s.q2, s.q3, s.q5].every((v) => v === 0 || v === 1) && [s.q1, s.q4].every((v) => Number.isInteger(v) && v >= 1 && v <= 10);
+      const ok = [s.q1, s.q2, s.q3, s.q4, s.q5].every((v) => Number.isInteger(v) && v >= 1 && v <= 10);
       if (!ok) return J({ error: "Please answer every question" }, 400);
       const doneKey = `${ws}/gdone/${m.id}/${token}`;
       if (await store.get(doneKey, { type: "text" })) return J({ already: true });
@@ -175,7 +176,7 @@ export default async (req) => {
       if (b.showId !== m.id) return J({ stale: true, current: await view(m) });
       const s = b.survey || {};
       const ok = /^\d{10,14}\.[a-z0-9]{2,8}$/.test(String(s.id)) &&
-        [s.q2, s.q3, s.q5].every((v) => v === 0 || v === 1) && [s.q1, s.q4].every((v) => Number.isInteger(v) && v >= 1 && v <= 10);
+        [s.q1, s.q2, s.q3, s.q4, s.q5].every((v) => Number.isInteger(v) && v >= 1 && v <= 10);
       if (!ok) return J({ error: "bad survey" }, 400);
       await store.set(surveyKey(m.id, s), "1");
       return J({ ok: true });
@@ -301,7 +302,7 @@ export default async (req) => {
       let i = 0;
       for (const s of list) {
         const t = String(Math.round(Number(s.t) || Date.now()) + i++);
-        const sv = { id: t + ".i" + i.toString(36), q1: Math.min(10, Math.max(1, Math.round(+s.q1) || 1)), q2: +s.q2 ? 1 : 0, q3: +s.q3 ? 1 : 0, q5: +s.q5 ? 1 : 0, q4: Math.min(10, Math.max(1, Math.round(+s.q4) || 1)) };
+        const sv = { id: t + ".i" + i.toString(36), q1: Math.min(10, Math.max(1, Math.round(+s.q1) || 1)), q2: Math.min(10, Math.max(1, Math.round(+s.q2) || 1)), q3: Math.min(10, Math.max(1, Math.round(+s.q3) || 1)), q5: Math.min(10, Math.max(1, Math.round(+s.q5) || 1)), q4: Math.min(10, Math.max(1, Math.round(+s.q4) || 1)) };
         if (/^\d{10,14}\.[a-z0-9]{2,8}$/.test(sv.id)) await store.set(surveyKey(m.id, sv), "1");
       }
       if (typeof d.photo === "string" && d.photo.startsWith("data:image/") && d.photo.length < 4_500_000) {
