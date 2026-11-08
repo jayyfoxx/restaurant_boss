@@ -566,6 +566,7 @@
       <tr><td>Over 35%, under 70%</td><td>0</td></tr>
       <tr><td>70% or more (double the limit)</td><td class="neg">-1</td></tr>
     </table>
+    <p><b>Judges' plates count.</b> Everything you spend includes the 3 plates you serve the judges, so plan to cook for 23 plates, not 20.</p>
     <p><b>Staying at 35%:</b> plate price &times; 7 is the most you can spend. A $20 plate allows $140.</p>
     <p class="ex"><b>Example:</b> Spend $120 on a $20 plate. 20 plates sell for $400, so $120 &divide; $400 = 30%. That earns <b>+1</b>.</p>
     <p><b>Over budget?</b> You are free to spend more than $140. Raise your plate price to match so your food cost stays at 35% or under.</p>
@@ -586,10 +587,10 @@
     <p>Final score = judges + customer survey + health points + food cost points + bonus and penalty points. Perfect 10s from everyone is 40 points, and bonus points can take you above 40.</p>
     <table>
       <tr><td>A+</td><td>Above 40</td></tr>
-      <tr><td>A</td><td>36 to 40</td></tr>
-      <tr><td>B</td><td>32 to 35.9</td></tr>
-      <tr><td>C</td><td>28 to 31.9</td></tr>
-      <tr><td>D</td><td>24 to 27.9</td></tr>
+      <tr><td>A</td><td>40 to 36</td></tr>
+      <tr><td>B</td><td>35.9 to 32</td></tr>
+      <tr><td>C</td><td>31.9 to 28</td></tr>
+      <tr><td>D</td><td>27.9 to 24</td></tr>
       <tr><td>F</td><td>Below 24</td></tr>
     </table>
     <p class="ex"><b>Full example:</b> Judges 9 + 9 + 8 = 26, customer survey 8.4, health grade A (+1), food cost 30% (+1), served all 20 customers (+0.5), spent $120 (+0.5). 26 + 8.4 + 1 + 1 + 0.5 + 0.5 = <b>37.4</b> points, which is an <b>A</b>.</p>
@@ -1128,7 +1129,7 @@ function breakdownHTML(c, st){
   const pl = c.pl;
   h += `<div class="brk"><h3><span>Restaurant P&amp;L</span><span class="big">${pl.pctVal===null?"--":pct(pl.pctVal)+"%"}</span></h3><table>${pl.rows.map(r=>`<tr><td>${r[0]}</td><td class="${r[2]||""}">${r[1]}</td></tr>`).join("")}<tr><td>Food cost points</td><td class="${pl.pctVal===null?"":ptsCls(pl.foodPts)}">${pl.pctVal===null?"--":fmtPts(pl.foodPts)}</td></tr><tr><td>Customers served (all ${TARGET_CUSTOMERS} needed)</td><td class="${ptsCls(pl.bServe)}">${fmtPts(pl.bServe)}</td></tr><tr><td>Bonus: spent $${START_BUDGET} or under</td><td class="${pl.spent===null?"":ptsCls(pl.bBudget)}">${pl.spent===null?"--":fmtPts(pl.bBudget)}</td></tr></table>${pl.coach?`<div class="pl-coach ${pl.coach.kind}">${pl.coach.text}</div>`:""}</div>`;
   if(c.complete){
-    h += `<div class="formula"><b>How the final score is added up</b><br>${c.parts.map(p=>p.label+": "+pct(p.val)).join("<br>")}<br>Points from judges and customers: <b>${pct(c.base)}</b><br>Health grade (${c.hLetter}): ${fmtPts(c.healthPts)}<br>Food cost (${pl.pctVal===null?"not entered":pct(pl.pctVal)+"%"}): ${fmtPts(pl.foodPts)}<br>Customers served (${c.cb?c.cb.n:0} of ${TARGET_CUSTOMERS}): ${fmtPts(pl.bServe)}<br>Spent $${START_BUDGET} or under: ${fmtPts(pl.bBudget)}<br>${pct(c.base)} ${c.adj<0?"-":"+"} ${Math.abs(c.adj)} = <b>${pct(c.final)} points</b> &rarr; <b>${gradeOf(c.final)}</b><br><span style="opacity:.7;">Every point earned is kept and added to the total. Points come off only when a rule calls for it. Above 40 A+, 36 to 40 A, 32 to 35.9 B, 28 to 31.9 C, 24 to 27.9 D, below 24 F.</span></div>`;
+    h += `<div class="formula"><b>How the final score is added up</b><br>${c.parts.map(p=>p.label+": "+pct(p.val)).join("<br>")}<br>Points from judges and customers: <b>${pct(c.base)}</b><br>Health grade (${c.hLetter}): ${fmtPts(c.healthPts)}<br>Food cost (${pl.pctVal===null?"not entered":pct(pl.pctVal)+"%"}): ${fmtPts(pl.foodPts)}<br>Customers served (${c.cb?c.cb.n:0} of ${TARGET_CUSTOMERS}): ${fmtPts(pl.bServe)}<br>Spent $${START_BUDGET} or under: ${fmtPts(pl.bBudget)}<br>${pct(c.base)} ${c.adj<0?"-":"+"} ${Math.abs(c.adj)} = <b>${pct(c.final)} points</b> &rarr; <b>${gradeOf(c.final)}</b><br><span style="opacity:.7;">Every point earned is kept and added to the total. Points come off only when a rule calls for it. Above 40 A+, 40 to 36 A, 35.9 to 32 B, 31.9 to 28 C, 27.9 to 24 D, below 24 F.</span></div>`;
   } else {
     h += `<div class="formula">This show was not finished, so it never got a final grade.</div>`;
   }
