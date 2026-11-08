@@ -124,7 +124,7 @@
   /* scale / yes-no */
   .scale{display:grid; grid-template-columns:repeat(5,1fr); gap:8px;}
   .scale button{
-    background:#fff; border:2px solid var(--line); border-radius:10px; font-size:22px; font-weight:800; padding:14px 0; color:var(--ink);
+    background:#fff; border:2px solid var(--line); border-radius:10px; font-size:18px; font-weight:800; padding:9px 0; color:var(--ink);
   }
   .scale button.sel{background:#111; border-color:#111; color:var(--yellow);}
   .yn{display:flex; gap:10px;}
@@ -235,16 +235,32 @@
   #home .rules-link{display:inline-block; margin-top:26px; font-size:13px; color:rgba(255,255,255,.55); text-decoration:underline; letter-spacing:.04em;}
   #rules{position:fixed; inset:0; z-index:150; background:linear-gradient(180deg,#050506,#0E0E10); overflow-y:auto; display:none; padding-bottom:50px;}
   #rules.open{display:block;}
-  .rules-title{color:#fff; font-size:26px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; margin:10px 4px 4px;}
-  .rules-sub{color:rgba(255,255,255,.6); font-size:14px; margin:0 4px 6px;}
-  .rcard{background:#fff; border-radius:14px; padding:16px; margin-top:12px;}
-  .rcard h3{font-size:15px; margin-bottom:8px; text-transform:uppercase; letter-spacing:.04em;}
-  .rcard p{font-size:14px; line-height:1.5; margin:0 0 8px; color:var(--ink);}
-  .rcard ul{margin:0 0 6px; padding-left:20px; font-size:14px; line-height:1.55;}
-  .rcard table{width:100%; border-collapse:collapse; font-size:14px; margin:4px 0 8px;}
-  .rcard td{padding:7px 0; border-top:1px solid var(--line);}
-  .rcard td:last-child{text-align:right; font-weight:800; font-family:"SF Mono",Menlo,monospace; white-space:nowrap;}
-  .rcard .pos{color:var(--green);} .rcard .neg{color:var(--red);}
+  #rules .r-wrap{max-width:720px; margin:0 auto;}
+  .rules-head{display:flex; align-items:center; gap:14px; padding:22px 4px 4px;}
+  .rules-head img{width:64px; height:64px; border-radius:14px; flex:none;}
+  .rules-head .rb{color:#fff; font-size:clamp(24px,7.4vw,34px); font-weight:900; text-transform:uppercase; letter-spacing:.04em; line-height:1.1;}
+  .rules-head .rb span{background:var(--yellow); color:#111; padding:0 7px; margin-left:6px; display:inline-block;}
+  .rules-head .rt{color:var(--yellow); font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-top:6px;}
+  .rules-title{color:#fff; font-size:26px; font-weight:900; letter-spacing:.05em; text-transform:uppercase; margin:22px 4px 4px; line-height:1.1;}
+  .rules-sub{color:rgba(255,255,255,.6); font-size:14px; margin:0 4px 12px;}
+  .rules-formula{background:var(--yellow); color:#111; border-radius:14px; padding:14px 16px;}
+  .rules-formula b{display:block; font-size:13px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px;}
+  .rules-formula p{margin:0; font-weight:700; font-size:16px; line-height:1.4;}
+  .rules-glance{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-top:12px;}
+  .rules-glance div{border:1px solid #2A2A2F; border-radius:12px; padding:9px 12px;}
+  .rules-glance small{display:block; color:#A9A9B0; font-size:11.5px; text-transform:uppercase; letter-spacing:.08em;}
+  .rules-glance strong{color:#fff; font-size:20px; font-weight:900;}
+  .rcard{background:#141417; border:1px solid #2A2A2F; border-radius:16px; padding:18px 16px; margin-top:14px; color:#F4F4F2;}
+  .rcard h3{font-size:19px; margin-bottom:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--yellow); font-weight:900;}
+  .rcard p{font-size:15px; line-height:1.5; margin:0 0 10px; color:#F4F4F2;}
+  .rcard ul{margin:0 0 6px; padding-left:20px; font-size:15px; line-height:1.55; color:#F4F4F2;}
+  .rcard li{margin-bottom:6px;}
+  .rcard table{width:100%; border-collapse:collapse; font-size:15px; margin:4px 0 10px;}
+  .rcard td{padding:8px 0; border-top:1px solid #2A2A2F;}
+  .rcard td:last-child{text-align:right; font-weight:800; font-family:"SF Mono",Menlo,monospace; white-space:nowrap; padding-left:12px;}
+  .rcard .pos{color:#4FD08A;} .rcard .neg{color:#FF6B5E;}
+  .rcard p.ex{background:#1C1C20; border:1px solid #2A2A2F; border-radius:12px; padding:11px 13px; font-size:14px;}
+  .rcard p.ex b:first-child{color:var(--yellow); text-transform:uppercase; letter-spacing:.1em; font-size:12px;}
   .phone-note{font-size:13px; color:var(--ink-soft); margin-top:6px;}
 
   /* views */
@@ -445,17 +461,20 @@
   </div>
   <div class="k-body">
     <div class="k-q"><div class="qt"><span class="n">1</span><span id="kSvcQ">Rate the customer service, from 1 to 10.</span></div>
-      <div class="scale" data-q="q1" id="svcScale"></div>
+      <div class="scale" data-q="q1"></div>
       <div class="scale-lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
-    <div class="k-q"><div class="qt"><span class="n">2</span>Did you receive your food in a timely manner, considering how busy it was?</div>
-      <div class="yn" data-q="q2"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="k-q"><div class="qt"><span class="n">2</span><span>How quickly did your food arrive, considering how busy it was?</span></div>
+      <div class="scale" data-q="q2"></div>
+      <div class="scale-lbl"><span>1 = Slow</span><span>10 = Fast</span></div></div>
     <div class="k-q"><div class="qt"><span class="n">3</span>Rate your plate from 1 to 10.</div>
-      <div class="scale" data-q="q4" id="foodScale"></div>
+      <div class="scale" data-q="q4"></div>
       <div class="scale-lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
-    <div class="k-q"><div class="qt"><span class="n">4</span><span id="kPayQ">Would you pay the menu price for the plate you received today?</span></div>
-      <div class="yn" data-q="q3"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
-    <div class="k-q"><div class="qt"><span class="n">5</span>Would you return to this restaurant?</div>
-      <div class="yn" data-q="q5"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="k-q"><div class="qt"><span class="n">4</span><span id="kPayQ">How likely are you to pay the menu price for the plate you had today?</span></div>
+      <div class="scale" data-q="q3"></div>
+      <div class="scale-lbl"><span>1 = Not likely</span><span>10 = Very likely</span></div></div>
+    <div class="k-q"><div class="qt"><span class="n">5</span><span id="kRetQ">How likely are you to return to this restaurant?</span></div>
+      <div class="scale" data-q="q5"></div>
+      <div class="scale-lbl"><span>1 = Not likely</span><span>10 = Very likely</span></div></div>
     <button class="big-btn" id="submitSurvey" style="margin-top:16px;" disabled>Submit</button>
     <button class="k-exit" id="kExit" type="button"><div class="bar" id="kBar"></div><span>Host: hold to exit</span></button>
   </div>
@@ -490,64 +509,90 @@
 </div>
 
 <div id="rules"><div class="r-wrap">
+  <div class="rules-head"><img id="rulesLogo" alt="Restaurant Boss"><div><div class="rb">Restaurant<span>Boss</span></div><div class="rt">Own the Rush. Grade the Boss.</div></div></div>
   <div class="rules-title">Rules &amp; Points</div>
   <div class="rules-sub">How a Restaurant Boss grade is earned.</div>
+  <div class="rules-formula"><b>How your grade is built</b><p>Judges + customer survey + health points + food cost points + bonus and penalty points = final score</p></div>
+  <div class="rules-glance">
+    <div><small>Customers</small><strong>20</strong></div>
+    <div><small>Prep time</small><strong>60 min</strong></div>
+    <div><small>Rush</small><strong>1 hour</strong></div>
+    <div><small>Food budget</small><strong>$140</strong></div>
+    <div><small>Staff</small><strong>Up to 5</strong></div>
+    <div><small>Food cost goal</small><strong>35% or under</strong></div>
+  </div>
 
   <div class="rcard"><h3>The Challenge</h3>
     <ul>
-      <li>60 minutes of prep, then a 1-hour rush.</li>
-      <li>Serve 20 customers.</li>
+      <li>60 minutes of prep, the same for every team no matter how simple or hard the dish is.</li>
+      <li>Then a 1-hour rush to serve 20 customers.</li>
       <li>Up to 5 staff members.</li>
-      <li>A $140 food budget.</li>
-      <li>Contestants set their own plate price.</li>
-      <li>Customers eat free. Sales are pretend, to show how the restaurant would have done.</li>
+      <li>A $140 food budget. You are allowed to go over it, but keep your food cost in mind. Spending more can cost you points unless you raise your plate price to match.</li>
+      <li>You set your own plate price.</li>
     </ul>
   </div>
 
-  <div class="rcard"><h3>The Base Score</h3>
-    <p>Four equal parts are averaged: the customer survey score, Judge 1, Judge 2 and Judge 3. These carry all of the weight.</p>
-    <p>The customer survey score is the average of the five survey questions: customer service rating (1 to 10), food on time (yes), plate rating (1 to 10), would pay the plate price (yes) and would return (yes).</p>
+  <div class="rcard"><h3>How Points Work</h3>
+    <p>Every point you earn is kept and added to your total. Nothing is averaged away. Points come off only when a rule calls for it.</p>
+    <p class="ex"><b>Example:</b> Judges and customers 34.4, health +1, food cost +1, bonus +1 = <b>37.4</b> points.</p>
+  </div>
+
+  <div class="rcard"><h3>Judges</h3>
+    <p>Each judge scores the restaurant from 1 to 10. Whatever a judge gives goes straight into your total.</p>
+    <p class="ex"><b>Example:</b> Judge 1 gives 9, Judge 2 gives 9 and Judge 3 gives 8. That is <b>26</b> points.</p>
+  </div>
+
+  <div class="rcard"><h3>Customer Survey</h3>
+    <p>Each of the 20 customers grades their experience at the restaurant based on 5 questions. Those grades from all 20 customers are averaged into one grade that represents the customer score, and that grade goes into your total.</p>
+    <p class="ex"><b>Example:</b><br>1. Rate the customer service: <b>8</b><br>2. How quickly your food arrived (1 slow, 10 fast): <b>9</b><br>3. Rate your plate: <b>8</b><br>4. How likely to pay the plate price: <b>10</b><br>5. How likely to return: <b>7</b><br>(8 + 9 + 8 + 10 + 7) &divide; 5 = <b>8.4</b> for this customer. The grades from all 20 customers are averaged to get the customer score, <b>8.4</b> in this example.</p>
   </div>
 
   <div class="rcard"><h3>Health Grade Points</h3>
-    <p>The health grade does not count toward the average. It adds or removes points.</p>
+    <p>The health grade is out of 100. It adds points to your total or takes them off.</p>
     <table>
-      <tr><td>A (90 and up)</td><td class="pos">+3</td></tr>
-      <tr><td>B (80s)</td><td class="pos">+2</td></tr>
+      <tr><td>A (90 and up)</td><td class="pos">+1</td></tr>
+      <tr><td>B (80s)</td><td class="pos">+0.5</td></tr>
       <tr><td>C (70s)</td><td>0</td></tr>
-      <tr><td>D (60s)</td><td class="neg">-2</td></tr>
-      <tr><td>F (below 60)</td><td class="neg">-3</td></tr>
+      <tr><td>D (60s)</td><td class="neg">-0.5</td></tr>
+      <tr><td>F (below 60)</td><td class="neg">-1</td></tr>
     </table>
+    <p class="ex"><b>Example:</b> A health grade of 92 is an A, which adds <b>+1</b> point.</p>
   </div>
 
   <div class="rcard"><h3>Food Cost Points</h3>
-    <p>Food cost = total spent &divide; (20 plates &times; plate price).</p>
+    <p>Food cost = total spent &divide; (20 plates &times; plate price). The goal is 35% or under.</p>
     <table>
-      <tr><td>35% or under</td><td class="pos">+2</td></tr>
+      <tr><td>35% or under</td><td class="pos">+1</td></tr>
       <tr><td>Over 35%, under 70%</td><td>0</td></tr>
-      <tr><td>70% or more (double the limit)</td><td class="neg">-2</td></tr>
+      <tr><td>70% or more (double the limit)</td><td class="neg">-1</td></tr>
     </table>
-    <p><b>Staying at 35%:</b> plate price &times; 7 is the most you can spend. A $20 plate allows $140. Spending more is allowed, but raise your plate price to match.</p>
+    <p><b>Staying at 35%:</b> plate price &times; 7 is the most you can spend. A $20 plate allows $140.</p>
+    <p class="ex"><b>Example:</b> Spend $120 on a $20 plate. 20 plates sell for $400, so $120 &divide; $400 = 30%. That earns <b>+1</b>.</p>
+    <p><b>Over budget?</b> You are free to spend more than $140. Raise your plate price to match so your food cost stays at 35% or under.</p>
+    <p class="ex"><b>Example:</b> Spend $210 and keep the $20 plate: $210 &divide; $400 = 52.5%, which earns <b>0</b> points. Charge $30 instead: $210 &divide; $600 = 35%, which earns <b>+1</b>.</p>
   </div>
 
   <div class="rcard"><h3>Bonus and Penalty Points</h3>
     <table>
-      <tr><td>Served all 20 customers in the hour</td><td class="pos">+1</td></tr>
-      <tr><td>Spent $140 or under</td><td class="pos">+1</td></tr>
-      <tr><td>Did not serve all 20 customers</td><td class="neg">-1</td></tr>
+      <tr><td>Served all 20 customers in the hour</td><td class="pos">+0.5</td></tr>
+      <tr><td>Spent $140 or under</td><td class="pos">+0.5</td></tr>
+      <tr><td>Did not serve all 20 customers</td><td class="neg">-0.5</td></tr>
     </table>
+    <p>Going over $140 only means you miss the +0.5 budget bonus. Watch your food cost, because that is where overspending can really cost you.</p>
     <p>Service Time is the total time used out of the 1-hour clock. It is recorded for bragging rights and does not change the score. A Service Time of 60:00 means the contestant used the whole hour and was cut off.</p>
   </div>
 
   <div class="rcard"><h3>The Final Grade</h3>
-    <p>Final score = base score + health points + food cost points + bonus and penalty points.</p>
+    <p>Final score = judges + customer survey + health points + food cost points + bonus and penalty points. Perfect 10s from everyone is 40 points, and bonus points can take you above 40.</p>
     <table>
-      <tr><td>A</td><td>90 and up</td></tr>
-      <tr><td>B</td><td>80 to 89.9</td></tr>
-      <tr><td>C</td><td>70 to 79.9</td></tr>
-      <tr><td>D</td><td>60 to 69.9</td></tr>
-      <tr><td>F</td><td>Below 60</td></tr>
+      <tr><td>A+</td><td>Above 40</td></tr>
+      <tr><td>A</td><td>36 to 40</td></tr>
+      <tr><td>B</td><td>32 to 35.9</td></tr>
+      <tr><td>C</td><td>28 to 31.9</td></tr>
+      <tr><td>D</td><td>24 to 27.9</td></tr>
+      <tr><td>F</td><td>Below 24</td></tr>
     </table>
+    <p class="ex"><b>Full example:</b> Judges 9 + 9 + 8 = 26, customer survey 8.4, health grade A (+1), food cost 30% (+1), served all 20 customers (+0.5), spent $120 (+0.5). 26 + 8.4 + 1 + 1 + 0.5 + 0.5 = <b>37.4</b> points, which is an <b>A</b>.</p>
   </div>
 
   <button class="ghost-btn" id="rulesClose" style="background:#fff; margin-top:16px; width:100%; padding:14px;">Close</button>
@@ -654,31 +699,35 @@ function letter(p){
   p = Math.round(p*10)/10;
   return p>=90?"A": p>=80?"B": p>=70?"C": p>=60?"D":"F";
 }
+function gradeOf(p){ if(p===null||isNaN(p)) return "?"; if(p>MAX_POINTS) return "A+"; return letter(p/MAX_POINTS*100); }
 function pct(n){ return (Math.round(n*10)/10).toFixed(1).replace(/\.0$/,""); }
 
 function priceTxt(v){ const p = parseFloat(v); if(isNaN(p) || p<=0) return ""; return "$" + (Number.isInteger(p) ? p : p.toFixed(2)); }
 function svcQuestion(name){ const r = (name||"").trim(); return "Rate the customer service" + (r ? " at " + r : "") + ", from 1 to 10."; }
 function payQuestion(name, price){
   const p = priceTxt(price), r = (name||"").trim();
-  return "Would you pay " + (p || "the menu price") + " for the plate you received today" + (r ? " at " + r : "") + "?";
+  return "How likely are you to pay " + (p || "the menu price") + " for the plate you had today" + (r ? " at " + r : "") + "?";
 }
+function returnQuestion(name){ const r = (name||"").trim(); return "How likely are you to return to " + (r || "this restaurant") + "?"; }
 
 function customerBreakdown(st){
   st = st || state;
   const s = st.surveys, n = s.length;
   if(!n) return null;
-  const yes = k => s.reduce((a,x)=>a+x[k],0)/n*100;
+  const avg = k => s.reduce((a,x)=>a+x[k],0)/n;
+  const row = (label,k) => ({ label, val:avg(k)*10, txt:(Math.round(avg(k)*10)/10)+" / 10" });
   const rows = [
-    { label:"Customer service rating (avg of 1-10)", val:s.reduce((a,x)=>a+x.q1,0)/n*10, txt:(Math.round(s.reduce((a,x)=>a+x.q1,0)/n*10)/10)+" / 10" },
-    { label:"Food on time for how busy", val:yes("q2"), txt:pct(yes("q2"))+"% yes" },
-    { label:"Plate rating (avg of 1-10)", val:s.reduce((a,x)=>a+x.q4,0)/n*10, txt:(Math.round(s.reduce((a,x)=>a+x.q4,0)/n*10)/10)+" / 10" },
-    { label:"Would pay "+(priceTxt(st.pp)||"the menu price")+" for the plate", val:yes("q3"), txt:pct(yes("q3"))+"% yes" },
-    { label:"Would return",             val:yes("q5"), txt:pct(yes("q5"))+"% yes" }
+    row("Customer service","q1"),
+    row("Food speed for how busy","q2"),
+    row("Plate rating","q4"),
+    row("Likely to pay "+(priceTxt(st.pp)||"the menu price")+" for the plate","q3"),
+    row("Likely to return","q5")
   ];
   const score = rows.reduce((a,r)=>a+r.val,0)/rows.length;
   return { n, rows, score };
 }
 
+const MAX_POINTS = 40; // four parts, 10 points each
 const START_BUDGET = 140, TARGET_CUSTOMERS = 20, MAX_STAFF = 5, FOOD_LIMIT = 35;
 const money = n => "$" + (Math.round(n*100)/100).toFixed(2);
 const ptsCls = n => n>0 ? "good" : (n<0 ? "bad" : "");
@@ -727,9 +776,9 @@ function plRows(st){
   }
   rows.push(["Customers served", n+" of "+TARGET_CUSTOMERS]);
   // points
-  const foodPts = pctVal===null ? 0 : (pctVal<=FOOD_LIMIT ? 2 : (pctVal>=FOOD_LIMIT*2 ? -2 : 0));
-  const bServe = n>=TARGET_CUSTOMERS ? 1 : -1;
-  const bBudget = (spent!==null && spent<=START_BUDGET) ? 1 : 0;
+  const foodPts = pctVal===null ? 0 : (pctVal<=FOOD_LIMIT ? 1 : (pctVal>=FOOD_LIMIT*2 ? -1 : 0));
+  const bServe = n>=TARGET_CUSTOMERS ? 0.5 : -0.5;
+  const bBudget = (spent!==null && spent<=START_BUDGET) ? 0.5 : 0;
   return { rows, coach, spent, pctVal, foodPts, bServe, bBudget, bonus:bServe+bBudget, secsLeft, any: n>0 || spent!==null || secsLeft!==null || (staff>=1 && staff<=MAX_STAFF) };
 }
 
@@ -750,20 +799,20 @@ function compute(st){
   const h = parseFloat(st.health);
   const hok = !isNaN(h) && h>=0 && h<=100;
   const parts = [
-    { key:"customers", label:"Customers", val: cb?cb.score:null },
-    { key:"judge1", label:"Judge 1", val: st.judges[0]!==null? st.judges[0]*10 : null },
-    { key:"judge2", label:"Judge 2", val: st.judges[1]!==null? st.judges[1]*10 : null },
-    { key:"judge3", label:"Judge 3", val: st.judges[2]!==null? st.judges[2]*10 : null }
+    { key:"customers", label:"Customers", val: cb?Math.round(cb.score)/10:null },
+    { key:"judge1", label:"Judge 1", val: st.judges[0]!==null? st.judges[0] : null },
+    { key:"judge2", label:"Judge 2", val: st.judges[1]!==null? st.judges[1] : null },
+    { key:"judge3", label:"Judge 3", val: st.judges[2]!==null? st.judges[2] : null }
   ];
-  let w=0, sum=0, complete = hok;
-  parts.forEach(p=>{ if(p.val===null){ complete=false; } else { sum+=p.val*WEIGHTS[p.key]; w+=WEIGHTS[p.key]; } });
-  const avg = complete ? sum/w : null;
-  const base = complete ? Math.round(avg*10)/10 : null;
+  let sum=0, complete = hok;
+  parts.forEach(p=>{ if(p.val===null){ complete=false; } else { sum+=p.val; } });
+  const base = complete ? Math.round(sum*10)/10 : null;
+  const avg = base;
   const hLetter = hok ? letter(h) : null;
-  const healthPts = hok ? ({A:3,B:2,C:0,D:-2,F:-3})[hLetter] : 0;
+  const healthPts = hok ? ({A:1,B:0.5,C:0,D:-0.5,F:-1})[hLetter] : 0;
   const pl = plRows(st);
   const adj = healthPts + pl.foodPts + pl.bonus;
-  const final = complete ? Math.round((avg + adj)*10)/10 : null;
+  const final = complete ? Math.round((base + adj)*10)/10 : null;
   return { cb, parts, avg, base, hLetter, healthPts, pl, adj, final, complete };
 }
 
@@ -849,7 +898,7 @@ function render(){
   $("revealBtn").disabled = miss.length>0;
 
   // stamp
-  const sg = $("stampGrade"), shown = (state.revealed && c.complete) ? letter(c.final) : "?";
+  const sg = $("stampGrade"), shown = (state.revealed && c.complete) ? gradeOf(c.final) : "?";
   if(sg.textContent !== shown){ sg.textContent = shown; sg.classList.add("bump"); setTimeout(()=>sg.classList.remove("bump"),250); }
   fitAll();
 }
@@ -991,7 +1040,7 @@ $("sfRow").addEventListener("click",e=>{ const b=e.target.closest("button"); if(
 function buildFoodScale(){
   let h="";
   for(let v=1;v<=10;v++) h+=`<button data-v="${v}">${v}</button>`;
-  $("foodScale").innerHTML = h; $("svcScale").innerHTML = h;
+  document.querySelectorAll("#kiosk .scale").forEach(el=>{ el.innerHTML = h; });
 }
 function resetDraft(){
   draft = {};
@@ -1002,6 +1051,7 @@ function resetDraft(){
 function kioskHeader(){
   $("kPayQ").textContent = payQuestion(state.name, state.pp);
   $("kSvcQ").textContent = svcQuestion(state.name);
+  $("kRetQ").textContent = returnQuestion(state.name);
   $("kName").textContent = state.name || "Restaurant Boss";
   $("kCust").textContent = "Customer " + (state.surveys.length+1);
   $("kStar").textContent = state.star ? "\u2605 " + state.star : "";
@@ -1063,7 +1113,7 @@ function breakdownHTML(c, st){
   let h = "";
   const cb = c.cb;
   if(cb){
-    h += `<div class="brk"><h3><span>Customers (${cb.n} survey${cb.n===1?"":"s"})</span><span class="big">${pct(cb.score)}</span></h3><table>`;
+    h += `<div class="brk"><h3><span>Customers (${cb.n} survey${cb.n===1?"":"s"})</span><span class="big">${pct(Math.round(cb.score)/10)}</span></h3><table>`;
     cb.rows.forEach(r=> h += `<tr><td>${r.label}</td><td>${r.txt}</td></tr>`);
     h += `</table></div>`;
   } else {
@@ -1071,14 +1121,14 @@ function breakdownHTML(c, st){
   }
   [1,2,3].forEach(i=>{
     const v = st.judges[i-1], jn = (st.jnames && st.jnames[i-1]) ? st.jnames[i-1].trim() : "";
-    h += `<div class="brk"><h3><span>Judge ${i}${jn ? ": " + esc(jn) : ""}</span><span class="big">${v===null?"--":v*10}</span></h3><table><tr><td>Overall rating</td><td>${v===null?"Not rated":v+" / 10"}</td></tr></table></div>`;
+    h += `<div class="brk"><h3><span>Judge ${i}${jn ? ": " + esc(jn) : ""}</span><span class="big">${v===null?"--":v}</span></h3><table><tr><td>Overall rating</td><td>${v===null?"Not rated":v+" / 10"}</td></tr></table></div>`;
   });
   const hv = parseFloat(st.health), hok = !isNaN(hv);
   h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${hok?letter(hv):"--"}</span></h3><table><tr><td>Score out of 100</td><td>${hok?pct(hv):"Not entered"}</td></tr><tr><td>Points</td><td class="${hok?ptsCls(c.healthPts):""}">${hok?fmtPts(c.healthPts):"--"}</td></tr></table></div>`;
   const pl = c.pl;
   h += `<div class="brk"><h3><span>Restaurant P&amp;L</span><span class="big">${pl.pctVal===null?"--":pct(pl.pctVal)+"%"}</span></h3><table>${pl.rows.map(r=>`<tr><td>${r[0]}</td><td class="${r[2]||""}">${r[1]}</td></tr>`).join("")}<tr><td>Food cost points</td><td class="${pl.pctVal===null?"":ptsCls(pl.foodPts)}">${pl.pctVal===null?"--":fmtPts(pl.foodPts)}</td></tr><tr><td>Customers served (all ${TARGET_CUSTOMERS} needed)</td><td class="${ptsCls(pl.bServe)}">${fmtPts(pl.bServe)}</td></tr><tr><td>Bonus: spent $${START_BUDGET} or under</td><td class="${pl.spent===null?"":ptsCls(pl.bBudget)}">${pl.spent===null?"--":fmtPts(pl.bBudget)}</td></tr></table>${pl.coach?`<div class="pl-coach ${pl.coach.kind}">${pl.coach.text}</div>`:""}</div>`;
   if(c.complete){
-    h += `<div class="formula"><b>How the final grade is figured</b><br>Base score: (${c.parts.map(p=>pct(p.val)).join(" + ")}) &divide; ${c.parts.length} = ${pct(c.base)}<br>Health grade (${c.hLetter}): ${fmtPts(c.healthPts)}<br>Food cost (${pl.pctVal===null?"not entered":pct(pl.pctVal)+"%"}): ${fmtPts(pl.foodPts)}<br>Customers served (${c.cb?c.cb.n:0} of ${TARGET_CUSTOMERS}): ${fmtPts(pl.bServe)}<br>Spent $${START_BUDGET} or under: ${fmtPts(pl.bBudget)}<br>${pct(c.base)} ${c.adj<0?"-":"+"} ${Math.abs(c.adj)} = <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">The customer survey score and the three judges make the base score and count the same. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
+    h += `<div class="formula"><b>How the final score is added up</b><br>${c.parts.map(p=>p.label+": "+pct(p.val)).join("<br>")}<br>Points from judges and customers: <b>${pct(c.base)}</b><br>Health grade (${c.hLetter}): ${fmtPts(c.healthPts)}<br>Food cost (${pl.pctVal===null?"not entered":pct(pl.pctVal)+"%"}): ${fmtPts(pl.foodPts)}<br>Customers served (${c.cb?c.cb.n:0} of ${TARGET_CUSTOMERS}): ${fmtPts(pl.bServe)}<br>Spent $${START_BUDGET} or under: ${fmtPts(pl.bBudget)}<br>${pct(c.base)} ${c.adj<0?"-":"+"} ${Math.abs(c.adj)} = <b>${pct(c.final)} points</b> &rarr; <b>${gradeOf(c.final)}</b><br><span style="opacity:.7;">Every point earned is kept and added to the total. Points come off only when a rule calls for it. Above 40 A+, 36 to 40 A, 32 to 35.9 B, 28 to 31.9 C, 24 to 27.9 D, below 24 F.</span></div>`;
   } else {
     h += `<div class="formula">This show was not finished, so it never got a final grade.</div>`;
   }
@@ -1105,8 +1155,8 @@ function openReveal(ctx){
 function showFinal(c, animate){
   $("rGradeArea").style.display="none";
   $("rFinal").style.display="block";
-  const g=$("rGrade"); g.textContent = c.complete ? letter(c.final) : "?"; g.classList.remove("pop"); void g.offsetWidth; if(animate) g.classList.add("pop");
-  $("rScore").textContent = c.complete ? pct(c.final) + " / 100" : "Not finished";
+  const g=$("rGrade"); g.textContent = c.complete ? gradeOf(c.final) : "?"; g.classList.remove("pop"); void g.offsetWidth; if(animate) g.classList.add("pop");
+  $("rScore").textContent = c.complete ? pct(c.final) + " points" : "Not finished";
   $("rBreak").style.display="none"; $("rBreakBtn").textContent = "See Points Breakdown";
 }
 $("rBreakBtn").addEventListener("click",()=>{ const b=$("rBreak"), open = b.style.display==="block"; b.style.display = open ? "none" : "block"; $("rBreakBtn").textContent = open ? "See Points Breakdown" : "Hide Points Breakdown"; if(!open) b.scrollIntoView({behavior:"smooth",block:"start"}); });
@@ -1118,22 +1168,22 @@ $("tapReveal").addEventListener("click",()=>{
 $("rClose").addEventListener("click",()=>{ $("reveal").classList.remove("open"); document.body.style.overflow=""; render(); });
 $("copyBtn").addEventListener("click",()=>{
   const st = revealCtx.st, c = compute(st); if(!c.complete){ toast("This show was not finished"); return; }
-  const lines = [`RESTAURANT BOSS: ${st.name}`, st.star ? `Contestant: ${st.star}` : "", `FINAL GRADE: ${letter(c.final)} (${pct(c.final)}/100)`, ""];
-  lines.push(`Customers (${c.cb.n} surveys): ${pct(c.cb.score)}`);
+  const lines = [`RESTAURANT BOSS: ${st.name}`, st.star ? `Contestant: ${st.star}` : "", `FINAL GRADE: ${gradeOf(c.final)} (${pct(c.final)} points)`, ""];
+  lines.push(`Customers (${c.cb.n} surveys): ${pct(Math.round(c.cb.score)/10)} points`);
   c.cb.rows.forEach(r=>lines.push(`  - ${r.label}: ${r.txt}`));
-  [1,2,3].forEach(i=>lines.push(`Judge ${i}${(st.jnames&&st.jnames[i-1])?" ("+st.jnames[i-1].trim()+")":""}: ${st.judges[i-1]}/10 (${st.judges[i-1]*10})`));
+  [1,2,3].forEach(i=>lines.push(`Judge ${i}${(st.jnames&&st.jnames[i-1])?" ("+st.jnames[i-1].trim()+")":""}: ${st.judges[i-1]} points`));
   lines.push(`Health grade: ${pct(parseFloat(st.health))}/100 (${c.hLetter}) ${fmtPts(c.healthPts)} pts`);
   const pl = c.pl;
   lines.push("", "RESTAURANT P&L"); pl.rows.forEach(r=>lines.push(`  - ${r[0]}: ${r[1]}`));
   lines.push(`  - Food cost points: ${pl.pctVal===null?"--":fmtPts(pl.foodPts)}`, `  - Customers served (all ${TARGET_CUSTOMERS} needed): ${fmtPts(pl.bServe)}`, `  - Bonus, spent $${START_BUDGET} or under: ${pl.spent===null?"--":fmtPts(pl.bBudget)}`);
   if(pl.coach) lines.push("  > "+pl.coach.text.replace(/<[^>]+>/g,""));
-  lines.push("", `Base score ${pct(c.base)} ${c.adj<0?"-":"+"} ${Math.abs(c.adj)} points = ${pct(c.final)}`);
+  lines.push("", `Judges and customers ${pct(c.base)} ${c.adj<0?"-":"+"} ${Math.abs(c.adj)} points = ${pct(c.final)} points`);
   const txt = lines.join("\n");
   (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast("Results copied")).catch(()=>{ prompt("Copy your results:", txt); });
 });
 
 /* ---------- rules & points ---------- */
-$("homeRules").addEventListener("click",e=>{ e.preventDefault(); $("rules").classList.add("open"); $("rules").scrollTop=0; document.body.style.overflow="hidden"; });
+$("homeRules").addEventListener("click",e=>{ e.preventDefault(); const hl=document.querySelector("#home img"); if(hl) $("rulesLogo").src=hl.src; $("rules").classList.add("open"); $("rules").scrollTop=0; document.body.style.overflow="hidden"; });
 $("rulesClose").addEventListener("click",()=>{ $("rules").classList.remove("open"); document.body.style.overflow=""; });
 
 /* ---------- screens: home, scoring, previous shows ---------- */
@@ -1177,7 +1227,7 @@ async function renderPast(){
   pastItems = items;
   box.innerHTML = items.length ? items.map((x,i)=>`
     <div class="hist-item" data-i="${i}">${x.thumb?`<img src="${x.thumb}" alt="">`:`<img alt="">`}
-      <div class="hn">${esc(x.name||"Untitled")}<small>${x.star?"&#9733; "+esc(x.star)+"<br>":""}${new Date(x.date).toLocaleDateString()} &middot; ${x.surveys} surveys &middot; ${x.score===null?"not finished":x.score+" / 100"}</small></div>
+      <div class="hn">${esc(x.name||"Untitled")}<small>${x.star?"&#9733; "+esc(x.star)+"<br>":""}${new Date(x.date).toLocaleDateString()} &middot; ${x.surveys} surveys &middot; ${x.score===null?"not finished":x.score+" pts"}</small></div>
       <div class="hg">${x.grade}</div>
     </div>`).join("") : '<div class="empty">No previous shows yet. When you start a new show, the last one is saved here.</div>';
 }
@@ -1242,7 +1292,7 @@ async function archiveCurrent(){
   const c = compute(), id = "s" + Date.now();
   const hist = loadHist();
   hist.unshift({ id, name:state.name, star:state.star, date:Date.now(), surveys:state.surveys.length,
-    score: c.complete? c.final : null, grade: c.complete? letter(c.final) : "?", thumb: await thumbOf(photoURL),
+    score: c.complete? c.final : null, grade: c.complete? gradeOf(c.final) : "?", thumb: await thumbOf(photoURL),
     data: JSON.parse(JSON.stringify(state)) });
   if(photoURL) await idbSet("photo_"+id, photoURL);
   const dropped = hist.slice(40);
@@ -1403,7 +1453,7 @@ function adoptRemoteShow(cur){
 
 async function summaryOf(st, url){
   const c = compute(st);
-  return { grade: c.complete ? letter(c.final) : "?", score: c.complete ? c.final : null, surveys: st.surveys.length, thumb: await thumbOf(url) };
+  return { grade: c.complete ? gradeOf(c.final) : "?", score: c.complete ? c.final : null, surveys: st.surveys.length, thumb: await thumbOf(url) };
 }
 async function pushShow(st, url, date, summary){
   const f = localFields(st);

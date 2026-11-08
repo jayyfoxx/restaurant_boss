@@ -27,7 +27,7 @@
   .yn button.yes.sel{background:var(--green); border-color:var(--green); color:#fff;}
   .yn button.no.sel{background:var(--red); border-color:var(--red); color:#fff;}
   .scale{display:grid; grid-template-columns:repeat(5,1fr); gap:8px;}
-  .scale button{background:#fff; border:2px solid var(--line); border-radius:10px; font-size:22px; font-weight:800; padding:14px 0; color:var(--ink); font-family:inherit;}
+  .scale button{background:#fff; border:2px solid var(--line); border-radius:10px; font-size:18px; font-weight:800; padding:9px 0; color:var(--ink); font-family:inherit;}
   .scale button.sel{background:#111; border-color:#111; color:var(--yellow);}
   .lbl{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); margin-top:6px;}
   .big{width:100%; background:#111; color:var(--yellow); border:none; border-radius:12px; font-size:20px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; padding:18px; margin-top:16px; font-family:inherit;}
@@ -65,17 +65,20 @@
   <!-- survey -->
   <div id="form" hidden>
     <div class="q"><div class="qt"><span class="n">1</span><span id="svcQ">Rate the customer service, from 1 to 10.</span></div>
-      <div class="scale" data-q="q1" id="svcScale"></div>
+      <div class="scale" data-q="q1"></div>
       <div class="lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
-    <div class="q"><div class="qt"><span class="n">2</span>Did you receive your food in a timely manner, considering how busy it was?</div>
-      <div class="yn" data-q="q2"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="q"><div class="qt"><span class="n">2</span><span id="timeQ">How quickly did your food arrive, considering how busy it was?</span></div>
+      <div class="scale" data-q="q2"></div>
+      <div class="lbl"><span>1 = Slow</span><span>10 = Fast</span></div></div>
     <div class="q"><div class="qt"><span class="n">3</span>Rate your plate from 1 to 10.</div>
-      <div class="scale" data-q="q4" id="scale"></div>
+      <div class="scale" data-q="q4"></div>
       <div class="lbl"><span>1 = Poor</span><span>10 = Perfect</span></div></div>
-    <div class="q"><div class="qt"><span class="n">4</span><span id="payQ">Would you pay the menu price for the plate you received today?</span></div>
-      <div class="yn" data-q="q3"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
-    <div class="q"><div class="qt"><span class="n">5</span>Would you return to this restaurant?</div>
-      <div class="yn" data-q="q5"><button class="yes" data-v="1">YES</button><button class="no" data-v="0">NO</button></div></div>
+    <div class="q"><div class="qt"><span class="n">4</span><span id="payQ">How likely are you to pay the menu price for the plate you had today?</span></div>
+      <div class="scale" data-q="q3"></div>
+      <div class="lbl"><span>1 = Not likely</span><span>10 = Very likely</span></div></div>
+    <div class="q"><div class="qt"><span class="n">5</span><span id="retQ">How likely are you to return to this restaurant?</span></div>
+      <div class="scale" data-q="q5"></div>
+      <div class="lbl"><span>1 = Not likely</span><span>10 = Very likely</span></div></div>
     <button class="big" id="submit" disabled>Submit</button>
     <div class="err" id="subErr"></div>
   </div>
@@ -138,7 +141,8 @@ async function load(){
     showPhoto(info.photo, info.view);
     $("svcQ").textContent = "Rate the customer service" + ((info.name||"").trim() ? " at " + info.name.trim() : "") + ", from 1 to 10.";
     { const p = parseFloat(info.price), r = (info.name||"").trim();
-      $("payQ").textContent = "Would you pay " + ((!isNaN(p) && p>0) ? "$" + (Number.isInteger(p) ? p : p.toFixed(2)) : "the menu price") + " for the plate you received today" + (r ? " at " + r : "") + "?"; }
+      $("payQ").textContent = "How likely are you to pay " + ((!isNaN(p) && p>0) ? "$" + (Number.isInteger(p) ? p : p.toFixed(2)) : "the menu price") + " for the plate you had today" + (r ? " at " + r : "") + "?";
+      $("retQ").textContent = "How likely are you to return to " + (r || "this restaurant") + "?"; }
     if(info.ended) return show("msg","Show Ended","This survey code was for an earlier show. Thank you!");
     if(info.closed) return show("msg","Surveys Closed","Thank you for stopping by. This restaurant is no longer taking surveys.");
     if(wasDone()) return show("msg","Already Done","You already filled out the survey. Thank you!");
@@ -147,7 +151,7 @@ async function load(){
     show("code"); $("codeErr").textContent = e.message;
   }
 }
-$("scale").innerHTML = $("svcScale").innerHTML = Array.from({length:10},(_,i)=>`<button data-v="${i+1}">${i+1}</button>`).join("");
+document.querySelectorAll(".scale").forEach(el=>{ el.innerHTML = Array.from({length:10},(_,i)=>`<button data-v="${i+1}">${i+1}</button>`).join(""); });
 $("form").addEventListener("click",e=>{
   const b = e.target.closest("button"); if(!b || !b.dataset.v) return;
   const g = b.parentElement, q = g.dataset.q; if(!q) return;
