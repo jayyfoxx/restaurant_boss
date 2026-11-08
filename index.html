@@ -238,7 +238,7 @@
   #rules .r-wrap{max-width:720px; margin:0 auto;}
   .rules-head{display:flex; align-items:center; gap:14px; padding:22px 4px 4px;}
   .rules-head img{width:64px; height:64px; border-radius:14px; flex:none;}
-  .rules-head .rb{color:#fff; font-size:clamp(24px,7.4vw,34px); font-weight:900; text-transform:uppercase; letter-spacing:.04em; line-height:1.1;}
+  .rules-head .rb{color:#fff; font-size:clamp(20px,5.6vw,32px); font-weight:900; text-transform:uppercase; letter-spacing:.04em; line-height:1.1;}
   .rules-head .rb span{background:var(--yellow); color:#111; padding:0 7px; margin-left:6px; display:inline-block;}
   .rules-head .rt{color:var(--yellow); font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-top:6px;}
   .rules-title{color:#fff; font-size:26px; font-weight:900; letter-spacing:.05em; text-transform:uppercase; margin:22px 4px 4px; line-height:1.1;}
@@ -292,6 +292,31 @@
   .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:12px 18px; border-radius:20px; font-size:14px; z-index:300; opacity:0; transition:opacity .25s; pointer-events:none;}
   .toast.show{opacity:1;}
   input[type=file]{display:none;}
+
+
+
+  .r-listen{display:inline-block; margin-top:8px; background:#fff; color:#111; border:none; border-radius:10px; padding:9px 14px; font-weight:800; font-size:13px; cursor:pointer;}
+  .r-listen.all{margin:0 0 0 auto; flex:none; background:var(--yellow); color:#111; padding:10px 12px; font-size:13px; border-radius:12px; display:flex; flex-direction:column; align-items:center; gap:2px; line-height:1.1;}
+  .r-listen.all svg{width:18px; height:18px;}
+  .rules-head > div:not(.x){min-width:0;}
+  .r-listen.on{outline:2px solid var(--yellow);}
+
+  /* training tracker */
+  .c-track{position:sticky; top:0; z-index:6; background:#0B0B0D; margin:0 -14px; padding:10px 14px 9px; border-bottom:1px solid #2A2A2F;}
+  .c-track .tt{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .c-track .tl{font-size:11px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; color:var(--yellow);}
+  .c-track .tr{font-size:12px; font-weight:700; color:#C9C9CF; font-variant-numeric:tabular-nums;}
+  .c-track .tr b{color:#fff;}
+  .c-track .segs{display:flex; gap:4px; margin-top:7px;}
+  .c-track .seg{flex:1; height:8px; background:#2A2A2F; border-radius:4px; overflow:hidden;}
+  .c-track .seg i{display:block; height:100%; background:var(--yellow); border-radius:4px; transition:width .3s;}
+  .c-track .seg.ok i{background:#3DDC84;}
+  .c-track .labs{display:flex; gap:4px; margin-top:4px;}
+  .c-track .labs span{flex:1; text-align:center; font-size:10px; font-weight:800; color:#6E6E76;}
+  .c-track .labs span.on{color:var(--yellow);}
+  .c-track.done .tl{color:#3DDC84;}
+  /* training-only mode */
+  body.training-only #continueBtn, body.training-only #homeNew, body.training-only #homePast, body.training-only #homeSync{display:none !important;}
 
   /* boss training course */
   #course{position:fixed; inset:0; z-index:160; background:linear-gradient(180deg,#050506,#0E0E10); overflow-y:auto; display:none; padding:0 14px 50px; color:#fff;}
@@ -450,7 +475,17 @@
   <button class="hb second" id="homeSync">Sync Devices<small id="syncSub">Off</small></button>
   <button class="hb second" id="homeCourse">Boss Training<small id="courseSub"></small></button>
   <a href="#" class="rules-link" id="homeRules">Rules &amp; Points</a>
+  <a href="#" class="rules-link" id="homeUnlock" style="display:none; opacity:.45; font-size:12px; margin-top:14px;">Instructor unlock</a>
 </div>
+
+<div class="modal" id="pinModal"><div class="mbox">
+  <h3>Instructor unlock</h3>
+  <p>Enter the instructor PIN to open the full app on this device.</p>
+  <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="PIN" autocomplete="off" maxlength="12" style="text-transform:none; letter-spacing:.3em;">
+  <div class="st" id="pinMsg" style="color:#c0392b;"></div>
+  <button class="big-btn" id="pinGo">Unlock</button>
+  <button class="ghost-btn" id="pinClose">Cancel</button>
+</div></div>
 
 <!-- sync modal -->
 <div class="modal" id="syncModal"><div class="mbox">
@@ -639,6 +674,12 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* training-only mode: open the app with ?training to lock it to Rules & Points + Boss Training; ?full unlocks */
+var TRAINING_ONLY=false, WANT_UNLOCK=false;
+var RB_PIN_HASH="2086161477";
+function rbHash(t){ let x=5381; for(const c of t) x=((x*33)^c.charCodeAt(0))>>>0; return String(x); }
+try{ const q=location.search+location.hash; WANT_UNLOCK=/[?&#]full\b/.test(q); if(/[?&#]training\b/.test(q)) localStorage.setItem('rbTrainingOnly','1'); TRAINING_ONLY=localStorage.getItem('rbTrainingOnly')==='1'; }catch(e){ TRAINING_ONLY=/[?&#]training\b/.test(location.search+location.hash); }
+if(TRAINING_ONLY) document.documentElement.classList.add('training-only'), document.addEventListener('DOMContentLoaded',()=>document.body.classList.add('training-only'));
 /* ---------- config ---------- */
 // Four equal parts make the base score: customers, judge 1, judge 2, judge 3.
 // Health grade, food cost and bonuses then add or subtract points.
@@ -1226,6 +1267,7 @@ $("rulesClose").addEventListener("click",()=>{ $("rules").classList.remove("open
 
 /* ---------- screens: home, scoring, previous shows ---------- */
 function setView(v){
+  if(TRAINING_ONLY && v!=="home") v="home";
   document.body.setAttribute("data-view", v);
   window.scrollTo(0,0);
   if(v==="app"){ render(); setTimeout(()=>{ placeAll(); fitAll(); },30); }
@@ -2949,6 +2991,31 @@ function cSpeak(html){
 }
 
 let cur = { lesson:null, slide:0, qs:[], qi:0, right:0, picked:null };
+
+const C_SLIDE_SEC=25, C_QUIZ_SEC=60;
+function cTrackStats(){
+  const d=cLoad(); d.seen=d.seen||{}; let total=0, done=0, secLeft=0;
+  const segs=LESSONS.map(l=>{
+    const n=l.slides.length, seen=Math.min(d.seen[l.id]||0,n), passed=d.passed[l.id]!==undefined;
+    total+=n+1; done+=seen+(passed?1:0); secLeft+=(n-seen)*C_SLIDE_SEC+(passed?0:C_QUIZ_SEC);
+    return {frac:(seen+(passed?1:0))/(n+1), passed};
+  });
+  return {segs, pct:Math.round(done/total*100), min:Math.ceil(secLeft/60), all:segs.every(x=>x.passed)};
+}
+function cMarkSeen(){
+  const L=LESSONS[cur.lesson]; const d=cLoad(); d.seen=d.seen||{};
+  d.seen[L.id]=Math.max(d.seen[L.id]||0, cur.slide+1); cSave(d);
+}
+function cTrackerInsert(){
+  const st=cTrackStats(), body=$("courseBody"); if(!body) return;
+  const old=body.querySelector(".c-track"); if(old) old.remove();
+  const right = st.all ? "<b>Training complete</b>" : "<b>"+st.pct+"%</b> &middot; about <b>"+st.min+" min</b> left";
+  const html=`<div class="c-track${st.all?" done":""}"><div class="tt"><span class="tl">Boss Training Tracker</span><span class="tr">${right}</span></div>
+  <div class="segs">${st.segs.map(x=>`<div class="seg${x.passed?" ok":""}"><i style="width:${Math.round(x.frac*100)}%"></i></div>`).join("")}</div>
+  <div class="labs">${LESSONS.map((l,i)=>`<span class="${cur.lesson===i&&cInLesson?"on":""}">${l.passed?"":""}${i+1}</span>`).join("")}</div></div>`;
+  body.insertAdjacentHTML("afterbegin",html);
+}
+let cInLesson=false;
 function courseDone(){ const d=cLoad(); return LESSONS.filter(l=>d.passed[l.id]!==undefined).length; }
 function renderCourseHome(){
   const d=cLoad(); const done=courseDone();
@@ -2965,6 +3032,7 @@ function renderCourseHome(){
   $("courseBody").innerHTML=h;
   $("cBack").onclick=closeCourse;
   document.querySelectorAll(".c-lesson").forEach(b=>b.onclick=()=>openLesson(+b.dataset.i));
+  cInLesson=false; cTrackerInsert();
   $("course").scrollTop=0;
 }
 function openLesson(i){ cAutoOn=true; cur.lesson=i; cur.slide=0; renderSlide(); }
@@ -2982,6 +3050,7 @@ function renderSlide(auto){
   $("cNext").onclick=()=>{ if(last){ cSpeechStop(); startQuiz(); } else { cur.slide++; renderSlide(); } };
   if(canSpeak) $("cListen").onclick=()=>{ if(cAudSrc()){ if(!cAud.paused && cAud.src===cAudSrc()){ cAud.pause(); cAutoOn=false; cSetBtn(false); } else { cAutoOn=true; cAudPlay(); } } else cSpeak("<h3>"+s.h+"</h3>"+s.body); };
   if(cAudSrc() && cAutoOn) cAudPlay();
+  cInLesson=true; cMarkSeen(); cTrackerInsert();
   $("course").scrollTop=0;
 }
 function startQuiz(){
@@ -3006,6 +3075,7 @@ function renderQ(){
   $("cBack").onclick=renderCourseHome;
   document.querySelectorAll(".c-opt").forEach(b=>b.onclick=()=>{ cur.picked=+b.dataset.k; if(cur.picked===q.a) cur.right++; renderQ(); });
   if(answered) $("cNext").onclick=()=>{ if(cur.qi===n-1) renderResult(); else { cur.qi++; cur.picked=null; renderQ(); } };
+  cInLesson=true; cTrackerInsert();
   $("course").scrollTop=0;
 }
 function renderResult(){
@@ -3020,6 +3090,7 @@ function renderResult(){
   $("cBack").onclick=renderCourseHome;
   if(!pass) $("cReview").onclick=()=>openLesson(cur.lesson);
   $("cAgain").onclick=()=>{ if(!pass) startQuiz(); else if(next) openLesson(cur.lesson+1); else renderCourseHome(); };
+  cInLesson=true; cTrackerInsert();
   $("course").scrollTop=0;
 }
 function openCourse(){ renderCourseHome(); $("course").classList.add("open"); document.body.style.overflow="hidden"; }
@@ -3028,6 +3099,51 @@ function updateCourseSub(){ const el=$("courseSub"); if(el) el.textContent = cou
 $("homeCourse").addEventListener("click",openCourse);
 updateCourseSub();
 
+
+function openPin(){ $("pinInput").value=""; $("pinMsg").textContent=""; $("pinModal").classList.add("open"); setTimeout(()=>$("pinInput").focus(),50); }
+$("homeUnlock").addEventListener("click",e=>{ e.preventDefault(); openPin(); });
+$("pinClose").addEventListener("click",()=>$("pinModal").classList.remove("open"));
+function tryPin(){
+  if(rbHash($("pinInput").value.trim())===RB_PIN_HASH){
+    try{ localStorage.removeItem("rbTrainingOnly"); }catch(e){}
+    location.replace(location.pathname);
+  } else { $("pinMsg").textContent="Wrong PIN."; $("pinInput").value=""; }
+}
+$("pinGo").addEventListener("click",tryPin);
+$("pinInput").addEventListener("keydown",e=>{ if(e.key==="Enter") tryPin(); });
+
+
+/* ---------- narrated rules page ---------- */
+const R_BASE="https://d8j0ntlcm91z4.cloudfront.net/user_3EpAptNxUY3k0KhPZsg0VNb3tyY/hf_20261108_";
+const R_AUDIO=["071156_4df79d2c-cfb6-49f1-aa44-d002a54d6427", "071156_6fe46fb7-56e7-4648-93b2-b825a0361ea4", "071156_869e3a28-7796-4c33-99c4-5c874a937bd2", "071215_eb28da0a-51be-4842-967a-dbfecff20c1b", "071215_23569a40-0874-4254-a784-a421f613b748", "071227_6dd85134-69c7-43d7-9a9a-7bdd50a496d1", "071222_2015855c-f751-4b28-93bf-892a22388437", "071245_9cf5a721-eb00-46fc-96a9-95fae27269bb", "071251_467c0cbc-813f-48b6-a41b-93b4c4a1d39e"];
+const rAud=new Audio(); rAud.preload="none";
+let rBlocks=[], rIdx=-1, rAll=false;
+function rUi(){
+  const a=$("rListenAll"); if(!a) return; const on=(rAll && !rAud.paused);
+  a.classList.toggle("on",on);
+  a.innerHTML=on?'<svg viewBox="0 0 24 24" fill="#111"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>Pause':'<svg viewBox="0 0 24 24" fill="#111"><path d="M6 4l14 8-14 8z"/></svg>Listen';
+}
+function rStop(){ try{ rAud.onended=null; rAud.pause(); }catch(e){} rIdx=-1; rAll=false; rUi(); }
+function rPlay(i,all){
+  rAud.onended=()=>{ if(rAll && i<R_AUDIO.length-1){ rPlay(i+1,true); } else { rIdx=-1; rAll=false; rUi(); } };
+  rAud.onerror=()=>{ rIdx=-1; rAll=false; rUi(); toast("Audio is not available right now"); };
+  rIdx=i; rAll=!!all; rAud.src=R_BASE+R_AUDIO[i]+".mp3";
+  const el=rBlocks[i].el; if(all && el.scrollIntoView) el.scrollIntoView({behavior:"smooth",block:"center"});
+  const p=rAud.play(); if(p&&p.catch) p.catch(()=>{ rIdx=-1; rAll=false; rUi(); });
+  rUi();
+}
+(function setupRulesAudio(){
+  const box=$("rules"); if(!box) return;
+  const els=[box.querySelector(".rules-formula"), ...box.querySelectorAll(".rcard")];
+  els.forEach((el,i)=>{ if(el&&i<R_AUDIO.length) rBlocks[i]={el,btn:document.createElement("span")}; });
+  const all=document.createElement("button"); all.type="button"; all.id="rListenAll"; all.className="r-listen all"; all.setAttribute("aria-label","Listen to Rules and Points");
+  const hd=box.querySelector(".rules-head"); if(hd) hd.appendChild(all);
+  all.onclick=()=>{ if(rAll && !rAud.paused){ rAud.pause(); rAll=false; rUi(); } else rPlay(rIdx>=0&&rAud.paused&&rAll?rIdx:0,true); };
+  rAud.addEventListener("pause",rUi); rAud.addEventListener("play",rUi);
+  const cl=$("rulesClose"); if(cl) cl.addEventListener("click",rStop);
+  rUi();
+})();
+
 /* ---------- start ---------- */
 (async function init(){
   load(); buildFoodScale();
@@ -3035,7 +3151,9 @@ updateCourseSub();
   if(!photoURL) state.hasPhoto = false;
   render(); setView("home");
   setDot(sync.code ? "busy" : "");
-  if(sync.code){ startPolling(); syncTick(); }
+  if(sync.code && !TRAINING_ONLY){ startPolling(); syncTick(); }
+  if(TRAINING_ONLY){ document.body.classList.add('training-only'); $("homeUnlock").style.display="block"; if(WANT_UNLOCK) openPin(); }
+  else if(WANT_UNLOCK) history.replaceState(null,"",location.pathname);
   if("serviceWorker" in navigator){ navigator.serviceWorker.register("service-worker.js").catch(()=>{}); }
 })();
 </script>
