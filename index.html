@@ -302,7 +302,7 @@
   .r-listen.on{outline:2px solid var(--yellow);}
 
   /* training tracker */
-  .c-track{position:sticky; top:0; z-index:6; background:#0B0B0D; margin:0 -14px; padding:10px 14px 9px; border-bottom:1px solid #2A2A2F;}
+  .c-track{position:sticky; top:0; z-index:6; background:#0B0B0D; margin:0 -14px; padding:calc(env(safe-area-inset-top,0px) + 30px) 14px 9px; border-bottom:1px solid #2A2A2F;}
   .c-track .tt{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
   .c-track .tl{font-size:11px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; color:var(--yellow);}
   .c-track .tr{font-size:12px; font-weight:700; color:#C9C9CF; font-variant-numeric:tabular-nums;}
