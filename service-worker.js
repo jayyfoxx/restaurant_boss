@@ -1,4 +1,4 @@
-const CACHE_NAME = "restaurant-boss-v29";
+const CACHE_NAME = "restaurant-boss-v30";
 const FILES_TO_CACHE = ["index.html", "manifest.json", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
