@@ -190,6 +190,7 @@
   .brk td:last-child{text-align:right; font-weight:700; font-family:"SF Mono",Menlo,monospace;}
   .formula{background:#111; color:#fff; border-radius:14px; padding:14px 16px; margin-top:12px; font-size:14px; line-height:1.6;}
   .formula b{color:var(--yellow);}
+  .brk td.good{color:var(--green);} .brk td.bad{color:var(--red);}
 
   .brand i{display:none; width:9px; height:9px; border-radius:50%; margin-left:8px; vertical-align:middle;}
   .brand i.ok{display:inline-block; background:#2ecc71;}
@@ -511,11 +512,11 @@
   <div class="rcard"><h3>Health Grade Points</h3>
     <p>The health grade does not count toward the average. It adds or removes points.</p>
     <table>
-      <tr><td>A (90 and up)</td><td class="pos">+2</td></tr>
-      <tr><td>B (80s)</td><td class="pos">+1</td></tr>
+      <tr><td>A (90 and up)</td><td class="pos">+3</td></tr>
+      <tr><td>B (80s)</td><td class="pos">+2</td></tr>
       <tr><td>C (70s)</td><td>0</td></tr>
-      <tr><td>D (60s)</td><td class="neg">-1</td></tr>
-      <tr><td>F (below 60)</td><td class="neg">-2</td></tr>
+      <tr><td>D (60s)</td><td class="neg">-2</td></tr>
+      <tr><td>F (below 60)</td><td class="neg">-3</td></tr>
     </table>
   </div>
 
@@ -535,7 +536,7 @@
       <tr><td>Spent $140 or under</td><td class="pos">+1</td></tr>
       <tr><td>Did not serve all 20 customers</td><td class="neg">-1</td></tr>
     </table>
-    <p>The time left on the 1-hour clock is recorded for bragging rights and does not change the score. A time of 0:00 means the contestant used the whole hour and was cut off.</p>
+    <p>Service Time is the total time used out of the 1-hour clock. It is recorded for bragging rights and does not change the score. A Service Time of 60:00 means the contestant used the whole hour and was cut off.</p>
   </div>
 
   <div class="rcard"><h3>The Final Grade</h3>
@@ -680,6 +681,7 @@ function customerBreakdown(st){
 
 const START_BUDGET = 140, TARGET_CUSTOMERS = 20, MAX_STAFF = 5, FOOD_LIMIT = 35;
 const money = n => "$" + (Math.round(n*100)/100).toFixed(2);
+const ptsCls = n => n>0 ? "good" : (n<0 ? "bad" : "");
 const fmtPts = n => n>0 ? "+"+n : (n<0 ? "-"+Math.abs(n) : "0");
 function plRows(st){
   const n = st.surveys.length, sp = parseFloat(st.sp), price = parseFloat(st.pp), staff = parseInt(st.sf);
@@ -721,8 +723,7 @@ function plRows(st){
   }
   const clock = t => Math.floor(t/60)+":"+String(t%60).padStart(2,"0");
   if(secsLeft!==null){
-    rows.push(["Time left on the clock", clock(secsLeft)+(secsLeft===0?" (full hour, cut off)":""), secsLeft===0?"bad":"good"]);
-    rows.push(["Service time used", clock(3600-secsLeft)]);
+    rows.push(["Service Time", clock(3600-secsLeft)]);
   }
   rows.push(["Customers served", n+" of "+TARGET_CUSTOMERS]);
   // points
@@ -759,7 +760,7 @@ function compute(st){
   const avg = complete ? sum/w : null;
   const base = complete ? Math.round(avg*10)/10 : null;
   const hLetter = hok ? letter(h) : null;
-  const healthPts = hok ? ({A:2,B:1,C:0,D:-1,F:-2})[hLetter] : 0;
+  const healthPts = hok ? ({A:3,B:2,C:0,D:-2,F:-3})[hLetter] : 0;
   const pl = plRows(st);
   const adj = healthPts + pl.foodPts + pl.bonus;
   const final = complete ? Math.round((avg + adj)*10)/10 : null;
@@ -1073,9 +1074,9 @@ function breakdownHTML(c, st){
     h += `<div class="brk"><h3><span>Judge ${i}${jn ? ": " + esc(jn) : ""}</span><span class="big">${v===null?"--":v*10}</span></h3><table><tr><td>Overall rating</td><td>${v===null?"Not rated":v+" / 10"}</td></tr></table></div>`;
   });
   const hv = parseFloat(st.health), hok = !isNaN(hv);
-  h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${hok?letter(hv):"--"}</span></h3><table><tr><td>Score out of 100</td><td>${hok?pct(hv):"Not entered"}</td></tr><tr><td>Points</td><td>${hok?fmtPts(c.healthPts):"--"}</td></tr></table></div>`;
+  h += `<div class="brk"><h3><span>Health Grade</span><span class="big">${hok?letter(hv):"--"}</span></h3><table><tr><td>Score out of 100</td><td>${hok?pct(hv):"Not entered"}</td></tr><tr><td>Points</td><td class="${hok?ptsCls(c.healthPts):""}">${hok?fmtPts(c.healthPts):"--"}</td></tr></table></div>`;
   const pl = c.pl;
-  h += `<div class="brk"><h3><span>Restaurant P&amp;L</span><span class="big">${pl.pctVal===null?"--":pct(pl.pctVal)+"%"}</span></h3><table>${pl.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}<tr><td>Food cost points</td><td>${pl.pctVal===null?"--":fmtPts(pl.foodPts)}</td></tr><tr><td>Customers served (all ${TARGET_CUSTOMERS} needed)</td><td>${fmtPts(pl.bServe)}</td></tr><tr><td>Bonus: spent $${START_BUDGET} or under</td><td>${pl.spent===null?"--":fmtPts(pl.bBudget)}</td></tr></table>${pl.coach?`<div class="pl-coach ${pl.coach.kind}">${pl.coach.text}</div>`:""}</div>`;
+  h += `<div class="brk"><h3><span>Restaurant P&amp;L</span><span class="big">${pl.pctVal===null?"--":pct(pl.pctVal)+"%"}</span></h3><table>${pl.rows.map(r=>`<tr><td>${r[0]}</td><td class="${r[2]||""}">${r[1]}</td></tr>`).join("")}<tr><td>Food cost points</td><td class="${pl.pctVal===null?"":ptsCls(pl.foodPts)}">${pl.pctVal===null?"--":fmtPts(pl.foodPts)}</td></tr><tr><td>Customers served (all ${TARGET_CUSTOMERS} needed)</td><td class="${ptsCls(pl.bServe)}">${fmtPts(pl.bServe)}</td></tr><tr><td>Bonus: spent $${START_BUDGET} or under</td><td class="${pl.spent===null?"":ptsCls(pl.bBudget)}">${pl.spent===null?"--":fmtPts(pl.bBudget)}</td></tr></table>${pl.coach?`<div class="pl-coach ${pl.coach.kind}">${pl.coach.text}</div>`:""}</div>`;
   if(c.complete){
     h += `<div class="formula"><b>How the final grade is figured</b><br>Base score: (${c.parts.map(p=>pct(p.val)).join(" + ")}) &divide; ${c.parts.length} = ${pct(c.base)}<br>Health grade (${c.hLetter}): ${fmtPts(c.healthPts)}<br>Food cost (${pl.pctVal===null?"not entered":pct(pl.pctVal)+"%"}): ${fmtPts(pl.foodPts)}<br>Customers served (${c.cb?c.cb.n:0} of ${TARGET_CUSTOMERS}): ${fmtPts(pl.bServe)}<br>Spent $${START_BUDGET} or under: ${fmtPts(pl.bBudget)}<br>${pct(c.base)} ${c.adj<0?"-":"+"} ${Math.abs(c.adj)} = <b>${pct(c.final)}</b> &rarr; <b>${letter(c.final)}</b><br><span style="opacity:.7;">The customer survey score and the three judges make the base score and count the same. 90+ A, 80s B, 70s C, 60s D, below 60 F.</span></div>`;
   } else {
