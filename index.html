@@ -292,6 +292,39 @@
   .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:12px 18px; border-radius:20px; font-size:14px; z-index:300; opacity:0; transition:opacity .25s; pointer-events:none;}
   .toast.show{opacity:1;}
   input[type=file]{display:none;}
+
+  /* boss training course */
+  #course{position:fixed; inset:0; z-index:160; background:linear-gradient(180deg,#050506,#0E0E10); overflow-y:auto; display:none; padding:0 14px 50px; color:#fff;}
+  #course.open{display:block;}
+  #course .c-wrap{max-width:720px; margin:0 auto;}
+  .c-top{display:flex; align-items:center; justify-content:space-between; padding:18px 2px 6px;}
+  .c-back{background:none; border:none; color:rgba(255,255,255,.7); font-size:14px; font-weight:700; padding:6px 0; cursor:pointer;}
+  .c-step{color:#A9A9B0; font-size:12px; letter-spacing:.08em; text-transform:uppercase; font-weight:700;}
+  .c-prog{height:6px; background:#2A2A2F; border-radius:6px; overflow:hidden; margin:8px 0 6px;}
+  .c-prog div{height:100%; background:var(--yellow); border-radius:6px; transition:width .25s;}
+  .c-count{color:#A9A9B0; font-size:13px; margin:2px 2px 10px;}
+  .c-lname{color:var(--yellow); font-size:13px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; margin:12px 2px 0;}
+  .c-lesson{display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:#141417; border:1px solid #2A2A2F; border-radius:16px; padding:14px; margin-top:10px; color:#fff; cursor:pointer; font-family:inherit;}
+  .c-num{flex:none; width:38px; height:38px; border-radius:50%; background:var(--yellow); color:#111; font-weight:900; font-size:18px; display:flex; align-items:center; justify-content:center;}
+  .c-num.ok{background:#4FD08A;}
+  .c-lt{flex:1; min-width:0;}
+  .c-lt b{display:block; font-size:16px; line-height:1.25;}
+  .c-lt small{display:block; color:#A9A9B0; font-size:13px; margin-top:3px; line-height:1.35;}
+  .c-badge{flex:none; font-size:12px; font-weight:800; color:var(--yellow); text-transform:uppercase; letter-spacing:.06em;}
+  .c-slide{font-size:16px;}
+  .c-slide p{font-size:16px;} .c-slide ul{font-size:16px;}
+  .c-listen{margin-top:6px; background:#fff; color:#111; border:none; border-radius:10px; padding:9px 14px; font-weight:800; font-size:13px; cursor:pointer;}
+  .c-nav{display:flex; gap:10px; margin-top:16px;}
+  .c-nav .big-btn{flex:1; background:var(--yellow); color:#111; padding:15px;}
+  .c-nav .ghost-btn{background:#fff; color:#111; border-color:#fff; padding:14px 20px; font-size:15px;}
+  .c-nav .ghost-btn:disabled{opacity:.35;}
+  .c-opt{display:block; width:100%; text-align:left; background:#1C1C20; border:2px solid #2A2A2F; color:#fff; border-radius:12px; padding:13px 14px; margin-top:10px; font-size:16px; font-weight:600; font-family:inherit; cursor:pointer; line-height:1.35;}
+  .c-opt.right{border-color:#4FD08A; background:rgba(79,208,138,.14);}
+  .c-opt.wrong{border-color:#FF6B5E; background:rgba(255,107,94,.14);}
+  .c-opt:disabled{cursor:default; color:#fff;}
+  .c-why{margin-top:12px;}
+  .c-score{font-size:46px; font-weight:900; font-family:"SF Mono",Menlo,monospace;}
+  .c-score.pos{color:#4FD08A;} .c-score.neg{color:#FF6B5E;}
 </style>
 </head>
 <body>
@@ -415,6 +448,7 @@
   <button class="hb primary" id="homeNew">New Show</button>
   <button class="hb second" id="homePast">Previous Shows<small id="pastCount"></small></button>
   <button class="hb second" id="homeSync">Sync Devices<small id="syncSub">Off</small></button>
+  <button class="hb second" id="homeCourse">Boss Training<small id="courseSub"></small></button>
   <a href="#" class="rules-link" id="homeRules">Rules &amp; Points</a>
 </div>
 
@@ -526,6 +560,7 @@
     <ul>
       <li>60 minutes of prep, the same for every team no matter how simple or hard the dish is.</li>
       <li>Then a 1-hour rush to serve 20 customers.</li>
+      <li>Every customer arrives with one ticket. They hand it to your cashier as cash for their food, so customers eat free.</li>
       <li>Up to 5 staff members.</li>
       <li>A $140 food budget. You are allowed to go over it, but keep your food cost in mind. Spending more can cost you points unless you raise your plate price to match.</li>
       <li>You set your own plate price.</li>
@@ -598,6 +633,8 @@
 
   <button class="ghost-btn" id="rulesClose" style="background:#fff; margin-top:16px; width:100%; padding:14px;">Close</button>
 </div></div>
+
+<div id="course"><div class="c-wrap" id="courseBody"></div></div>
 
 <div class="toast" id="toast"></div>
 
@@ -2779,6 +2816,217 @@ $("codeConnect").addEventListener("click", async ()=>{
   if(ok){ $("syncModal").classList.remove("open"); renderHome(); }
 });
 $("codeDisc").addEventListener("click",()=>{ if(confirm("Disconnect this device? Its current show stays on this device and stops syncing.")){ disconnect(); $("syncModal").classList.remove("open"); } });
+
+/* ---------- Boss Training Course ---------- */
+const COURSE_KEY = "rbCourse_v1";
+const PASS_PCT = 80;
+const LESSONS = [
+{ id:"show", icon:"1", title:"How the Show Works", blurb:"The rules, your customer tickets, and how you are graded.",
+  slides:[
+   { h:"Your mission", body:`<ul><li><b>60 minutes of prep.</b> Same for every team.</li><li><b>A 1-hour rush.</b> Serve 20 customers.</li><li><b>Up to 5 staff.</b></li><li><b>$140 food budget.</b> You may go over, but watch your food cost.</li><li><b>You set your plate price.</b></li></ul>` },
+   { h:"Customer tickets", body:`<p>Every customer gets one <b>ticket</b> when they arrive at the shoot. Customers eat free, so the ticket is their cash.</p><ul><li>The customer hands the ticket to your <b>cashier</b> when they order.</li><li>The cashier collects it. That is how the food gets paid for.</li></ul><p class="ex"><b>Think about it</b> Tickets you have collected tell you how many customers you have taken orders from. How could you use that during the rush?</p>` },
+   { h:"How you are graded", body:`<p>Your final score is every point you earn, added up:</p><ul><li><b>Judges:</b> 3 judges, 1 to 10 each.</li><li><b>Customer survey:</b> 5 questions, 1 to 10, averaged across your customers.</li><li><b>Health points:</b> from the food safety inspection.</li><li><b>Food cost points:</b> from what you spend against what you charge.</li><li><b>Bonus and penalty points:</b> serve all 20, stay under budget.</li></ul><p>Perfect 10s from everyone is 40 points. Above 40 is an A+.</p>` },
+   { h:"Where the small stuff shows up", body:`<p>Nobody scores your order system directly. It shows up everywhere else:</p><ul><li>A lost ticket becomes a slow plate, and the survey asks how fast it came.</li><li>A wrong plate lowers the service and plate ratings.</li><li>The judges watch your whole operation in real life.</li><li>A messy, unsafe kitchen costs health points.</li></ul>` }
+  ],
+  quiz:[
+   { q:"What does a customer hand your cashier to pay for their food?", o:["Cash","Their ticket","A credit card","Nothing, the food is free"], a:1, why:"Each customer arrives with one ticket that works as their cash. The cashier collects it." },
+   { q:"How long is the prep time?", o:["30 minutes","45 minutes","60 minutes","90 minutes"], a:2, why:"Every team gets 60 minutes of prep, no matter how simple or hard the dish is." },
+   { q:"Which of these does NOT change your score?", o:["Judge scores","Customer survey","Service Time on the clock","Health inspection"], a:2, why:"Service Time is recorded for bragging rights only." },
+   { q:"You spend more than $140. What happens?", o:["You are disqualified","You are allowed, but you miss the budget bonus and food cost can cost you points","Nothing at all","You lose 5 points"], a:1, why:"Going over is allowed. Raise your plate price to keep food cost at 35% or under." },
+   { q:"How many points is perfect 10s from everyone?", o:["30","40","50","100"], a:1, why:"Three judges at 10 plus a 10 from the survey is 40. Bonus points can take you above 40 for an A+." }
+  ]},
+{ id:"orders", icon:"2", title:"Build Your Order System", blurb:"From the customer's order to the right plate in their hands.",
+  slides:[
+   { h:"The big problem", body:`<p>One thing must never break: <b>the right order reaching the right customer.</b></p><p>The judges will not tell you how to do it. These are the problems you have to solve. The hints point you in a direction. The system is yours to design.</p>` },
+   { h:"1. Taking the order", body:`<p>Someone has to take the order and write it down.</p><p class="ex"><b>Hint</b> A customer says "no onions, sauce on the side." Where does that go so the cook cannot miss it? Think about a ticket with a clear spot for changes.</p>` },
+   { h:"2. Telling orders apart", body:`<p>You have 20 customers. Two may order the same plate, and one of them wants no onions.</p><p class="ex"><b>Hint</b> Give every order its own number. Think about where that number travels: the ticket, the plate, the customer.</p>` },
+   { h:"3. Ticket to the kitchen", body:`<p>An order only counts once the kitchen has it.</p><p class="ex"><b>Hint</b> Shouting gets lost. Think about a line or rail where tickets wait, so the cook order matches the order tickets came in. How would you know if a ticket went missing?</p>` },
+   { h:"4. Checking the plate", body:`<p>Cooks make mistakes when it gets busy.</p><p class="ex"><b>Hint</b> A second set of eyes before the plate leaves the kitchen catches a missing change. What would they compare the plate against?</p>` },
+   { h:"5. Plate to the right person", body:`<p>A great plate in the wrong hands is still a wrong order.</p><p class="ex"><b>Hint</b> A runner who calls a number and matches it to the customer's order. What does the customer hold to prove it is theirs?</p>` },
+   { h:"6. When it goes wrong", body:`<p>Plates get dropped. Items run out. Customers get the wrong order.</p><p class="ex"><b>Hint</b> Decide the plan now, before the rush. Who fixes it, who tells the customer, and how do you keep the line moving?</p>` },
+   { h:"7. Allergies", body:`<p>An allergy is not a preference. It can send someone to the hospital.</p><p class="ex"><b>Hint</b> Ask every customer. Mark it on the ticket so it stands out. Tell the cook and the plate checker, and use clean tools and surfaces for that plate.</p>` },
+   { h:"8. Counting", body:`<p>You are cooking for 20 customers <b>and the 3 judges</b>. That is <b>23 portions</b>, and your food spending covers all of them.</p><p class="ex"><b>Hint</b> The judges' plates need tickets too, so none get forgotten.</p>` }
+  ],
+  quiz:[
+   { q:"Two customers order the same plate. One wants no onions. What keeps them from getting mixed up?", o:["The cook remembers","Each order gets its own number, with the change clearly marked on the ticket","Shout the change across the kitchen","Cook both with onions and let the customer pick them off"], a:1, why:"A unique order number plus a clearly marked change keeps two similar orders separate." },
+   { q:"What is the best last check before a plate leaves the kitchen?", o:["A taste test","Someone compares the plate to its ticket","Wiping the rim","Nothing, speed matters most"], a:1, why:"Checking the plate against the ticket catches missing changes before the customer does." },
+   { q:"A customer says they are allergic to nuts. What should happen?", o:["Nothing special","Mark it on the ticket, tell the cook and plate checker, and use clean tools and surfaces","Remove the nuts and serve it","Tell them to skip the dish"], a:1, why:"Allergies need a visible flag on the ticket and clean tools to avoid cross-contact." },
+   { q:"How many portions should you plan to cook?", o:["20","21","23","25"], a:2, why:"20 customers plus 3 judges is 23 portions." },
+   { q:"A customer got the wrong plate. What is the best response?", o:["Argue that the ticket was right","Fix it quickly from the ticket, apologize, and keep the line moving","Ignore it, there are other customers","Shut down the kitchen"], a:1, why:"Have a plan before the rush so a mistake is fixed fast without stopping everything." }
+  ]},
+{ id:"rush", icon:"3", title:"Running the Rush", blurb:"Roles, communication, and keeping control for a full hour.",
+  slides:[
+   { h:"Give everyone a job", body:`<p>With up to 5 staff, everyone needs a clear role. Most teams need someone covering:</p><ul><li><b>Orders and tickets</b> (the cashier)</li><li><b>Cooking</b></li><li><b>Checking plates</b></li><li><b>Delivering plates</b></li><li><b>Leading the team</b></li></ul><p>You may combine jobs, but never leave one uncovered.</p>` },
+   { h:"One clear leader", body:`<p>The inspection asks two questions about this: is there a <b>clear food safety leader</b>, and is the <b>person in charge knowledgeable</b> about food safety?</p><p>The judges may ask them to explain how the team keeps food safe. Pick a leader who knows this course.</p>` },
+   { h:"Talk to each other", body:`<ul><li><b>Call the order out</b> loud.</li><li><b>Call it back.</b> "Order 12, no onions." "Order 12, no onions, heard."</li><li>Tell the cashier right away if something runs out, so customers know before they order.</li></ul>` },
+   { h:"Serve all 20", body:`<p>Serving all 20 customers earns <b>+0.5</b>. Missing any costs <b>-0.5</b>.</p><p>Pace yourself. Fire tickets in the order they came in, and watch the clock without rushing food safety.</p>` },
+   { h:"Stay professional", body:`<p>The inspection also checks that employees are <b>professional and taking food safety seriously.</b></p><ul><li>Keep your station tidy.</li><li>Greet customers and thank them.</li><li>Stay calm when it gets loud.</li></ul><p>The survey asks customers about service, speed, the plate, the price, and whether they would return.</p>` }
+  ],
+  quiz:[
+   { q:"What does calling an order back accomplish?", o:["It makes you look busy","It confirms the order was heard correctly","It speeds up the cook","It replaces the ticket"], a:1, why:"A call back catches mistakes before food is made." },
+   { q:"What do you earn for serving all 20 customers?", o:["+0.5","+1","+2","Nothing"], a:0, why:"+0.5 for serving all 20, and -0.5 if you do not." },
+   { q:"An item runs out mid-rush. What is best?", o:["Say nothing and see what happens","Tell the cashier right away so customers know before ordering","Substitute something without telling them","Close early"], a:1, why:"Quick communication stops customers from ordering something you cannot make." },
+   { q:"Who should be named as the food safety leader?", o:["Nobody, everyone shares","One clearly named person on the team","The judge","The customer"], a:1, why:"The inspection asks whether there is a clear food safety leader." },
+   { q:"Which of these is checked as part of professionalism?", o:["Employees taking food safety seriously","How loud the music is","The color of the aprons","The size of the menu"], a:0, why:"Judges look for a team that treats food safety as a priority." }
+  ]},
+{ id:"people", icon:"4", title:"Safe People: Hygiene", blurb:"Uniforms, hands, gloves, and the handwashing test.",
+  slides:[
+   { h:"How the inspection works", body:`<p>A judge uses the <b>Restaurant Quick Inspection Form</b>: 30 yes or no questions worth 100 points.</p><ul><li>Every question is worth <b>3.2 points</b>.</li><li>The 5 critical cross-contamination questions are worth <b>4 points</b>.</li></ul><p>Your score becomes your health grade: <b>A</b> (90+) <b>+1</b>, <b>B</b> (80s) <b>+0.5</b>, <b>C</b> (70s) <b>0</b>, <b>D</b> (60s) <b>-0.5</b>, <b>F</b> <b>-1</b>.</p>` },
+   { h:"Look the part", body:`<ul><li><b>Proper uniforms</b> with aprons and slip-resistant shoes.</li><li><b>Hair restraints</b> on everyone: hats, nets, or headbands that cover the hair.</li><li><b>Jewelry and nails:</b> a plain band is the most you should wear. Keep nails short and clean, with no polish or fake nails.</li><li><b>No eating, drinking, phones, or bags</b> in the prep area.</li></ul>` },
+   { h:"The handwashing test", body:`<p>A judge times you. The test passes only if you hit <b>20 seconds</b> and do all five steps:</p><ol style="margin:0 0 6px; padding-left:20px; line-height:1.55;"><li>Wet hands with clean, running water.</li><li>Apply soap.</li><li>Scrub between fingers, backs of hands, fingertips, and under nails.</li><li>Rinse thoroughly.</li><li>Dry with a single-use towel, and use it to turn off the water so you do not recontaminate.</li></ol>` },
+   { h:"When to wash", body:`<p>Wash your hands after touching your <b>face, phone, trash, or raw meat</b>. This is a critical question.</p><p>Gloves do not replace handwashing. <b>Change gloves between tasks, and wash your hands between glove uses.</b></p>` },
+   { h:"Bare hands", body:`<p>Never touch <b>ready-to-eat food</b> with bare hands. That means food that will not be cooked again: salad, bread, garnish, cooked and plated food.</p><p>Use gloves, tongs, or deli paper. This is a critical question too.</p>` }
+  ],
+  quiz:[
+   { q:"How long must handwashing last in the test?", o:["5 seconds","10 seconds","20 seconds","60 seconds"], a:2, why:"The test needs 20 seconds or more, plus all five steps." },
+   { q:"You touched your phone. What next?", o:["Keep cooking","Wipe hands on your apron","Wash your hands","Put on gloves"], a:2, why:"Wash after touching your face, phone, trash, or raw meat." },
+   { q:"What is the rule for gloves?", o:["Gloves make handwashing unnecessary","Change between tasks and wash hands between glove uses","One pair lasts the whole rush","Only needed for raw meat"], a:1, why:"Gloves can spread germs too. Change them between tasks and wash between uses." },
+   { q:"Which is ready-to-eat food that must not be touched with bare hands?", o:["Raw chicken","A garnish going on a plate","Unwashed potatoes","Raw eggs in the shell"], a:1, why:"Ready-to-eat food will not be cooked again, so bare-hand contact goes straight to the customer." },
+   { q:"Which jewelry is the most acceptable?", o:["Bracelets","Watch","Dangling earrings","A plain band"], a:3, why:"Keep jewelry to a plain band. Everything else can fall into food or hide germs." }
+  ]},
+{ id:"food", icon:"5", title:"Safe Food: Cross-Contamination & Temps", blurb:"Keep raw away from ready-to-eat and hit your temperatures.",
+  slides:[
+   { h:"Keep raw and ready-to-eat apart", body:`<p>These are <b>critical</b> questions worth 4 points each:</p><ul><li>Raw foods must never contaminate ready-to-eat foods.</li><li>Contaminated surfaces and utensils must not touch ready-to-eat foods.</li><li>Food-contact surfaces must be clean and sanitized.</li></ul><p class="ex"><b>Example</b> Cut raw chicken, then slice lettuce on the same board. That is cross-contamination. Use separate boards and knives, or wash and sanitize between.</p>` },
+   { h:"Store it in the right order", body:`<p>In the fridge, top to bottom:</p><ol style="margin:0 0 6px; padding-left:20px; line-height:1.55;"><li>Ready-to-eat food</li><li>Seafood</li><li>Whole cuts of beef and pork</li><li>Ground meat</li><li>Poultry on the bottom</li></ol><p>The foods that need the hottest cooking sit lowest, so nothing drips onto food that will not be cooked again.</p>` },
+   { h:"Tasting and produce", body:`<ul><li><b>Taste with a clean spoon every time.</b> No double-dipping.</li><li><b>Wash produce.</b></li><li><b>All food must come from the store</b> and be on your receipt. Keep your receipts.</li></ul>` },
+   { h:"Temperatures that matter", body:`<table><tr><td>Cold food held at</td><td>41°F or below</td></tr><tr><td>Hot food held at</td><td>135°F or above</td></tr><tr><td>Poultry cooked to</td><td>165°F</td></tr><tr><td>Ground meat cooked to</td><td>155°F</td></tr><tr><td>Whole beef, pork, fish to</td><td>145°F</td></tr><tr><td>Reheated food to</td><td>165°F</td></tr></table><p>Between 41°F and 135°F is the <b>danger zone</b>. Do not leave food there.</p>` },
+   { h:"Use a thermometer", body:`<p>The inspection asks for a <b>working probe thermometer on hand and actually used</b>, and for cooking temperatures to be checked and met.</p><ul><li>Check the thickest part of the food.</li><li>Clean and sanitize the probe between foods.</li><li>Ice water should read 32°F if the thermometer is accurate.</li></ul>` }
+  ],
+  quiz:[
+   { q:"What is the cold holding temperature?", o:["32°F or below","41°F or below","50°F or below","60°F or below"], a:1, why:"Cold food must stay at 41°F or below." },
+   { q:"What is the hot holding temperature?", o:["100°F or above","115°F or above","135°F or above","160°F or above"], a:2, why:"Hot food must stay at 135°F or above." },
+   { q:"What internal temperature must poultry reach?", o:["145°F","155°F","165°F","185°F"], a:2, why:"Poultry is cooked to 165°F." },
+   { q:"Where does raw chicken go in the fridge?", o:["The top shelf","Above the salad","The bottom shelf","Anywhere"], a:2, why:"Raw poultry goes on the bottom so it cannot drip onto other food." },
+   { q:"You cut raw chicken. What do you do before cutting lettuce?", o:["Rinse the board with water","Use a clean, sanitized board and knife","Wipe it with a towel","Nothing"], a:1, why:"Use a separate board and knife, or wash, rinse, and sanitize first." },
+   { q:"Which range is the danger zone?", o:["0°F to 32°F","41°F to 135°F","135°F to 165°F","165°F to 212°F"], a:1, why:"Germs grow fastest between 41°F and 135°F." }
+  ]},
+{ id:"clean", icon:"6", title:"Labels, Storage & Cleaning", blurb:"Labeling, storage, sanitizing, and a clean work area.",
+  slides:[
+   { h:"Label everything", body:`<ul><li><b>Open foods are labeled.</b></li><li><b>Prepped items are labeled</b> with what it is and when it was made.</li></ul><p>Anyone should be able to pick up a container and know what it is and how old it is.</p>` },
+   { h:"Store it safely", body:`<ul><li>Keep all food and other items <b>at least 6 inches off the floor.</b></li><li>Keep food covered.</li><li>Keep <b>chemicals away from food</b>, stored below or apart from it.</li></ul>` },
+   { h:"Wash, rinse, sanitize", body:`<p>The inspection checks that your setup for dishes and utensils is correct.</p><ol style="margin:0 0 6px; padding-left:20px; line-height:1.55;"><li><b>Wash</b> in hot soapy water.</li><li><b>Rinse</b> in clean water.</li><li><b>Sanitize</b> in sanitizer.</li><li><b>Air dry.</b></li></ol>` },
+   { h:"Sanitizer strength", body:`<p>Sanitizer must be mixed at the <b>right strength</b>, and you must check it with <b>test strips</b>. Follow the label on your product.</p><p>Wiping cloths belong <b>in the sanitizer bucket</b>, not on your shoulder or the counter.</p>` },
+   { h:"Clean as you go", body:`<ul><li>Keep the <b>work area clean and organized</b> through the whole rush.</li><li>Keep <b>trash contained</b> and not overflowing.</li><li>Clean and sanitize food-contact surfaces between tasks.</li></ul><p>That is the course. Pass this quiz and you are ready for the rush.</p>` }
+  ],
+  quiz:[
+   { q:"How far off the floor must food be stored?", o:["1 inch","3 inches","6 inches","12 inches"], a:2, why:"Food and other items belong at least 6 inches off the floor." },
+   { q:"What is the order for washing dishes?", o:["Sanitize, wash, rinse","Wash, rinse, sanitize","Rinse, sanitize, wash","Wash, sanitize, rinse"], a:1, why:"Wash, rinse, sanitize, then air dry." },
+   { q:"Where do wiping cloths go between uses?", o:["Over your shoulder","On the counter","In the sanitizer bucket","In your pocket"], a:2, why:"Cloths stay in sanitizer so they do not spread germs." },
+   { q:"How do you know sanitizer is mixed correctly?", o:["It smells strong","Test strips","It looks clear","Guess by feel"], a:1, why:"Test strips show whether the strength is right." },
+   { q:"Where should chemicals be stored?", o:["Next to the spices","Above the prep table","Away from food","Wherever there is room"], a:2, why:"Chemicals are kept away from food, stored below or apart from it." },
+   { q:"Which items must be labeled?", o:["Only frozen food","Open foods and prepped items","Nothing","Only raw meat"], a:1, why:"The inspection checks that open foods and prepped items are labeled." }
+  ]}
+];
+
+function cLoad(){ try{ return JSON.parse(localStorage.getItem(COURSE_KEY)) || {passed:{}}; }catch(e){ return {passed:{}}; } }
+function cSave(d){ try{ localStorage.setItem(COURSE_KEY, JSON.stringify(d)); }catch(e){} }
+function cShuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const C_AUDIO_BASE="https://d8j0ntlcm91z4.cloudfront.net/user_3EpAptNxUY3k0KhPZsg0VNb3tyY/hf_20261108_";
+const C_AUDIO=[["062632_6a828d67-16a0-455a-b002-2cd893a817b1", "062632_0fd68d8c-dd8f-457f-9f2c-f27f3c7e0896", "062632_8af4b028-6f33-4ae0-b02b-d2cdfa4c7ba6", "062640_3f3c5300-cebb-4fdb-a52e-d0ca6a85e262"], ["062640_638040e4-9966-4e4f-ac85-1d1c69885906", "062640_17046916-42e1-42ab-bc5a-79885b664f5f", "062648_359c1fad-2bba-43ba-9b34-8270ee3f0ddf", "062648_fe01d8c6-c00b-451d-a17d-aa4ff8ed6d38", "062703_1195740e-a005-4324-8230-bbf6234a173a", "062657_34db4d77-1175-4339-b586-d9a02b94d72d", "062657_6e69d963-3c6f-409c-b893-8fe95d5cea36", "062234_f6235774-8ffe-41ac-888d-07de6ea4be98", "062234_e195228b-a0d6-41c2-925f-37d3a157b30e"], ["062234_10a7cf55-7a1a-4bfe-95af-2558d76a9185", "062246_362c2b4e-6eb3-49ae-bdbc-0cf7f12253e9", "062246_8236c789-fe7e-4292-be83-7a2d9eae0c78", "062246_69805947-e698-47b1-97b3-f3dcad20b2cb", "062254_fd57e58c-0ea0-40e0-ab3c-c207aa51d0b8"], ["062254_bcadacb7-e257-455b-bb14-f6dde479caa6", "062254_2cb7d474-39b5-4476-bafa-dc46709f7cb3", "062302_05eb99e7-f2a6-4b45-9a8c-0dfcec184912", "062302_2f69140d-70c7-46d6-a152-9b15e27d099d", "062311_1af59b27-836c-404d-ac93-a3df28f2a28d"], ["062310_c2fabf43-8e2b-4b82-ac2e-d8ed868615b0", "062347_365bf874-a9e8-4d2e-8d3b-962d8d2922ef", "062319_81ac6a31-3e90-45e9-ae18-561e58415fae", "062319_05fbf85b-f3df-4c56-9913-a1bfb03bdfd9", "062326_fd6ad204-b1d4-4685-88e2-7778a6a72f1e"], ["062355_a49a44bf-adda-4626-8dde-09516f2ff04b", "062400_d9217f8f-e5e1-4746-89f3-984457622fca", "062405_9eb382cf-3ea3-4f41-9e7e-ce1fefe86761", "062411_fa086fdb-ff13-4d3f-af71-6ff47b8f3040", "062548_2f47eeaa-5a44-4d7b-be45-c6b75e13178f"]];
+const cAud=new Audio(); cAud.preload='auto'; let cAutoOn=true;
+function cAudSrc(){ const a=C_AUDIO[cur.lesson]; return a&&a[cur.slide]?C_AUDIO_BASE+a[cur.slide]+".mp3":null; }
+function cAudStop(){ try{ cAud.onended=null; cAud.onerror=null; cAud.pause(); }catch(e){} }
+function cSetBtn(on){ const b=$("cListen"); if(b) b.innerHTML=on?"&#10074;&#10074; Pause":"&#9654; Listen"; }
+function cAudPlay(){
+  const src=cAudSrc(); if(!src){ return false; }
+  const L=cur.lesson, S=cur.slide; const n=LESSONS[L].slides.length;
+  cAud.onended=()=>{ cSetBtn(false); if(cAutoOn && cur.lesson===L && cur.slide===S && S<n-1){ cur.slide++; renderSlide(true); } };
+  cAud.onerror=()=>{ cSetBtn(false); const b=$("cListen"); if(b){ const s=LESSONS[L].slides[S]; b.onclick=()=>cSpeak("<h3>"+s.h+"</h3>"+s.body); } };
+  if(cAud.src!==src) cAud.src=src;
+  const p=cAud.play(); if(p&&p.then){ p.then(()=>cSetBtn(true)).catch(()=>cSetBtn(false)); } else cSetBtn(true);
+  return true;
+}
+function cSpeechStop(){ cAudStop(); try{ if("speechSynthesis" in window) window.speechSynthesis.cancel(); }catch(e){} }
+function cSpeak(html){
+  if(!("speechSynthesis" in window)) return;
+  cSpeechStop();
+  const div=document.createElement("div"); div.innerHTML=html.replace(/<\/(p|li|tr|h3)>/g,". </$1>");
+  const u=new SpeechSynthesisUtterance(div.textContent.replace(/\s+/g," ").trim());
+  const vs=window.speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
+  const male=vs.find(v=>/daniel|alex|aaron|fred|male|guy|david|mark|james|google uk english male/i.test(v.name));
+  if(male) u.voice=male; u.rate=0.98;
+  window.speechSynthesis.speak(u);
+}
+
+let cur = { lesson:null, slide:0, qs:[], qi:0, right:0, picked:null };
+function courseDone(){ const d=cLoad(); return LESSONS.filter(l=>d.passed[l.id]!==undefined).length; }
+function renderCourseHome(){
+  const d=cLoad(); const done=courseDone();
+  let h=`<div class="c-top"><button class="c-back" id="cBack">&larr; Home</button></div>
+  <div class="rules-title">Boss Training Course</div>
+  <div class="rules-sub">Six short lessons, each followed by a quick quiz. Pass a quiz with ${PASS_PCT}% or better.</div>
+  <div class="c-prog"><div style="width:${Math.round(done/LESSONS.length*100)}%"></div></div>
+  <div class="c-count">${done} of ${LESSONS.length} lessons passed</div>`;
+  LESSONS.forEach((l,i)=>{
+    const best=d.passed[l.id];
+    h+=`<button class="c-lesson" data-i="${i}"><span class="c-num${best!==undefined?" ok":""}">${best!==undefined?"&#10003;":l.icon}</span><span class="c-lt"><b>${l.title}</b><small>${l.blurb}</small></span><span class="c-badge">${best!==undefined?best+"%":"Start"}</span></button>`;
+  });
+  if(done===LESSONS.length) h+=`<div class="rcard"><h3>Course complete</h3><p>You passed every lesson. You know what the judges expect and how to run a safe, organized rush.</p></div>`;
+  $("courseBody").innerHTML=h;
+  $("cBack").onclick=closeCourse;
+  document.querySelectorAll(".c-lesson").forEach(b=>b.onclick=()=>openLesson(+b.dataset.i));
+  $("course").scrollTop=0;
+}
+function openLesson(i){ cAutoOn=true; cur.lesson=i; cur.slide=0; renderSlide(); }
+function renderSlide(auto){
+  cSpeechStop();
+  const L=LESSONS[cur.lesson], s=L.slides[cur.slide], n=L.slides.length, last=cur.slide===n-1;
+  const canSpeak=!!cAudSrc()||("speechSynthesis" in window);
+  $("courseBody").innerHTML=`<div class="c-top"><button class="c-back" id="cBack">&larr; Lessons</button><span class="c-step">Lesson ${L.icon} &middot; ${cur.slide+1} of ${n}</span></div>
+  <div class="c-prog"><div style="width:${Math.round((cur.slide+1)/n*100)}%"></div></div>
+  <div class="c-lname">${L.title}</div>
+  <div class="rcard c-slide"><h3>${s.h}</h3>${s.body}${canSpeak?`<button class="c-listen" id="cListen">&#9654; Listen</button>`:""}</div>
+  <div class="c-nav"><button class="ghost-btn" id="cPrev" ${cur.slide===0?"disabled":""}>Back</button><button class="big-btn" id="cNext">${last?"Take the Quiz":"Next"}</button></div>`;
+  $("cBack").onclick=()=>{ cSpeechStop(); renderCourseHome(); };
+  $("cPrev").onclick=()=>{ cur.slide--; renderSlide(); };
+  $("cNext").onclick=()=>{ if(last){ cSpeechStop(); startQuiz(); } else { cur.slide++; renderSlide(); } };
+  if(canSpeak) $("cListen").onclick=()=>{ if(cAudSrc()){ if(!cAud.paused && cAud.src===cAudSrc()){ cAud.pause(); cAutoOn=false; cSetBtn(false); } else { cAutoOn=true; cAudPlay(); } } else cSpeak("<h3>"+s.h+"</h3>"+s.body); };
+  if(cAudSrc() && cAutoOn) cAudPlay();
+  $("course").scrollTop=0;
+}
+function startQuiz(){
+  const L=LESSONS[cur.lesson];
+  cur.qs=cShuffle(L.quiz.map(q=>{ const idx=cShuffle(q.o.map((_,k)=>k)); return {q:q.q, o:idx.map(k=>q.o[k]), a:idx.indexOf(q.a), why:q.why}; }));
+  cur.qi=0; cur.right=0; cur.picked=null; renderQ();
+}
+function renderQ(){
+  const L=LESSONS[cur.lesson], q=cur.qs[cur.qi], n=cur.qs.length, answered=cur.picked!==null;
+  let h=`<div class="c-top"><button class="c-back" id="cBack">&larr; Lessons</button><span class="c-step">Quiz &middot; ${cur.qi+1} of ${n}</span></div>
+  <div class="c-prog"><div style="width:${Math.round(cur.qi/n*100)}%"></div></div>
+  <div class="c-lname">${L.title}</div>
+  <div class="rcard"><h3 style="text-transform:none; letter-spacing:0; font-size:19px; color:#fff;">${q.q}</h3>`;
+  q.o.forEach((t,k)=>{
+    let cls="c-opt"; if(answered){ if(k===q.a) cls+=" right"; else if(k===cur.picked) cls+=" wrong"; }
+    h+=`<button class="${cls}" data-k="${k}" ${answered?"disabled":""}>${t}</button>`;
+  });
+  if(answered) h+=`<p class="c-why"><b>${cur.picked===q.a?"Correct.":"Not quite."}</b> ${q.why}</p>`;
+  h+=`</div>`;
+  if(answered) h+=`<div class="c-nav"><button class="big-btn" id="cNext">${cur.qi===n-1?"See Results":"Next Question"}</button></div>`;
+  $("courseBody").innerHTML=h;
+  $("cBack").onclick=renderCourseHome;
+  document.querySelectorAll(".c-opt").forEach(b=>b.onclick=()=>{ cur.picked=+b.dataset.k; if(cur.picked===q.a) cur.right++; renderQ(); });
+  if(answered) $("cNext").onclick=()=>{ if(cur.qi===n-1) renderResult(); else { cur.qi++; cur.picked=null; renderQ(); } };
+  $("course").scrollTop=0;
+}
+function renderResult(){
+  const L=LESSONS[cur.lesson], n=cur.qs.length, pct=Math.round(cur.right/n*100), pass=pct>=PASS_PCT;
+  if(pass){ const d=cLoad(); d.passed[L.id]=Math.max(pct, d.passed[L.id]||0); cSave(d); }
+  const next=pass && cur.lesson<LESSONS.length-1;
+  $("courseBody").innerHTML=`<div class="c-top"><button class="c-back" id="cBack">&larr; Lessons</button></div>
+  <div class="rcard" style="text-align:center;"><div class="c-score ${pass?"pos":"neg"}">${cur.right} / ${n}</div>
+  <h3 style="margin-top:6px;">${pass?"Lesson passed":"Not yet"}</h3>
+  <p>${pass?"Nice work. "+(next?"On to the next lesson.":"That finishes the course."):"You need "+PASS_PCT+"% to pass. Review the lesson, then try again."}</p></div>
+  <div class="c-nav">${pass?"":`<button class="ghost-btn" id="cReview">Review Lesson</button>`}<button class="big-btn" id="cAgain">${pass?(next?"Next Lesson":"Back to Lessons"):"Retake Quiz"}</button></div>`;
+  $("cBack").onclick=renderCourseHome;
+  if(!pass) $("cReview").onclick=()=>openLesson(cur.lesson);
+  $("cAgain").onclick=()=>{ if(!pass) startQuiz(); else if(next) openLesson(cur.lesson+1); else renderCourseHome(); };
+  $("course").scrollTop=0;
+}
+function openCourse(){ renderCourseHome(); $("course").classList.add("open"); document.body.style.overflow="hidden"; }
+function closeCourse(){ cSpeechStop(); $("course").classList.remove("open"); document.body.style.overflow=""; updateCourseSub(); }
+function updateCourseSub(){ const el=$("courseSub"); if(el) el.textContent = courseDone()+" of "+LESSONS.length+" lessons passed"; }
+$("homeCourse").addEventListener("click",openCourse);
+updateCourseSub();
 
 /* ---------- start ---------- */
 (async function init(){
